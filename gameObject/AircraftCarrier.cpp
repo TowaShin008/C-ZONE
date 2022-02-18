@@ -493,8 +493,6 @@ void AircraftCarrier::DownCurveMove()
 		velocity.y = sinf((XM_PI / 2) * curveTime);
 
 
-		//rotation.z = 45.0f;
-
 		if (position.y < SCREENLEFT - 5.0f)
 		{
 			velocity = { 0,0,0 };
