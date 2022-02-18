@@ -140,7 +140,8 @@ void AircraftCarrier::Initialize()
 	velocity = { 0,0,0 };
 	rotation = { 270.0f,0.0f,90.0f };
 	scale = { 2.0f,2.0f,2.0f };
-	color = { 1.0f,1.0f,1.0f,1.0f };
+	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+	color = white;
 	lanchFlag = false;
 	lanchLugTime = LANCHMAXTIME;
 	hp = MAXHP;
