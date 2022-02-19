@@ -225,13 +225,20 @@ void SquidEye::DamageEffect()
 	{
 		invisibleTime--;
 		if (invisibleTime % 20 <= 10)
-			color = { 0.0f,0.0f,0.0f,1.0f };
+		{
+			const Vector4 black = { 0.0f,0.0f,0.0f,1.0f };
+			color = black;
+		}
 		else
-			color = { 1.0f,1.0f,1.0f,1.0f };
+		{
+			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+			color = white;
+		}
 	}
 	else
 	{
-		color = { 1.0f,1.0f,1.0f,1.0f };
+		const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+		color = white;
 	}
 }
 
@@ -263,8 +270,11 @@ void SquidEye::DeathParticleProcessing()
 				Vector3 acc{};
 				acc.y = -(float)rand() / RAND_MAX * rnd_acc;
 
-
-				deathParticle->Add(30, pos, vel, acc, 3.0f, 0.0f, { 1.0f,0.0f,0.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+				const float startScale = 3.0f;
+				const float endScale = 0.0f;
+				const Vector4 startColor = { 1.0f,0.0f,0.0f,1.0f };
+				const Vector4 endColor = { 1.0f,1.0f,1.0f,1.0f };
+				deathParticle->Add(30, pos, vel, acc, startScale, endScale, startColor, endColor);
 			}
 		}
 	}

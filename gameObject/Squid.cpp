@@ -376,6 +376,8 @@ void Squid::Move(const Vector3& playerPosition)
 void Squid::StayMove(const Vector3& playerPosition)
 {
 	const float leftEyeMinPositionY = -100.0f;
+	const float tentacleAngleIncrementSize = 4.0f;
+	const float tentacleMaxAngle = 360.0f;
 	switch (currentPhase)
 	{
 	case MOVEPHASE::PHASE1://左に進む処理
@@ -390,10 +392,9 @@ void Squid::StayMove(const Vector3& playerPosition)
 
 	case MOVEPHASE::PHASE2://下に進む処理
 
-
 		//触手をうねらせる処理
-		tentacleAngle += 4.0f;
-		if (tentacleAngle >= 360)
+		tentacleAngle += tentacleAngleIncrementSize;
+		if (tentacleAngle >= tentacleMaxAngle)
 		{
 			tentacleAngle = 0;
 		}
@@ -586,18 +587,19 @@ bool Squid::IsCollision(GameObject* arg_otherObject)
 
 void Squid::UpTentacleAttack()
 {
+	const float positionXIncrementSize = 0.4f;
+	const float positionYIncrementSize = 0.2f;
 	switch (attackPhase)
 	{
 		float maxButtomPosition;
 		float maxLeftPosition;
 		float maxTopPosition;
-		float incrementPosX;
 	case MOVEPHASE::PHASE1://下に下がる処理
 
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
 			Vector3 position = tentaclesBlocks[i]->GetPosition();
-			position.y -= 0.2f;
+			position.y -= positionYIncrementSize;
 			tentaclesBlocks[i]->SetPosition(position);
 		}
 		maxButtomPosition = -20.0f;
@@ -621,7 +623,7 @@ void Squid::UpTentacleAttack()
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
 			Vector3 position = tentaclesBlocks[i]->GetPosition();
-			position.y -= 0.2f;
+			position.y -= positionYIncrementSize;
 			tentaclesBlocks[i]->SetPosition(position);
 		}
 
@@ -640,8 +642,8 @@ void Squid::UpTentacleAttack()
 
 	case MOVEPHASE::PHASE3://横に移動する処理
 
-		incrementPosX = 0.4f;
-		homePositionX -= incrementPosX;
+		
+		homePositionX -= positionXIncrementSize;
 
 		maxLeftPosition = -20.0f;
 		//触手の先端が定位置に来たら次のフェーズへ
@@ -662,7 +664,7 @@ void Squid::UpTentacleAttack()
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
 			Vector3 position = tentaclesBlocks[i]->GetPosition();
-			position.y += 0.2f;
+			position.y += positionYIncrementSize;
 			tentaclesBlocks[i]->SetPosition(position);
 		}
 
@@ -685,7 +687,7 @@ void Squid::UpTentacleAttack()
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
 			Vector3 position = tentaclesBlocks[i]->GetPosition();
-			position.y += 0.2f;
+			position.y += positionYIncrementSize;
 			tentaclesBlocks[i]->SetPosition(position);
 		}
 
@@ -706,6 +708,7 @@ void Squid::UpTentacleAttack()
 
 void Squid::DownTentacleAttack()
 {
+	const float positionYIncrementSize = 0.2f;
 	switch (attackPhase)
 	{
 		float maxButtomPosition;
@@ -717,7 +720,7 @@ void Squid::DownTentacleAttack()
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
 			Vector3 position = tentaclesBlocks[i]->GetPosition();
-			position.y -= 0.2f;
+			position.y -= positionYIncrementSize;
 			tentaclesBlocks[i]->SetPosition(position);
 		}
 
@@ -740,7 +743,7 @@ void Squid::DownTentacleAttack()
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
 			Vector3 position = tentaclesBlocks[i]->GetPosition();
-			position.y += 0.2f;
+			position.y += positionYIncrementSize;
 			tentaclesBlocks[i]->SetPosition(position);
 		}
 
@@ -781,7 +784,7 @@ void Squid::DownTentacleAttack()
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
 			Vector3 position = tentaclesBlocks[i]->GetPosition();
-			position.y -= 0.2f;
+			position.y -= positionYIncrementSize;
 			tentaclesBlocks[i]->SetPosition(position);
 		}
 
@@ -805,7 +808,7 @@ void Squid::DownTentacleAttack()
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
 			Vector3 position = tentaclesBlocks[i]->GetPosition();
-			position.y += 0.2f;
+			position.y += positionYIncrementSize;
 			tentaclesBlocks[i]->SetPosition(position);
 		}
 
@@ -838,8 +841,10 @@ void Squid::FloatMove()
 {
 	if (position.y < 0.0f)
 	{
-		tentacleAngle += 4.0f;
-		if (tentacleAngle >= 360)
+		const float tentacleAngleIncrementSize = 4.0f;
+		const float tentacleMaxAngle = 360.0f;
+		tentacleAngle += tentacleAngleIncrementSize;
+		if (tentacleAngle >= tentacleMaxAngle)
 		{
 			tentacleAngle = 0;
 		}
@@ -860,7 +865,8 @@ void Squid::BreathMove()
 	const Vector3 fixBodyPosition = { -100.0f,20.0f,0.0f };
 	const float bodyIncrementAngle = 0.5f;
 	bodyAngle += bodyIncrementAngle;
-	if (bodyAngle > 360)
+	const float bodyMaxAngle = 360.0f;
+	if (bodyAngle > bodyMaxAngle)
 	{
 		bodyAngle = 0.0f;
 	}
