@@ -165,7 +165,8 @@ void FinalBoss::AttachBody(ID3D12Device* device)
 
 void FinalBoss::AttachEye(ID3D12Device* device)
 {
-	finalBossEye = FinalBossEye::Create(device, cmdList, { 0.0f,2.0f + position.y , position.z - 13.5f });
+	const Vector3 finalBossEyeFixPosition = { 0.0f,2.0f,-13.5f };
+	finalBossEye = FinalBossEye::Create(device, cmdList, { finalBossEyeFixPosition.x,finalBossEyeFixPosition.y + position.y , position.z + finalBossEyeFixPosition.z });
 	finalBossEye->SetScale({ 3.0f,3.0f,1.0f });
 	finalBossEye->Update({ 0.0f,0.0f,0.0f });
 	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
@@ -233,7 +234,8 @@ void FinalBoss::AttachRightWing(ID3D12Device* device)
 		rightWing[i]->SetScale({ 1.0f,1.0f,1.0f });
 
 		rightWing[i]->Update({ 0.0f,0,0 });
-		rightWing[i]->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+		const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+		rightWing[i]->SetColor(white);
 		rightWing[i]->SetParent(parentRightWing);
 
 		const int windNum = i % 3;
@@ -271,7 +273,8 @@ void FinalBoss::Initialize()
 	moveEndFlag = false;
 	shotFlag = true;
 	velocity = { 0,0,0 };
-	color = { 1.0f,1.0f,1.0f,1.0f };
+	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+	color = white;
 	speed = { 0.1f,0.1f,0.0f };
 	hp = 400;
 	deathParticleFlag = false;
@@ -632,7 +635,8 @@ bool FinalBoss::IsCollision(GameObject* arg_otherObject)
 
 void FinalBoss::BreathMove()
 {
-	bodyAngle += 0.5f;
+	const float bodyAngleIncrementSize = 0.5f;
+	bodyAngle += bodyAngleIncrementSize;
 	if (bodyAngle > 360)
 	{
 		bodyAngle = 0.0f;
@@ -648,8 +652,8 @@ void FinalBoss::BreathMove()
 	const float leftWingPositionX = position.x - 3.0f;
 	parentLeftWing->SetPosition({ leftWingPositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 
-	const Vector3 basicLeftWingRotation = { 0.0f,-10.0f,0.0f };
-	parentLeftWing->SetRotation({ basicLeftWingRotation.x,cos((bodyAngle / 180.0f) * XM_PI) * 20.0f + basicLeftWingRotation.y,basicLeftWingRotation.z});
+	const Vector3 baseLeftWingRotation = { 0.0f,-10.0f,0.0f };
+	parentLeftWing->SetRotation({ baseLeftWingRotation.x,cos((bodyAngle / 180.0f) * XM_PI) * 20.0f + baseLeftWingRotation.y,baseLeftWingRotation.z});
 
 	parentLeftWing->Update({0,0,0});
 	for (int i = 0; i < leftWing.size(); ++i)
@@ -660,8 +664,8 @@ void FinalBoss::BreathMove()
 	const float rightWingPositionX = position.x + 3.0f;
 	parentRightWing->SetPosition({ rightWingPositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 
-	const Vector3 basicRightWingRotation = { 0.0f,10.0f,0.0f };
-	parentRightWing->SetRotation({ basicRightWingRotation.x, - cos((bodyAngle / 180.0f) * XM_PI) * 20.0f + basicRightWingRotation.y,basicRightWingRotation.z });
+	const Vector3 baseRightWingRotation = { 0.0f,10.0f,0.0f };
+	parentRightWing->SetRotation({ baseRightWingRotation.x, - cos((bodyAngle / 180.0f) * XM_PI) * 20.0f + baseRightWingRotation.y,baseRightWingRotation.z });
 
 	parentRightWing->Update({ 0,0,0 });
 	for (int i = 0; i < rightWing.size(); ++i)
@@ -749,8 +753,10 @@ void FinalBoss::EntryPerformance()
 
 	if (leftWingRotation.y > 180.0f || rightWingRotation.y < -180.0f || eyeScale.y < 3.0f)
 	{
-		bodyAngle += 0.5f;
-		if (bodyAngle > 360)
+		const float bodyAngleIncrementSize = 0.5f;
+		bodyAngle += bodyAngleIncrementSize;
+		const float bodyMaxAngle = 360;
+		if (bodyAngle > bodyMaxAngle)
 		{
 			bodyAngle = 0.0f;
 		}
@@ -763,7 +769,8 @@ void FinalBoss::EntryPerformance()
 		const float maxEyeScale = 3.0f;
 		if (eyeScale.y < maxEyeScale)
 		{
-			eyeScale.y += 0.005f;
+			const float eyeScaleIncrementSize = 0.005f;
+			eyeScale.y += eyeScaleIncrementSize;
 		}
 		finalBossEye->SetScale(eyeScale);
 
@@ -772,7 +779,8 @@ void FinalBoss::EntryPerformance()
 		const float maxLeftWingRotation = 180.0f;
 		if (leftWingRotation.y > maxLeftWingRotation)
 		{
-			leftWingRotation.y -= 0.1f;
+			const float leftWingRotationIncrementSize = 0.1f;
+			leftWingRotation.y -= leftWingRotationIncrementSize;
 		}
 
 		parentLeftWing->SetRotation(leftWingRotation);
@@ -787,7 +795,8 @@ void FinalBoss::EntryPerformance()
 		const float maxRightWingRotation = -180.0f;
 		if (rightWingRotation.y < maxRightWingRotation)
 		{
-			rightWingRotation.y += 0.1f;
+			const float rightWingRotationIncrementSize = 0.1f;
+			rightWingRotation.y += rightWingRotationIncrementSize;
 		}
 
 		parentRightWing->SetRotation(rightWingRotation);
@@ -901,18 +910,25 @@ void FinalBoss::BodyAttack()
 	Vector3 bodyScale = bodyBlock->GetScale();
 	Vector3 parentLeftWingRotation = parentLeftWing->GetRotasion();
 	Vector3 parentRightWingRotation = parentRightWing->GetRotasion();
+	const float incrementPosition = 1.0f;
+	const float incrementScale = 0.005f;
+	const float incrementLeftWingRotation = 5.0f;
+	const float incrementRightWingRotation = 5.0f;
+	const float leftBasePositionX = -3.0f;
+	const float rightBasePositionX = 3.0f;
+	const float basicEyePositionZ = -13.5f;
 	switch (bodyAttackPhase)
 	{
 	case MOVEPHASE::PHASE1://ã‚Éã‚ª‚éˆ—
 
-		position.y += 1.0f;
+		position.y += incrementPosition;
 
 
-		finalBossEye->SetPosition({ position.x,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f ,position.z -13.5f });
+		finalBossEye->SetPosition({ position.x,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f ,position.z + basicEyePositionZ });
 
 		if (bodyScale.x > 0.0f)
 		{
-			bodyScale.x -= 0.005f;
+			bodyScale.x -= incrementScale;
 		}
 
 		bodyBlock->SetScale(bodyScale);
@@ -922,19 +938,18 @@ void FinalBoss::BodyAttack()
 
 		if (parentLeftWingRotation.y < 270.0f)
 		{
-			parentLeftWingRotation.y -= 5.0f;
+			parentLeftWingRotation.y -= incrementLeftWingRotation;
 		}
 		parentLeftWing->SetRotation(parentLeftWingRotation);
 
 
 		if (parentRightWingRotation.y > -270.0f)
 		{
-			parentRightWingRotation.y += 5.0f;
+			parentRightWingRotation.y += incrementRightWingRotation;
 		}
 		parentRightWing->SetRotation(parentRightWingRotation);
 
-
-		parentLeftWing->SetPosition({ -3.0f,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
+		parentLeftWing->SetPosition({ leftBasePositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 
 		parentLeftWing->Update({ 0,0,0 });
 		for (int i = 0; i < leftWing.size(); ++i)
@@ -942,7 +957,7 @@ void FinalBoss::BodyAttack()
 			leftWing[i]->Update({ 0,0,0 });
 		}
 
-		parentRightWing->SetPosition({ 3.0f,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
+		parentRightWing->SetPosition({ rightBasePositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 
 		parentRightWing->Update({ 0,0,0 });
 		for (int i = 0; i < rightWing.size(); ++i)
@@ -960,17 +975,17 @@ void FinalBoss::BodyAttack()
 
 	case MOVEPHASE::PHASE2://‘Ì“–‚½‚èˆ—
 
-		position.y -= 1.0f;
+		position.y -= incrementPosition;
 
 
-		finalBossEye->SetPosition({ position.x, position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f , position.z -13.5f });
+		finalBossEye->SetPosition({ position.x, position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f , position.z + basicEyePositionZ });
 
 
 		bodyBlock->SetPosition({ position.x,  position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 		bodyBlock->Update({ 0,0,0 });
 
 
-		parentLeftWing->SetPosition({ -3.0f,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
+		parentLeftWing->SetPosition({ leftBasePositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 
 		parentLeftWing->Update({ 0,0,0 });
 		for (int i = 0; i < leftWing.size(); ++i)
@@ -979,7 +994,7 @@ void FinalBoss::BodyAttack()
 		}
 
 
-		parentRightWing->SetPosition({ 3.0f,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
+		parentRightWing->SetPosition({ rightBasePositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 
 		parentRightWing->Update({ 0,0,0 });
 		for (int i = 0; i < rightWing.size(); ++i)
@@ -999,10 +1014,10 @@ void FinalBoss::BodyAttack()
 	case MOVEPHASE::PHASE3://–ß‚éˆ—
 
 
-		position.y += 1.0f;
+		position.y += incrementPosition;
 
 
-		finalBossEye->SetPosition({ position.x,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f ,position.z -13.5f });
+		finalBossEye->SetPosition({ position.x,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f ,position.z + basicEyePositionZ });
 
 
 		bodyBlock->SetScale({ 1.0f,1.0f,1.0f });
@@ -1011,7 +1026,7 @@ void FinalBoss::BodyAttack()
 
 
 
-		parentLeftWing->SetPosition({ -3.0f,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
+		parentLeftWing->SetPosition({ leftBasePositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 
 		parentLeftWing->Update({ 0,0,0 });
 		for (int i = 0; i < leftWing.size(); ++i)
@@ -1020,7 +1035,7 @@ void FinalBoss::BodyAttack()
 		}
 
 
-		parentRightWing->SetPosition({ 3.0f,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
+		parentRightWing->SetPosition({ rightBasePositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 
 		parentRightWing->Update({ 0,0,0 });
 		for (int i = 0; i < rightWing.size(); ++i)
