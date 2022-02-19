@@ -709,6 +709,7 @@ void Squid::UpTentacleAttack()
 void Squid::DownTentacleAttack()
 {
 	const float positionYIncrementSize = 0.2f;
+	const float homePositionIncrementSize = 0.4f;
 	switch (attackPhase)
 	{
 		float maxButtomPosition;
@@ -763,7 +764,7 @@ void Squid::DownTentacleAttack()
 
 	case MOVEPHASE::PHASE3://横に移動する処理
 
-		homePositionX -= 0.4f;
+		homePositionX -= homePositionIncrementSize;
 
 		maxLeftPosition = -20.0f;
 		//触手の先端が定位置に来たら次のフェーズへ
