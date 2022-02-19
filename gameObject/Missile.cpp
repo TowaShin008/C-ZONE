@@ -96,7 +96,7 @@ void Missile::Initialize()
 	speed = { 0.0f,0.0f,0.0f };
 
 
-
+	//ボスシーンかどうかによってモデルの角度を初期化
 	if (bossSceneFlag)
 	{
 		rotation = { 0.0f,0.0f,0.0f };
@@ -120,14 +120,17 @@ void Missile::Initialize()
 //プレイヤーの更新処理
 void Missile::Update(const Vector3& incrementValue, float centerPosition)
 {
-	if (isDeadFlag) { return; }
-
+	if (isDeadFlag)
+	{
+		return;
+	}
+	//移動処理
 	Move();
-
+	//煙パーティクル
 	MissileParticleProcessing(centerPosition);
-
+	
 	SetScrollIncrement(incrementValue);
-
+	//定数バッファの転送
 	TransferConstBuff();
 
 	////マテリアルの転送
@@ -149,7 +152,10 @@ void Missile::Draw()
 	missileParticleMan->Draw();
 	ParticleManager::PostDraw();
 
-	if (isDeadFlag) { return; }
+	if (isDeadFlag)
+	{
+		return;
+	}
 
 	Missile::cmdList->SetPipelineState(PipelineState::bulletPipelineState.Get());
 
@@ -183,7 +189,7 @@ void Missile::TransferConstBuff()
 	matWorld *= matRot; // ワールド行列に回転を反映
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
-		// 親オブジェクトがあれば
+	// 親オブジェクトがあれば
 	if (parent != nullptr) {
 		// 親オブジェクトのワールド行列を掛ける
 		matWorld *= parent->matWorld;
@@ -204,19 +210,24 @@ void Missile::Move()
 
 	if (curveTime > 0.0f)
 	{
-		curveTime -= 0.02f;
+		const float curveTimeIncrementSize = 0.02f;
+		curveTime -= curveTimeIncrementSize;
 	}
 
-	Vector3 missileEasing = easeIn({ 0.0f,0.0f,0.0f }, { 0.6f,0.6f,0.6f }, (1 - curveTime));
+	const Vector3 startSpeed = { 0.0f,0.0f,0.0f };
+	const Vector3 endSpeed = { 0.6f,0.6f,0.6f };
+	Vector3 missileEasing = easeIn(startSpeed, endSpeed, (1 - curveTime));
 	speed = missileEasing;
+	const float rotationIncrementSize = 4.0f;
 
 	if (bossSceneFlag)
-	{
+	{//射撃時の軌道と速度の計算
 		if (upShotFlag)
-		{
+		{//上から出るミサイルの軌道
 			if (rotation.x < 360.0f)
 			{
-				rotation.x += 4.0f;
+				
+				rotation.x += rotationIncrementSize;
 			}
 			else
 			{
@@ -225,10 +236,10 @@ void Missile::Move()
 			}
 		}
 		else
-		{
+		{//下から出るミサイルの軌道
 			if (rotation.x > 0.0f)
 			{
-				rotation.x -= 4.0f;
+				rotation.x -= rotationIncrementSize;
 			}
 			else
 			{
@@ -238,12 +249,12 @@ void Missile::Move()
 		}
 	}
 	else
-	{
+	{	//射撃時の軌道と速度の計算
 		if (upShotFlag)
-		{
+		{//上から出るミサイルの軌道
 			if (rotation.x < 360.0f)
 			{
-				rotation.x += 4.0f;
+				rotation.x += rotationIncrementSize;
 			}
 			else
 			{
@@ -252,10 +263,10 @@ void Missile::Move()
 			}
 		}
 		else
-		{
+		{//下から出るミサイルの軌道
 			if (rotation.x > 0.0f)
 			{
-				rotation.x -= 4.0f;
+				rotation.x -= rotationIncrementSize;
 			}
 			else
 			{
@@ -278,31 +289,26 @@ void Missile::MissileParticleProcessing(float centerPosition)
 		if (missileParticleMan->GetParticleLength() < 20 && particleLugtime <= 0)
 		{
 			const float rnd_pos = 1.5f;
-			//変更ここまで
+
 			Vector3 pos{};
 			Vector3 dis{};
-			const float rnd_vel = 0.2f;
 			Vector3 vel{};
 			Vector3 acc{};
-
+			const float k = 0.05f;
 			if (bossSceneFlag)
-			{
+			{//ランダムに設定した位置とミサイルの位置から向きを計算
 				pos = { position.x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f + 10.0f),position.y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),position.z };
 				dis = { position.x - pos.x,position.y - pos.y ,position.z - pos.z };
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
 				dis = dis.normalize();
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
-				vel = dis * 0.05f;
+				vel = dis * k;
 				acc.z = -0.001f;
 			}
 			else
-			{
+			{//ランダムに設定した位置とミサイルの位置から向きを計算
 				pos = { position.x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f + 10.0f), position.y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),position.z };
 				dis = { position.x - pos.x,position.y - pos.y ,0.0f };
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
 				dis = dis.normalize();
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
-				vel = dis * 0.05f;
+				vel = dis * k;
 				acc.x = -0.001f;
 			}
 
@@ -310,7 +316,14 @@ void Missile::MissileParticleProcessing(float centerPosition)
 			pos = position;
 			pos.x = pos.x - centerPosition;
 			pos.x += 0.5f;
-			missileParticleMan->Add(40, pos, vel, acc, 0.0f, 0.5f, { 0.0f,0.0f,0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
+
+			const float startScale = 0.0f;
+			const float endScale = 0.5f;
+			const Vector4 black = { 0.0f,0.0f,0.0f,0.0f };
+			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+			const Vector4 startColor = black;
+			const Vector4 endColor = white;
+			missileParticleMan->Add(40, pos, vel, acc, startScale, endScale, startColor, endColor);
 
 			particleLugtime = MAXMISSILELUGTIME;
 		}

@@ -187,7 +187,7 @@ void Squid::AttachTentacles(ID3D12Device* device)
 	const Vector3 blockFixPosition = { 20.0f,-2.0f,-45.0f };
 	tentaclesBlocks.resize(TENTACLESNUM);
 	for (int i = 0; i < tentaclesBlocks.size(); ++i)
-	{
+	{//触手の初期化処理
 		tentaclesBlocks[i] = Block::Create(device, cmdList, { blockFixPosition.x + position.x , -i * 1.4f + blockFixPosition.y + position.y ,blockFixPosition.z + position.z });
 		tentaclesBlocks[i]->SetStageBlockFlag(false);
 		tentaclesBlocks[i]->SetScale({ 0.2f,0.2f,0.2f });
@@ -199,13 +199,13 @@ void Squid::AttachTentacles(ID3D12Device* device)
 void Squid::AttachEye(ID3D12Device* device)
 {
 	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
-
+	//左目の初期化処理
 	const Vector3 leftEyeFixPosition = { -18.5f,-12.0f,0.0f };
 	leftEye = SquidEye::Create(device, cmdList, { leftEyeFixPosition.x + position.x,leftEyeFixPosition.y + position.y , leftEyeFixPosition.z + position.z });
 	leftEye->SetScale({ 1.0f,1.0f,1.0f });
 	leftEye->Update({ 0.0f,0,0 });
 	leftEye->SetColor(white);
-
+	//右目の初期化処理
 	const Vector3 rightEyeFixPosition = { 9.0f,-12.0f,0.0f };
 	rightEye = SquidEye::Create(device, cmdList, { rightEyeFixPosition.x + position.x,rightEyeFixPosition.y + position.y ,rightEyeFixPosition.z + position.z });
 	rightEye->SetScale({ 1.0f,1.0f,1.0f });
@@ -243,7 +243,7 @@ void Squid::Update(const Vector3& incrementValue, const Vector3& playerPosition)
 		if (moveLugTime <= 0)
 		{
 			if (moveEndFlag == false)
-			{
+			{//移動処理
 				Move(playerPosition);
 			}
 		}
@@ -251,7 +251,7 @@ void Squid::Update(const Vector3& incrementValue, const Vector3& playerPosition)
 		{
 			moveLugTime--;
 		}
-
+		//ダメージ演出
 		DamageEffect();
 
 		if ((leftEye->GetHp() + rightEye->GetHp()) <= 0)
@@ -273,7 +273,7 @@ void Squid::Update(const Vector3& incrementValue, const Vector3& playerPosition)
 		//constMap1->alpha = objModel->material.alpha;
 		//constBuffB1->Unmap(0, nullptr);
 	}
-
+	//死亡パーティクル処理
 	DeathParticleProcessing();
 }
 
@@ -296,12 +296,12 @@ void Squid::Draw()
 		{
 			if (map[i][j] == 1 || map[i][j] == 2)//iが縦でjが横
 			{
-				//モデル1のセット
+				//体の描画
 				bodyBlocks[i][j]->Draw();
 			}
 		}
 	}
-
+	//定数バッファの転送
 	TransferConstBuff();
 
 	Squid::cmdList->SetPipelineState(PipelineState::simplePipelineState.Get());
@@ -313,11 +313,13 @@ void Squid::Draw()
 	Squid::cmdList->SetGraphicsRootConstantBufferView(0, constBuffB0->GetGPUVirtualAddress());
 	Squid::cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
 
+	//左目の描画
 	leftEye->Draw();
+	//右目の描画
 	rightEye->Draw();
 
 	if (deathParticleFlag)
-	{
+	{//死亡パーティクル描画
 		ParticleManager::PreDraw(cmdList);
 		deathParticle->Draw();
 		ParticleManager::PostDraw();
@@ -344,7 +346,7 @@ void Squid::TransferConstBuff()
 	matWorld *= matRot; // ワールド行列に回転を反映
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
-		//ワールド行列の転送
+	//ワールド行列の転送
 	ConstBufferDataB0* constMap0 = nullptr;
 	result = constBuffB0->Map(0, nullptr, (void**)&constMap0);
 	constMap0->color = color;
@@ -422,7 +424,7 @@ void Squid::StayMove(const Vector3& playerPosition)
 			rnd = rand() % 100;
 
 			if (rnd == 0)
-			{
+			{//プレイヤーのY軸のポジションによって攻撃方法を変える
 				if (playerPosition.y > 0.0f)
 				{
 					upTentacleAttackFlag = true;
@@ -436,7 +438,7 @@ void Squid::StayMove(const Vector3& playerPosition)
 		}
 
 		if (hp < 1)
-		{
+		{//死亡演出の開始
 			velocity = { 0,0,0 };
 			rotation = { 270.0f,0.0f,0.0f };
 			deathParticleFlag = true;
@@ -521,6 +523,7 @@ void Squid::DeathParticleProcessing()
 		if (deathParticle->GetParticleLength() < ParticleManager::vertexCount)
 		{
 			const float rnd_pos = 10.0f;
+			//パーティクルを出すブロックのポジションを取得
 			Vector3 pos = bodyBlocks[0][14]->GetPosition();
 			pos.x = pos.x - centerPosition;
 
@@ -528,18 +531,17 @@ void Squid::DeathParticleProcessing()
 			pos.y += (float)rand() / RAND_MAX * rnd_pos;
 			for (int i = 0; i < 10; i++)
 			{
-				//X,Y,Z全て[-5.0f,+5.0f]でランダムに分布
-
 				const float rnd_vel = 0.1f;
 				Vector3 vel{};
 
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
+				//X[-0.05f,+0.15f]でランダムに分布
 				vel.x = ((float)rand() / RAND_MAX * rnd_vel - rnd_vel / 4.0f) * 2;
+				//Y[0.0f,+0.2f]でランダムに分布
 				vel.y = (float)rand() / RAND_MAX * rnd_vel * 2;
 				vel.z = 0.0f;
-				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
 				const float rnd_acc = 0.01f;
 				Vector3 acc{};
+				//重力に見立ててYのみ[-0.01f,0]でランダムに分布
 				acc.y = -(float)rand() / RAND_MAX * rnd_acc;
 
 				const float startScale = 3.0f;
@@ -571,6 +573,7 @@ bool Squid::IsCollision(GameObject* arg_otherObject)
 			otherObject->Damage();
 			return true;
 		}
+		//敵の大きさによってダメージ量を変化させる
 		if (otherObject->GetScale().x >= 2.0f)
 		{
 			CriticalDamage();
@@ -851,7 +854,7 @@ void Squid::FloatMove()
 		}
 
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
-		{
+		{//三角関数で計算した分を体のブロック全体に加算
 			float positionX = tentaclesBlocks[i]->GetPosition().x;
 			const float homePositionX = 20.0f;
 			positionX = homePositionX + cos(tentacleAngle / 180.0f * XM_PI + (i * 0.5f)) * 2.0f;
@@ -878,8 +881,7 @@ void Squid::BreathMove()
 		for (int j = 0; j < map[i].size(); ++j)
 		{
 			if (map[i][j] == 1 || map[i][j] == 2)//iが縦でjが横
-			{
-				//モデル1のセット
+			{//三角関数で計算した分を体のブロック全体に加算
 				bodyBlocks[i][j]->SetPosition({ j * blockScale.x + fixBodyPosition.x + position.x, -i * blockScale.y + fixBodyPosition.y + position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z + fixBodyPosition.z });
 				bodyBlocks[i][j]->Update({ 0,0,0 });
 			}
@@ -908,11 +910,12 @@ void Squid::BreathMove()
 	const Vector3 basicEyeScale = { 1.0f,1.0f,1.0f };
 	const Vector3 eyeScale = { basicEyeScale.x + sin((eyeScaleCount / 180.0f) * XM_PI) * 0.2f,basicEyeScale.y + sin((eyeScaleCount / 180.0f) * XM_PI) * 0.2f,basicEyeScale.z + sin((eyeScaleCount / 180.0f) * XM_PI) * 0.2f };
 
+	//左目の呼吸と回転処理
 	const Vector3 leftEyeFixPosition = { -18.5f ,-12.0f,0.0f};
 	leftEye->SetPosition({ leftEyeFixPosition.x + position.x,leftEyeFixPosition.y + position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f , leftEyeFixPosition.z + position.z });
 	leftEye->SetRotation(eyeRotation);
 	leftEye->SetScale(eyeScale);
-
+	//右目の呼吸と回転処理
 	const Vector3 rightEyeFixPosition = { 9.0f ,-12.0f,0.0f };
 	rightEye->SetPosition({ rightEyeFixPosition.x + position.x,rightEyeFixPosition.y + position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f ,rightEyeFixPosition.z + position.z });
 	rightEye->SetRotation(eyeRotation);

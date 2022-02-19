@@ -92,8 +92,11 @@ void HomingBullet::Initialize()
 //プレイヤーの更新処理
 void HomingBullet::Update(const Vector3& incrementValue,const Vector3& arg_targetPosition)
 {
-	if (isDeadFlag) { return; }
-
+	if (isDeadFlag)
+	{
+		return;
+	}
+	//移動処理
 	Move(arg_targetPosition);
 
 
@@ -103,7 +106,7 @@ void HomingBullet::Update(const Vector3& incrementValue,const Vector3& arg_targe
 	}
 
 	SetScrollIncrement(incrementValue);
-
+	//定数バッファの転送
 	TransferConstBuff();
 
 	////マテリアルの転送
@@ -171,7 +174,7 @@ void HomingBullet::Move(const Vector3& arg_targetPosition)
 {
 	Vector3 targetPosition;
 	targetPosition = arg_targetPosition;
-
+	//追尾の計算処理
 	Vector3 dir = { targetPosition.x - position.x,targetPosition.y - position.y, -1.0f };
 	dir.normalize();
 	velocity = { dir.x,dir.y,dir.z };

@@ -88,18 +88,24 @@ void Bullet::Initialize()
 //プレイヤーの更新処理
 void Bullet::Update(const Vector3& incrementValue)
 {
-	if (isDeadFlag) { return; }
-
+	if (isDeadFlag)
+	{
+		return;
+	}
+	//移動処理
 	Move();
 
 	SetScrollIncrement(incrementValue);
-
+	//定数バッファの転送
 	TransferConstBuff();
 }
 
 void Bullet::Draw()
 {
-	if (isDeadFlag) { return; }
+	if (isDeadFlag)
+	{
+		return;
+	}
 
 	Bullet::cmdList->SetPipelineState(PipelineState::simplePipelineState.Get());
 

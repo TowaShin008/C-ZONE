@@ -135,10 +135,8 @@ private:
 	float rotateX = 0.0f;
 	float centerPosition = 0.0f;
 	int life = 0;
-	bool deathParticleFlag = false;
 	float dissolveCount = 1.0f;
 
-	std::unique_ptr<ParticleManager> deathParticle;
 	std::unique_ptr<OBJCharacter> scoreCharacter;
 public:
 
@@ -251,23 +249,6 @@ public:
 	/// 大ダメージ処理
 	/// </summary>
 	void CriticalDamage()override;
-
-	/// <summary>
-	/// 死亡演出用のパーティクルのセット
-	/// </summary>
-	/// <param name="deathParticle">パーティクル</param>
-	void SetDeathParticleManager(ParticleManager* arg_deathParticle) { deathParticle.reset(arg_deathParticle); }
-
-	/// <summary>
-	/// 死亡演出の発生フラグ
-	/// </summary>
-	/// <param name="deathParticle">死亡フラグの発生フラグ</param>
-	void SetDeathParticleFlag(bool arg_deathParticleFlag) { deathParticleFlag = arg_deathParticleFlag; }
-
-	/// <summary>
-	/// 死亡パーティクル処理
-	/// </summary>
-	void DeathParticleProcessing();
 
 	/// <summary>
 	/// 当たり判定

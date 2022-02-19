@@ -92,7 +92,8 @@ void FinalBossEye::Initialize()
 	isDeadFlag = false;
 	moveEndFlag = false;
 	velocity = { 0,0,0 };
-	color = { 1.0f,1.0f,1.0f,1.0f };
+	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+	color = white;
 	speed = { 0.1f,0.1f,0.0f };
 	hp = 400;
 	deathParticleFlag = false;
@@ -106,12 +107,12 @@ void FinalBossEye::Update(const Vector3& incrementValue)
 	{
 		SetScrollIncrement(incrementValue);
 		if (moveEndFlag == false)
-		{
+		{//移動処理
 			Move();
 		}
-
+		//ダメージ演出
 		DamageEffect();
-
+		//定数バッファの転送
 		TransferConstBuff();
 
 		//マテリアルの転送
@@ -123,7 +124,7 @@ void FinalBossEye::Update(const Vector3& incrementValue)
 		//constMap1->alpha = objModel->material.alpha;
 		//constBuffB1->Unmap(0, nullptr);
 	}
-
+	//死亡パーティクル処理
 	DeathParticleProcessing();
 }
 
@@ -262,22 +263,27 @@ void FinalBossEye::DeathParticleProcessing()
 			pos.y += (float)rand() / RAND_MAX * rnd_pos;
 			for (int i = 0; i < 10; i++)
 			{
-				//X,Y,Z全て[-5.0f,+5.0f]でランダムに分布
-
 				const float rnd_vel = 0.1f;
 				Vector3 vel{};
 
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
+				//X[-0.05f,+0.15f]でランダムに分布
 				vel.x = ((float)rand() / RAND_MAX * rnd_vel - rnd_vel / 4.0f) * 2;
+				//Y[-0.0f,+0.2f]でランダムに分布
 				vel.y = (float)rand() / RAND_MAX * rnd_vel * 2;
 				vel.z = 0.0f;
-				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
+
 				const float rnd_acc = 0.01f;
 				Vector3 acc{};
+				//重力に見立ててYのみ[-0.01f,0]でランダムに分布
 				acc.y = -(float)rand() / RAND_MAX * rnd_acc;
 
-
-				deathParticle->Add(30, pos, vel, acc, 3.0f, 0.0f, { 1.0f,0.0f,0.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+				const float startScale = 3.0f;
+				const float endScale = 0.0f;
+				const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
+				const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+				const Vector4 startColor = red;
+				const Vector4 endColor = white;
+				deathParticle->Add(30, pos, vel, acc, startScale, endScale, startColor, endColor);
 			}
 		}
 	}

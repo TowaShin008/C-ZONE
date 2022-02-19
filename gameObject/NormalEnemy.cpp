@@ -594,23 +594,30 @@ void NormalEnemy::DeathParticleProcessing()
 		{
 			for (int i = 0; i < 10; i++)
 			{
-				//X,Y,Z全て[-5.0f,+5.0f]でランダムに分布
-				const float rnd_pos = 10.0f / 30;
 				Vector3 pos = position;
 				const float rnd_vel = 0.1f;
 				Vector3 vel{};
 
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
+				//X[-0.05f,+0.15f]でランダムに分布
 				vel.x = ((float)rand() / RAND_MAX * rnd_vel - rnd_vel / 4.0f) * 2;
+				//Y[0.0f,+0.2f]でランダムに分布
 				vel.y = (float)rand() / RAND_MAX * rnd_vel * 2;
 				vel.z = 0.0f;
-				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
+
 				const float rnd_acc = 0.01f;
 				Vector3 acc{};
+				//重力に見立ててYのみ[-0.01f,0]でランダムに分布
 				acc.y = -(float)rand() / RAND_MAX * rnd_acc;
 				life = 40;
 				pos.x = pos.x - centerPosition;
-				deathParticle->Add(life, pos, vel, acc, 0.5f, 0.0f, { 1.0f,0.0f,0.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+
+				const float startScale = 0.5f;
+				const float endScale = 0.0f;
+				const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
+				const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+				const Vector4 startColor = red;
+				const Vector4 endColor = white;
+				deathParticle->Add(life, pos, vel, acc, startScale, endScale, red, white);
 			}
 			deathParticleFlag = false;
 		}
@@ -683,18 +690,21 @@ void NormalEnemy::ShotBullet()
 
 void NormalEnemy::ScoreProcessing(Vector3 incrementValue)
 {
+	//現在のスコアの色とスケールを取得
 	Vector4 scoreColor = scoreCharacter->GetColor();
 	Vector3 scoreScale = scoreCharacter->GetScale();
 
 	if (scoreScale.x <= 2.5f)
-	{
+	{//少しずつ拡大していく
 		scoreScale.x += 0.05f;
 		scoreScale.y += 0.05f;
 		scoreScale.z += 0.05f;
 	}
 
 	if (scoreColor.w > 0.0f)
+	{//少しずつ透過していく
 		scoreColor.w -= 0.01f;
+	}
 
 	scoreCharacter->SetScale(scoreScale);
 	scoreCharacter->SetColor(scoreColor);

@@ -154,7 +154,7 @@ void FinalBoss::SetBulletModel(OBJHighModel* bulletModel)
 }
 
 void FinalBoss::AttachBody(ID3D12Device* device)
-{
+{//体の初期化処理
 	bodyBlock = Block::Create(device, cmdList, { 0,0,position.z });
 	bodyBlock->SetStageBlockFlag(false);
 	bodyBlock->SetScale({ 1.0f,1.0f,1.0f });
@@ -164,7 +164,7 @@ void FinalBoss::AttachBody(ID3D12Device* device)
 }
 
 void FinalBoss::AttachEye(ID3D12Device* device)
-{
+{//目の初期化処理
 	const Vector3 finalBossEyeFixPosition = { 0.0f,2.0f,-13.5f };
 	finalBossEye = FinalBossEye::Create(device, cmdList, { finalBossEyeFixPosition.x,finalBossEyeFixPosition.y + position.y , position.z + finalBossEyeFixPosition.z });
 	finalBossEye->SetScale({ 3.0f,3.0f,1.0f });
@@ -174,7 +174,7 @@ void FinalBoss::AttachEye(ID3D12Device* device)
 }
 
 void FinalBoss::AttachLeftWing(ID3D12Device* device)
-{
+{//左の翼の初期化処理
 	parentLeftWing = Block::Create(device, cmdList, { -3.0f, position.y,position.z });
 	parentLeftWing->SetScale({ 2.0f,2.0f,2.0f });
 	parentLeftWing->Update({ 0,0,0 });
@@ -211,7 +211,7 @@ void FinalBoss::AttachLeftWing(ID3D12Device* device)
 }
 
 void FinalBoss::AttachRightWing(ID3D12Device* device)
-{
+{//右の翼の初期化処理
 	parentRightWing = Block::Create(device, cmdList, { 3.0f, position.y,position.z });
 	parentRightWing->SetScale({ 2.0f,2.0f,2.0f });
 	parentRightWing->Update({ 0,0,0 });
@@ -292,10 +292,10 @@ void FinalBoss::Update(const Vector3& incrementValue, const Vector3& playerPosit
 		SetScrollIncrement(incrementValue);
 
 		if (moveEndFlag == false)
-		{
+		{//移動処理
 			Move();
 		}
-
+		//ダメージ演出
 		DamageEffect();
 
 
@@ -305,18 +305,19 @@ void FinalBoss::Update(const Vector3& incrementValue, const Vector3& playerPosit
 		}
 
 		if (entryFlag)
-		{
+		{//開始演出
 			EntryPerformance();
 		}
 		else
 		{
 			if (bodyAttackFlag&&currentPhase!=MOVEPHASE::PHASE3)
-			{
+			{//体当たり演出
 				BodyAttack();
 			}
 			else
 			{
 				const int randBodyAttack = rand() % 400;
+				//呼吸をしているときの上下の揺れ
 				BreathMove();
 				if (randBodyAttack == 0)
 				{//体当たり以前の翼の回転具合を保存しておく
@@ -345,7 +346,7 @@ void FinalBoss::Update(const Vector3& incrementValue, const Vector3& playerPosit
 		//constMap1->alpha = objModel->material.alpha;
 		//constBuffB1->Unmap(0, nullptr);
 	}
-
+	//死亡パーティクル処理
 	DeathParticleProcessing();
 }
 
@@ -571,23 +572,26 @@ void FinalBoss::DeathParticleProcessing()
 			pos.y += (float)rand() / RAND_MAX * rnd_pos;
 			for (int i = 0; i < 10; i++)
 			{
-				//X,Y,Z全て[-5.0f,+5.0f]でランダムに分布
 				const float rnd_vel = 0.1f;
 				Vector3 vel{};
 
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
+				//X[-0.05f,+0.15f]でランダムに分布
 				vel.x = ((float)rand() / RAND_MAX * rnd_vel - rnd_vel / 4.0f) * 2;
+				//Y[0.0f,+0.2f]でランダムに分布
 				vel.y = (float)rand() / RAND_MAX * rnd_vel * 2;
 				vel.z = 0.0f;
-				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
+
 				const float rnd_acc = 0.01f;
 				Vector3 acc{};
+				//重力に見立ててYのみ[-0.01f,0]でランダムに分布
 				acc.y = -(float)rand() / RAND_MAX * rnd_acc;
 
 				const float startScale = 3.0f;
 				const float endScale = 0.0f;
-				const Vector4 startColor = { 1.0f,0.0f,0.0f,1.0f };
-				const Vector4 endColor = { 1.0f,1.0f,1.0f,1.0f };
+				const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
+				const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+				const Vector4 startColor = red;
+				const Vector4 endColor = white;
 				deathParticle->Add(60, pos, vel, acc, startScale, endScale, startColor, endColor);
 			}
 		}
@@ -645,13 +649,13 @@ void FinalBoss::BreathMove()
 	bodyBlock->Update({ 0,0,0 });
 
 	//parentFinalBossEye->SetRotation({0,0,0});
-
+	//目の呼吸処理
 	const Vector3 eyeFixPosition = { 0.0f,2.0f,-13.5f };
 	finalBossEye->SetPosition({ position.x,eyeFixPosition.y + position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f , position.z + eyeFixPosition.z });
-
+	//左の翼の呼吸処理
 	const float leftWingPositionX = position.x - 3.0f;
 	parentLeftWing->SetPosition({ leftWingPositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
-
+	//左の翼の羽ばたき処理
 	const Vector3 baseLeftWingRotation = { 0.0f,-10.0f,0.0f };
 	parentLeftWing->SetRotation({ baseLeftWingRotation.x,cos((bodyAngle / 180.0f) * XM_PI) * 20.0f + baseLeftWingRotation.y,baseLeftWingRotation.z});
 
@@ -660,10 +664,10 @@ void FinalBoss::BreathMove()
 	{
 		leftWing[i]->Update({0,0,0});
 	}
-
+	//右の翼の呼吸処理
 	const float rightWingPositionX = position.x + 3.0f;
 	parentRightWing->SetPosition({ rightWingPositionX,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
-
+	//右の翼の羽ばたき処理
 	const Vector3 baseRightWingRotation = { 0.0f,10.0f,0.0f };
 	parentRightWing->SetRotation({ baseRightWingRotation.x, - cos((bodyAngle / 180.0f) * XM_PI) * 20.0f + baseRightWingRotation.y,baseRightWingRotation.z });
 
@@ -732,6 +736,7 @@ void FinalBoss::Blink()
 	Vector3 eyeScale = finalBossEye->GetScale();
 	if (blinkAngle < 180.0f)
 	{
+		//目のY軸のスケールを小さくする
 		blinkAngle += 8.0f;
 		eyeScale.y = 3.0f * (1 - sin((blinkAngle / 180.0f) * XM_PI));
 	}
@@ -751,6 +756,7 @@ void FinalBoss::EntryPerformance()
 	Vector3 rightWingRotation = parentRightWing->GetRotasion();
 	Vector3 eyeScale = finalBossEye->GetScale();
 
+	//両翼が開いて目が完全に開くまで処理を続ける
 	if (leftWingRotation.y > 180.0f || rightWingRotation.y < -180.0f || eyeScale.y < 3.0f)
 	{
 		const float bodyAngleIncrementSize = 0.5f;
@@ -760,12 +766,14 @@ void FinalBoss::EntryPerformance()
 		{
 			bodyAngle = 0.0f;
 		}
+		//体の呼吸処理
 		bodyBlock->SetPosition({ position.x,  position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 		bodyBlock->Update({ 0,0,0 });
 
-
+		//目の呼吸処理
 		finalBossEye->SetPosition({ position.x,2.0f + position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f , position.z - 13.5f });
 
+		//目を開く処理
 		const float maxEyeScale = 3.0f;
 		if (eyeScale.y < maxEyeScale)
 		{
@@ -774,7 +782,7 @@ void FinalBoss::EntryPerformance()
 		}
 		finalBossEye->SetScale(eyeScale);
 
-
+		//左翼を開く処理
 		parentLeftWing->SetPosition({ -3.0f,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 		const float maxLeftWingRotation = 180.0f;
 		if (leftWingRotation.y > maxLeftWingRotation)
@@ -790,7 +798,7 @@ void FinalBoss::EntryPerformance()
 			leftWing[i]->Update({ 0,0,0 });
 		}
 
-
+		//右翼を開く処理
 		parentRightWing->SetPosition({ 3.0f,position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 		const float maxRightWingRotation = -180.0f;
 		if (rightWingRotation.y < maxRightWingRotation)
@@ -814,22 +822,24 @@ void FinalBoss::EntryPerformance()
 
 void FinalBoss::InitialPosture()
 {
+	//左翼の初期姿勢
 	const Vector3 initialLeftWingRotation = { 0.0f,270.0f,0.0f };
 	parentLeftWing->SetRotation(initialLeftWingRotation);
-
+	//右翼の初期姿勢
 	const Vector3 initialRightWingRotation = { 0.0f,-270.0f,0.0f };
 	parentRightWing->SetRotation(initialRightWingRotation);
-
+	//目の初期姿勢
 	const Vector3 initialEyeScale = { 3.0f,0.0f,1.0f };
 	finalBossEye->SetScale(initialEyeScale);
 }
 
 void FinalBoss::NormalPosture()
 {
+	//左翼の通常状態
 	parentLeftWing->SetRotation(previousParentLeftWingRotation);
-
+	//右翼の通常状態
 	parentRightWing->SetRotation(previousParentRightWingRotation);
-
+	//目の通常状態
 	finalBossEye->SetScale({ 3.0f,3.0f,1.0f });
 }
 
@@ -837,10 +847,11 @@ void FinalBoss::EndPerformance()
 {
 	bodyBlock->SetPosition({ position.x,  position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 	bodyBlock->Update({ 0,0,0 });
-
+	//親オブジェクトの解除
 	parentLeftWing->IsDead();
 	for (int i = 0; i < leftWing.size(); ++i)
 	{
+		//翼を向きによってバラバラに飛ばす
 		const int windNum = i % 3;
 		if (windNum == 0)
 		{
@@ -862,11 +873,11 @@ void FinalBoss::EndPerformance()
 		}
 		leftWing[i]->Update({ 0,0,0 });
 	}
-
+	//親オブジェクトの解除
 	parentRightWing->IsDead();
 	for (int i = 0; i < rightWing.size(); ++i)
 	{
-		//rightWing[i]->SetParent(nullptr);
+		//翼を向きによってバラバラに飛ばす
 		const int windNum = i % 3;
 		if (windNum == 0)
 		{
@@ -891,16 +902,17 @@ void FinalBoss::EndPerformance()
 
 
 	const Vector3 basicEyePosition = { 0.0f,2.0f ,-13.5f };
+	//落下処理
 	finalBossEye->SetPosition({ basicEyePosition.x + position.x,basicEyePosition.y + position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f ,  basicEyePosition.z + position.z});
 
 	Vector3 eyeScale = finalBossEye->GetScale();
 	if (eyeScale.y > 0.0f)
-	{
+	{//目を瞑る処理
 		eyeScale.y -= 0.005f;
 		finalBossEye->SetScale(eyeScale);
 	}
 	else
-	{
+	{//目を瞑ったら死亡フラグをtrueにする
 		finalBossEye->IsDead();
 	}
 }

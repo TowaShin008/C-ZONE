@@ -303,7 +303,7 @@ void Player::Draw()
 			{
 				missiles[i]->Draw();
 			}
-
+			//各パーティクル描画
 			ParticleManager::PreDraw(cmdList);
 			chargeParticleManager->Draw();
 			chargeMaxParticleManager->Draw();
@@ -451,7 +451,7 @@ void Player::ShotBullet(const Vector3& incrementValue)
 			break;
 		}
 	}
-
+	//再発射時間
 	if (shotLugTime >= 1)
 	{
 		shotLugTime--;
@@ -469,38 +469,44 @@ void Player::ShotChargeBullet(const Vector3& incrementValue)
 			for (int i = 0; i < 10; i++)
 			{
 				const float rnd_pos = 1.5f;
-				//変更ここまで
+
 				Vector3 pos{};
 				const float rnd_vel = 0.2f;
 				Vector3 vel{};
 				Vector3 dis = { 0.0f,0.0f,0.0f };
-				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
 				const float rnd_acc = 0.0001f;
 				Vector3 acc{};
 
 				if (bossSceneFlag)
 				{
+					//ランダムに設定した位置とプレイヤーの位置から向きを計算
 					pos = { position.x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f),position.y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),position.z + ((float)rand() / RAND_MAX * rnd_pos * 4.0f) + 10.0f };
 					dis = { position.x - pos.x,position.y - pos.y ,position.y - pos.z };
 					dis = dis.normalize();
-					//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
 					vel = dis * 0.2f;
 					acc.z = -rnd_acc;
 					life = (int)(20.0f * ((dis.z * 2.0f) * (-1.0f)));
 				}
 				else
 				{
+					//ランダムに設定した位置とプレイヤーの位置から向きを計算
 					pos = { position.x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f + 10.0f), position.y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),position.z };
 					dis = { position.x - pos.x,position.y - pos.y ,0.0f };
 					dis = dis.normalize();
-					//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
 					vel = dis * 0.2f;
 					acc.x = -rnd_acc;
 					life = (int)(20.0f * ((dis.x * 2.0f) * (-1.0f)));
 				}
 
 				pos.x = pos.x - centerPosition;
-				chargeParticleManager->Add(life, pos, vel, acc, 2.0f, 0.0f, { 0.0f,0.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+
+				const float startScale = 2.0f;
+				const float endScale = 0.0f;
+				const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
+				const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+				const Vector4 startColor = blue;
+				const Vector4 endColor = white;
+				chargeParticleManager->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
 			}
 			particleLugtime = MAXPLAYERLUGTIME;
 		}
@@ -524,26 +530,35 @@ void Player::ShotChargeBullet(const Vector3& incrementValue)
 	if (chargeCount > CHARGEMAXTIME&& particleLugtime < 1&& chargeMaxParticleManager->GetParticleLength() < 1)
 	{
 		const float rnd_pos = 1.5f;
-		//変更ここまで
+
 		Vector3 pos{};
-		const float rnd_vel = 0.2f;
-		Vector3 vel{};
-		if(bossSceneFlag==false)
-		pos = { position.x + 2.0f, position.y,  position.z };
+
+		Vector3 vel = { 0.0f,0.0f,0.0f };
+
+		Vector3 acc = { 0.0f,0.0f,0.0f };
+
+		const float playerFrontPosition = 2.0f;
+
+		if (bossSceneFlag == false)
+		{
+			pos = { position.x + playerFrontPosition, position.y,  position.z };
+		}
 
 		if (bossSceneFlag)
-		pos = { position.x, position.y,  position.z + 2.0f };
-		//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
-		vel.x = 0.0f;
-		vel.y = 0.0f;
-		vel.z = 0.0f;
-
-		Vector3 acc{};
-		acc.x = 0.0f;
+		{
+			pos = { position.x, position.y,  position.z + playerFrontPosition };
+		}
 
 		life = 40;
 		pos.x = pos.x - centerPosition;
-		chargeMaxParticleManager->Add(life, pos, vel, acc, 4.0f, 0.0f, { 0.0f,0.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+
+		const float startScale = 4.0f;
+		const float endScale = 0.0f;
+		const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
+		const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+		const Vector4 startColor = blue;
+		const Vector4 endColor = white;
+		chargeMaxParticleManager->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
 
 		particleLugtime = MAXPLAYERLUGTIME;
 	}
@@ -734,24 +749,28 @@ void Player::Move(const Vector3& incrementValue)
 
 	if (spawnFlag == false)
 	{
+		//上
 		if (Input::GetInstance()->KeyState(DIK_UP) || Input::GetInstance()->PadLStickState() == DIRTYPE::UP)
 		{
 			velocity.y = 0.2f;
 			if (bossSceneFlag == false)
 				rotation.x = 270.0f + 45.0f;
 		}
+		//下
 		if (Input::GetInstance()->KeyState(DIK_DOWN) || Input::GetInstance()->PadLStickState() == DIRTYPE::DOWN)
 		{
 			velocity.y = -0.2f;
 			if (bossSceneFlag == false)
 				rotation.x = 270.0f - 45.0f;
 		}
+		//左
 		if (Input::GetInstance()->KeyState(DIK_LEFT) || Input::GetInstance()->PadLStickState() == DIRTYPE::LEFT)
 		{
 			velocity.x = -0.2f;
 			if (bossSceneFlag)
 				rotation.y = 270.0f + 45.0f;
 		}
+		//右
 		if (Input::GetInstance()->KeyState(DIK_RIGHT) || Input::GetInstance()->PadLStickState() == DIRTYPE::RIGHT)
 		{
 			velocity.x = 0.2f;
@@ -808,33 +827,32 @@ void Player::Move(const Vector3& incrementValue)
 
 		if (bossSceneFlag)
 		{
+			//ランダムに設定した位置とプレイヤーの位置から向きを計算
 			pos = { position.x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f + 10.0f),position.y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),position.z };
 			dis = { position.x - pos.x,position.y - pos.y ,position.z - pos.z };
-			//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
 			dis = dis.normalize();
-			//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
 			vel = dis * 0.05f;
 			acc.z = -0.01f;
-			pos = position;
-			pos.x = pos.x - centerPosition;
-			pos.x += 0.5f;
-			pos.z -= 2.0f;
+			pos = { position.x - centerPosition + 0.5f,position.y,position.z - 2.0f };
 		}
 		else
 		{
+			//ランダムに設定した位置とプレイヤーの位置から向きを計算
 			pos = { position.x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f + 10.0f), position.y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),position.z };
 			dis = { position.x - pos.x,position.y - pos.y ,0.0f };
-			//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
 			dis = dis.normalize();
-			//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
 			vel = dis * 0.05f;
 			acc.x = -0.01f;
-			pos = position;
-			pos.x = pos.x - centerPosition;
-			pos.x -= 2.0f;
+			pos = { position.x - centerPosition - 2.0f,position.y,position.z };
 		}
 
-		jetParticleManager->Add(10, pos, vel, acc, 0.0f, 0.5f, { 0.0f,0.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+		const float startScale = 0.0f;
+		const float endScale = 0.5f;
+		const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
+		const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+		const Vector4 startColor = blue;
+		const Vector4 endColor = white;
+		jetParticleManager->Add(10, pos, vel, acc, startScale, endScale, startColor, endColor);
 	}
 }
 
@@ -846,23 +864,33 @@ void Player::DeathParticleProcessing()
 		{
 			for (int i = 0; i < 10; i++)
 			{
-				//X,Y,Z全て[-5.0f,+5.0f]でランダムに分布
+
 				const float rnd_pos = 10.0f / 30;
 				Vector3 pos = deathPosition;
 				const float rnd_vel = 0.1f;
 				Vector3 vel{};
 
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
+				//X[-0.05f,+0.15f]でランダムに分布
 				vel.x = ((float)rand() / RAND_MAX * rnd_vel - rnd_vel / 4.0f) * 2;
+				//Y[-0.0f,+0.2f]でランダムに分布
 				vel.y = (float)rand() / RAND_MAX * rnd_vel * 2;
 				vel.z = 0.0f;
-				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
+
 				const float rnd_acc = 0.01f;
 				Vector3 acc{};
+
+				//重力に見立ててYのみ[-0.01f,0]でランダムに分布
 				acc.y = -(float)rand() / RAND_MAX * rnd_acc;
 				life = 40;
 				pos.x = pos.x - centerPosition;
-				deathParticle->Add(life, pos, vel, acc, 0.5f, 0.0f, { 0.0f,0.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+
+				const float startScale = 0.5f;
+				const float endScale = 0.0f;
+				const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
+				const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+				const Vector4 startColor = blue;
+				const Vector4 endColor = white;
+				deathParticle->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
 			}
 			deathParticleFlag = false;
 		}
@@ -950,27 +978,30 @@ void Player::UpdateAttack(const Vector3& incrementValue)
 		if (chargeBulletParticleManager->GetParticleLength() < 1)
 		{
 			const float rnd_pos = 1.5f;
-			//変更ここまで
 			Vector3 pos{};
 			const float rnd_vel = 0.2f;
-			Vector3 vel{};
+			Vector3 vel = { 0.0f,0.0f,0.0f };
+			Vector3 acc = { 0.0f,0.0f,0.0f };
 			if (bossSceneFlag == false)
+			{
 				pos = { chargeBullet->GetPosition().x, chargeBullet->GetPosition().y, 0.0f };
+			}
 
 			if (bossSceneFlag)
+			{
 				pos = { chargeBullet->GetPosition().x, chargeBullet->GetPosition().y, chargeBullet->GetPosition().z };
-
-			//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
-			vel.x = 0.0f;
-			vel.y = 0.0f;
-			vel.z = 0.0f;
-
-			Vector3 acc{};
-			acc.x = 0.0f;
+			}
 
 			life = 10;
 			pos.x = pos.x - centerPosition;
-			chargeBulletParticleManager->Add(life, pos, vel, acc, 2.0f, 0.0f, { 0.0f,0.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+
+			const float startScale = 2.0f;
+			const float endScale = 0.0f;
+			const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
+			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+			const Vector4 startColor = blue;
+			const Vector4 endColor = white;
+			chargeBulletParticleManager->Add(life, pos, vel, acc, startScale, endScale, blue, white);
 
 			particleLugtime = MAXPLAYERLUGTIME;
 		}

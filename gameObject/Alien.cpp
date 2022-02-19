@@ -133,12 +133,6 @@ Alien* Alien::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdLis
 
 	alian->CreateConstBuffer(device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
-
-	deathParticle->SetSelectColor(2);
-
-	alian->SetDeathParticleManager(deathParticle);
-
 	return alian;
 }
 
@@ -176,8 +170,8 @@ void Alien::Initialize()
 	moveEndFlag = false;
 	velocity = { 0,0,0 };
 	rotation = { 270.0f,0.0f,90.0f };
-	color = { 1.0f,0.0f,0.0f,1.0f };
-	deathParticleFlag = false;
+	const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
+	color = red;
 	dissolveCount = 1.0f;
 	hp = 1;
 	invisibleTime = 0;
@@ -185,8 +179,6 @@ void Alien::Initialize()
 //プレイヤーの更新処理
 void Alien::Update(const Vector3& incrementValue)
 {
-	HRESULT result;
-
 	centerPosition += incrementValue.x;
 	SetScrollIncrement(incrementValue);
 	if (moveLugTime <= 0)
@@ -194,7 +186,7 @@ void Alien::Update(const Vector3& incrementValue)
 		if (isDeadFlag == false)
 		{
 			if (moveEndFlag == false)
-			{
+			{//移動処理
 				Move();
 			}
 		}
@@ -217,8 +209,6 @@ void Alien::Update(const Vector3& incrementValue)
 			moveEndFlag = false;
 		}
 	}
-
-	DeathParticleProcessing();
 }
 
 void Alien::Draw()
@@ -250,12 +240,6 @@ void Alien::Draw()
 		Alien::cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
 
 		objModel->Draw(Alien::cmdList);
-	}
-	else
-	{
-		ParticleManager::PreDraw(cmdList);
-		deathParticle->Draw();
-		ParticleManager::PostDraw();
 	}
 
 	if (isDeadFlag)
@@ -472,7 +456,7 @@ void Alien::TriAngleMove()
 
 void Alien::LeftDiagonallyMove()
 {
-	if (currentPhase == MOVEPHASE::PHASE1)
+	if (currentPhase == MOVEPHASE::PHASE1)//斜めに移動する処理
 	{
 		velocity.x = -0.1f;
 		velocity.y = -0.1f;
@@ -491,16 +475,18 @@ void Alien::LeftDiagonallyMove()
 
 void Alien::UpCurveMove()
 {
-	if (currentPhase == MOVEPHASE::PHASE1)
+	if (currentPhase == MOVEPHASE::PHASE1)//上方向にカーブする処理
 	{
 		if (curveTime < 2.0f)
 		{
-			curveTime += 0.01f;
+			const float curveTimeIncrementSize = 0.01f;
+			curveTime += curveTimeIncrementSize;
 		}
 
 		if (rotation.y > 0.0f)
 		{
-			rotation.y -= 1.0f;
+			const float rotationIncrementSize = 1.0f;
+			rotation.y -= rotationIncrementSize;
 		}
 
 		velocity.x = cosf((XM_PI / 2) * curveTime);
@@ -521,23 +507,23 @@ void Alien::UpCurveMove()
 
 void Alien::DownCurveMove()
 {
-	if (currentPhase == MOVEPHASE::PHASE1)
+	if (currentPhase == MOVEPHASE::PHASE1)//下方向にカーブする処理
 	{
 		if (curveTime > 2.0f)
 		{
-			curveTime -= 0.01f;
+			const float curveTimeIncrementSize = 0.01f;
+			curveTime -= curveTimeIncrementSize;
 		}
 
 		if (rotation.y < 360.0f)
 		{
-			rotation.y += 1.0f;
+			const float rotationIncrementSize = 1.0f;
+			rotation.y += rotationIncrementSize;
 		}
 
 		velocity.x = cosf((XM_PI / 2) * curveTime);
 		velocity.y = sinf((XM_PI / 2) * curveTime);
 
-
-		//rotation.z = 45.0f;
 
 		if (position.x < SCREENLEFT - 5.0f)
 		{
@@ -587,8 +573,8 @@ void Alien::Damage()
 	if (hp == 0)
 	{
 		isDeadFlag = true;
-		scoreCharacter->SetColor({ 1.0f,1.0f,1.0f,1.0f });
-		deathParticleFlag = true;
+		const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+		scoreCharacter->SetColor(white);
 	}
 }
 
@@ -602,43 +588,9 @@ void Alien::CriticalDamage()
 	if (hp == 0)
 	{
 		isDeadFlag = true;
-		scoreCharacter->SetColor({ 1.0f,1.0f,1.0f,1.0f });
-		deathParticleFlag = true;
+		const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+		scoreCharacter->SetColor(white);
 	}
-}
-
-
-void Alien::DeathParticleProcessing()
-{
-	if (deathParticleFlag)
-	{
-		if (deathParticle->GetParticleLength() < 10)
-		{
-			for (int i = 0; i < 10; i++)
-			{
-				//X,Y,Z全て[-5.0f,+5.0f]でランダムに分布
-				const float rnd_pos = 10.0f / 30;
-				Vector3 pos = position;
-				const float rnd_vel = 0.1f;
-				Vector3 vel{};
-
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
-				vel.x = ((float)rand() / RAND_MAX * rnd_vel - rnd_vel / 4.0f) * 2;
-				vel.y = (float)rand() / RAND_MAX * rnd_vel * 2;
-				vel.z = 0.0f;
-				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
-				const float rnd_acc = 0.02f;
-				Vector3 acc{};
-				acc.y = -(float)rand() / RAND_MAX * rnd_acc;
-				life = 40;
-				pos.x = pos.x - centerPosition;
-				deathParticle->Add(life, pos, vel, acc, 0.5f, 0.0f, { 1.0f,0.0f,0.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
-			}
-			deathParticleFlag = false;
-		}
-	}
-
-	deathParticle->Update();
 }
 
 bool Alien::IsCollision(GameObject* arg_otherObject)
@@ -676,18 +628,21 @@ bool Alien::IsCollision(GameObject* arg_otherObject)
 
 void Alien::ScoreProcessing(Vector3 incrementValue)
 {
+	//現在のスコアの色とスケールを取得
 	Vector4 scoreColor = scoreCharacter->GetColor();
 	Vector3 scoreScale = scoreCharacter->GetScale();
 
 	if (scoreScale.x <= 2.5f)
-	{
+	{//少しずつ拡大していく
 		scoreScale.x += 0.05f;
 		scoreScale.y += 0.05f;
 		scoreScale.z += 0.05f;
 	}
 
 	if (scoreColor.w > 0.0f)
+	{//少しずつ透過していく
 		scoreColor.w -= 0.01f;
+	}
 
 	scoreCharacter->SetScale(scoreScale);
 	scoreCharacter->SetColor(scoreColor);

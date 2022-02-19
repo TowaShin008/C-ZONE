@@ -257,16 +257,15 @@ void SquidEye::DeathParticleProcessing()
 			pos.y += (float)rand() / RAND_MAX * rnd_pos;
 			for (int i = 0; i < 10; i++)
 			{
-				//X,Y,Z全て[-5.0f,+5.0f]でランダムに分布
-
 				const float rnd_vel = 0.1f;
 				Vector3 vel{};
 
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
+				//X[-0.05f,+0.15f]でランダムに分布
 				vel.x = ((float)rand() / RAND_MAX * rnd_vel - rnd_vel / 4.0f) * 2;
+				//Y[0.0f,+0.2f]でランダムに分布
 				vel.y = (float)rand() / RAND_MAX * rnd_vel * 2;
 				vel.z = 0.0f;
-				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
+				//重力に見立ててYのみ[-0.01f,0]でランダムに分布
 				const float rnd_acc = 0.01f;
 				Vector3 acc{};
 				acc.y = -(float)rand() / RAND_MAX * rnd_acc;

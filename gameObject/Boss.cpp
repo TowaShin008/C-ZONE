@@ -144,9 +144,9 @@ void Boss::Update(const Vector3& incrementValue, const Vector3& playerPosition)
 		{
 			moveLugTime--;
 		}
-
+		//射撃処理
 		ShotBullet(incrementValue,playerPosition);
-
+		//ダメージ演出
 		DamageEffect();
 
 
@@ -159,7 +159,7 @@ void Boss::Update(const Vector3& incrementValue, const Vector3& playerPosition)
 		//constMap1->alpha = objModel->material.alpha;
 		//constBuffB1->Unmap(0, nullptr);
 	}
-
+	//死亡パーティクル処理
 	DeathParticleProcessing();
 }
 
@@ -385,13 +385,12 @@ void Boss::DeathParticleProcessing()
 			pos.y += (float)rand() / RAND_MAX * rnd_pos;
 			for (int i = 0; i < 10; i++)
 			{
-				//X,Y,Z全て[-5.0f,+5.0f]でランダムに分布
-
 				const float rnd_vel = 0.1f;
 				Vector3 vel{};
 
-				//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
+				//X[-0.05f,+0.15f]でランダムに分布
 				vel.x = ((float)rand() / RAND_MAX * rnd_vel - rnd_vel / 4.0f) * 2;
+				//Y[0.0f,+0.2f]でランダムに分布
 				vel.y = (float)rand() / RAND_MAX * rnd_vel * 2;
 				vel.z = 0.0f;
 				//重力に見立ててYのみ[-0.001f,0]でランダムに分布
@@ -422,25 +421,6 @@ bool Boss::IsCollision(GameObject* arg_otherObject)
 
 	bigBullet->IsCollision(otherObject);
 
-	//if (Collision::CheckSphereToSphere({ otherObject->GetPosition(),otherObject->GetCollisionRadius() },
-	//	{ position,collisionRadius }))
-	//{
-	//	if (otherObject->GetCharacterType() == CHARACTERTYPE::PLAYER)
-	//	{
-	//		otherObject->Damage();
-	//		return true;
-	//	}
-	//	if (otherObject->GetScale().x >= 2.0f)
-	//	{
-	//		CriticalDamage();
-	//	}
-	//	else
-	//	{
-	//		Damage();
-	//	}
-	//	return true;
-	//}
-
 	return false;
 }
 
@@ -466,7 +446,7 @@ void Boss::ShotBullet(const Vector3& incrementValue, const Vector3& playerPositi
 	}
 
 	if (bigBullet->GetIsDeadFlag() == false)
-	{
+	{//追尾弾の追尾処理
 		Vector3 targetPosition;
 		targetPosition = playerPosition;
 

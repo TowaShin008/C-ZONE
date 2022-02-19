@@ -56,6 +56,11 @@ public:
 	void Draw();
 
 	/// <summary>
+	/// 定数バッファの転送
+	/// </summary>
+	void TransferConstBuff();
+
+	/// <summary>
 	/// モデルのセット
 	/// </summary>
 	/// <param name="objModel">モデル</param>

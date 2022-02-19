@@ -94,15 +94,49 @@ void Block::Initialize()
 //プレイヤーの更新処理
 void Block::Update(const Vector3& incrementValue)
 {
-	if (isDeadFlag) { return; }
-	
-	HRESULT result;
-
-	XMMATRIX matScale, matRot, matTrans;
+	if (isDeadFlag)
+	{
+		return;
+	}
 
 	centerPos += incrementValue.x;
 
 	position = position + velocity * speed;
+	//定数バッファの転送
+	TransferConstBuff();
+}
+
+void Block::Draw()
+{
+	if (isDeadFlag)
+	{
+		return;
+	}
+
+	const float fixScreenRightPos = 5.0f;
+
+	if (stageblockFlag && centerPos + SCREENRIGHT + fixScreenRightPos < position.x && centerPos - SCREENLEFT < position.x)
+	{
+		return;
+	}
+
+	Block::cmdList->SetPipelineState(PipelineState::simplePipelineState.Get());
+
+	Block::cmdList->SetGraphicsRootSignature(RootSignature::simpleRootsignature.Get());
+
+	Block::cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	Block::cmdList->SetGraphicsRootConstantBufferView(0, constBuffB0->GetGPUVirtualAddress());
+	Block::cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
+
+	objModel->Draw(Block::cmdList);
+}
+
+void Block::TransferConstBuff()
+{
+	HRESULT result;
+
+	XMMATRIX matScale, matRot, matTrans;
 	// スケール、回転、平行移動行列の計算
 	matScale = XMMatrixScaling(scale.x, scale.y, scale.z);
 	matRot = XMMatrixIdentity();
@@ -139,25 +173,6 @@ void Block::Update(const Vector3& incrementValue)
 	//constMap1->specular = objModel->material.specular;
 	//constMap1->alpha = objModel->material.alpha;
 	//constBuffB1->Unmap(0, nullptr);
-}
-
-void Block::Draw()
-{
-	if (isDeadFlag) { return; }
-	const float fixScreenRightPos = 5.0f;
-
-	if (stageblockFlag && centerPos + SCREENRIGHT + fixScreenRightPos < position.x && centerPos - SCREENLEFT < position.x) { return; }
-
-	Block::cmdList->SetPipelineState(PipelineState::simplePipelineState.Get());
-
-	Block::cmdList->SetGraphicsRootSignature(RootSignature::simpleRootsignature.Get());
-
-	Block::cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	Block::cmdList->SetGraphicsRootConstantBufferView(0, constBuffB0->GetGPUVirtualAddress());
-	Block::cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
-
-	objModel->Draw(Block::cmdList);
 }
 
 void Block::IsDead()

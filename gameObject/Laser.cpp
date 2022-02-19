@@ -10,7 +10,8 @@ Laser::Laser(ID3D12GraphicsCommandList* arg_cmdList)
 {
 	cmdList = arg_cmdList;
 	scale = { 5.0f,5.0f,1.0f };
-	color = { 0.0f,1.0f,1.0f,1.0f };
+	const Vector4 lightBlue = { 0.0f,1.0f,1.0f,1.0f };
+	color = lightBlue;
 	rotation = {0,0,-90.0f};
 	bossSceneFlag = false;
 	matProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(60.0f), (float)WindowSize::window_width / (float)WindowSize::window_height, 0.1f, 1000.0f);
@@ -97,7 +98,7 @@ void Laser::Initialize()
 void Laser::Update(const Vector3& incrementValue)
 {
 	SetScrollIncrement(incrementValue);
-
+	//定数バッファの転送
 	TransferConstBuff();
 
 	////マテリアルの転送
@@ -127,7 +128,6 @@ void Laser::Draw()
 	Laser::cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
 
 	objModel->Draw(Laser::cmdList);
-	
 }
 
 void Laser::TransferConstBuff()
@@ -179,6 +179,7 @@ bool Laser::IsCollision(GameObject* arg_otherObject)
 		return false;
 	}
 
+	//ボスシーン化によってレイの向きを決める
 	Vector3 laserDir = { 0,0,0 };
 	if (bossSceneFlag)
 	{
