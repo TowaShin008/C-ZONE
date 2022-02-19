@@ -92,7 +92,8 @@ void SquidEye::Initialize()
 	isDeadFlag = false;
 	moveEndFlag = false;
 	velocity = { 0,0,0 };
-	color = { 1.0f,1.0f,1.0f,1.0f };
+	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+	color = white;
 	speed = { 0.1f,0.1f,0.0f };
 	hp = 200;
 	deathParticleFlag = false;
