@@ -129,13 +129,18 @@ void UnionCharacter::Initialize()
 //ユニオンの更新処理
 void UnionCharacter::Update(GameObject* player, const Vector3& incrementValue)
 {
-	if (isDeadFlag) { return; }
+	if (isDeadFlag)
+	{ 
+		return;
+	}
 
 	//移動処理
 	Move(player);
 	//弾の発射処理
 	if (shotFlag && player->GetPosition().z >= 0.0f)
-	ShotBullet(incrementValue);
+	{
+		ShotBullet(incrementValue);
+	}
 
 	UpdateAttack(incrementValue);
 	//定数バッファの転送
@@ -202,7 +207,10 @@ void UnionCharacter::SetBossSceneFlag(bool arg_bossSceneFlag)
 
 bool UnionCharacter::IsPlayerCollision(const Vector3& otherPosition, float otherRadius)
 {
-	if (lanchFlag) { return false; }
+	if (lanchFlag)
+	{
+		return false;
+	}
 
 	if (Collision::CheckSphereToSphere({ {otherPosition.x + 1.0f,otherPosition.y,otherPosition.z},{otherRadius} },
 		{ {position.x     ,position.y     ,position.z     },{0.5f       } }))
@@ -252,7 +260,6 @@ void UnionCharacter::ShotBullet(const Vector3& incrementValue)
 
 				shotLugTime = MAXPLAYERLUGTIME;
 				break;
-				
 			}
 		}
 	}
@@ -277,7 +284,8 @@ void UnionCharacter::TransferConstBuff(const Vector3& incrementValue)
 		}
 		else
 		{
-			rotation.z += 1.0f;
+			const float rotationIncrementSize = 1.0f;
+			rotation.z += rotationIncrementSize;
 		}
 	}
 	else
@@ -288,7 +296,8 @@ void UnionCharacter::TransferConstBuff(const Vector3& incrementValue)
 		}
 		else
 		{
-			rotation.y += 1.0f;
+			const float rotationIncremntSize = 1.0f;
+			rotation.y += rotationIncremntSize;
 		}
 	}
 
@@ -338,11 +347,16 @@ void UnionCharacter::Move(GameObject* player)
 		Vector3 basePosition = { 0,0,0 };
 		if (lanchFlag)
 		{
-			if(bossSceneFlag==false)
-			basePosition = { playerPosition.x + 20.0f - position.x,playerPosition.y - position.y,playerPosition.z };
+			const float playerFrontPosition = 20.0f;
+			if (bossSceneFlag == false)
+			{
+				basePosition = { playerPosition.x + playerFrontPosition - position.x,playerPosition.y - position.y,playerPosition.z };
+			}
 
-			if(bossSceneFlag)
-			basePosition = { playerPosition.x - position.x,playerPosition.y - position.y,playerPosition.z - position.z + 20.0f };
+			if (bossSceneFlag)
+			{
+				basePosition = { playerPosition.x - position.x,playerPosition.y - position.y,playerPosition.z - position.z + playerFrontPosition };
+			}
 
 			Vector3 dir = basePosition;
 			//ノルム計算
@@ -356,13 +370,17 @@ void UnionCharacter::Move(GameObject* player)
 		}
 		else if (playerFrontFlag == false && playerBackFlag == false)
 		{
-			//プレイヤーの手前で止まってしまうため実際のポジションより後ろ側にずらす為の変数
+			//子機を装着する際プレイヤーの手前で止まってしまうため実際のポジションより後ろ側にずらす為の変数
 			const float playerFixPos = 2.0f;
 			if (bossSceneFlag == false)
-			basePosition = { (playerPosition.x - playerFixPos) - position.x,playerPosition.y - position.y,playerPosition.z };
+			{
+				basePosition = { (playerPosition.x - playerFixPos) - position.x,playerPosition.y - position.y,playerPosition.z };
+			}
 
 			if (bossSceneFlag)
-			basePosition = { (playerPosition.x - playerFixPos) - position.x,playerPosition.y - position.y,playerPosition.z - position.z };
+			{
+				basePosition = { (playerPosition.x - playerFixPos) - position.x,playerPosition.y - position.y,playerPosition.z - position.z };
+			}
 
 			Vector3 dir = basePosition;
 			//ノルム計算
@@ -370,8 +388,9 @@ void UnionCharacter::Move(GameObject* player)
 			//限界の長さよりも長ければ計算を適用
 			if (length > maxWireLength)
 			{//伸びた分だけ計算を適用
+				const float k = 0.0002f;
 				dir = dir * ((float)length - (float)maxWireLength) / (float)maxWireLength;
-				accel = dir * 0.0002f;//ばね定数
+				accel = dir * k;//ばね定数
 			}
 		}
 	}
@@ -381,19 +400,29 @@ void UnionCharacter::Move(GameObject* player)
 
 	if (playerFrontFlag)
 	{
-		if(bossSceneFlag==false)
-		position = { playerPosition.x + 3.0f, playerPosition.y,playerPosition.z };
-		
-		if(bossSceneFlag)
-		position = { playerPosition.x, playerPosition.y,playerPosition.z + 2.0f };
+		if (bossSceneFlag)
+		{
+			const float playerFrontPosition = 2.0f;
+			position = { playerPosition.x, playerPosition.y,playerPosition.z + playerFrontPosition };
+		}
+		else
+		{
+			const float playerFrontPosition = 3.0f;
+			position = { playerPosition.x + playerFrontPosition, playerPosition.y,playerPosition.z };
+		}
 	}
 	else if (playerBackFlag)
 	{
-		if (bossSceneFlag == false)
-			position = { playerPosition.x - 2.0f, playerPosition.y,playerPosition.z };
-
 		if (bossSceneFlag)
-			position = { playerPosition.x, playerPosition.y,playerPosition.z - 2.0f };
+		{
+			const float playerBackPosition = -2.0f;
+			position = { playerPosition.x, playerPosition.y,playerPosition.z + playerBackPosition };
+		}
+		else
+		{
+			const float playerBackPosition = -2.0f;
+			position = { playerPosition.x + playerBackPosition, playerPosition.y,playerPosition.z };
+		}
 	}
 	else
 	{
@@ -443,12 +472,21 @@ void UnionCharacter::UpdateAttack(const Vector3& incrementValue)
 		bullets[i]->Update(incrementValue);
 
 		if (bossSceneFlag == false)
-			if (bullets[i]->GetPosition().x <= position.x + SCREENRIGHT + 10.0f)
+		{
+			const float bulletRange = 10.0f;
+			if (bullets[i]->GetPosition().x <= position.x + SCREENRIGHT + bulletRange)
+			{
 				continue;
+			}
+		}
 
 		if (bossSceneFlag)
+		{
 			if (bullets[i]->GetPosition().z <= position.z + SCREENBACK)
+			{
 				continue;
+			}
+		}
 
 		bullets[i]->SetIsDeadFlag(true);
 	}
