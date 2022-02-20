@@ -107,10 +107,10 @@ void SquidEye::Update(const Vector3& incrementValue)
 	{
 		SetScrollIncrement(incrementValue);
 		if (moveEndFlag == false)
-		{
+		{//移動処理
 			Move();
 		}
-
+		//ダメージエフェクト
 		DamageEffect();
 
 
@@ -123,7 +123,7 @@ void SquidEye::Update(const Vector3& incrementValue)
 		//constMap1->alpha = objModel->material.alpha;
 		//constBuffB1->Unmap(0, nullptr);
 	}
-
+	//死亡パーティクル処理
 	DeathParticleProcessing();
 }
 
