@@ -24,7 +24,7 @@ void ResultScene::Initialize(unsigned int arg_score)
 
 void ResultScene::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
 {
-	gameObjectManager = new GameObjectManager();
+	gameObjectManager.reset(new GameObjectManager());
 	gameObjectManager->Initialize(score);
 
 	CreatePostEffect();
@@ -35,7 +35,7 @@ void ResultScene::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandLis
 	//キャラクター1の生成
 	playerObject = OBJHighCharacter::Create(device, arg_cmdList, { 0.0f,0.0f,-40.0f });
 
-	playerObject->SetOBJModel(playerModel);
+	playerObject->SetOBJModel(playerModel.get());
 	playerObject->SetRotation({ 270.0f,0.0f,180.0f });
 	playerObject->SetScale({ 0.4f,0.4f,0.4f });
 
@@ -49,25 +49,25 @@ void ResultScene::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandLis
 	gameObjectManager->UpdateAllObject({ 0,0,0 });
 
 	//テクスチャの生成処理
-	windowTexture = Sprite::Create(L"Resources/window.png", { WindowSize::window_width / 2.0f,WindowSize::window_height / 2.0f });
+	windowTexture.reset(Sprite::Create(L"Resources/window.png", { WindowSize::window_width / 2.0f,WindowSize::window_height / 2.0f }));
 	windowTexture->SetAnchorPoint({ 0.5f,0.5f });
 	windowTexture->SetScale({ 1000.0f,600.0f });
 	windowTexture->SetColor({ 1.0f,1.0f,1.0f,0.0f });
 
-	stage_clearTexture = Sprite::Create(L"Resources/stageclear.png", { WindowSize::window_width / 2.0f,WindowSize::window_height / 2.0f });
+	stage_clearTexture.reset(Sprite::Create(L"Resources/stageclear.png", { WindowSize::window_width / 2.0f,WindowSize::window_height / 2.0f }));
 	stage_clearTexture->SetAnchorPoint({ 0.5f,0.5f });
 }
 
 void ResultScene::CreatePostEffect()
 {
-	bloom = new Bloom();
+	bloom.reset(new Bloom());
 	bloom->Initialize();
 	bloom->SetFadeOutFlag(false);
 }
 
 void ResultScene::LoadAllModel()
 {
-	playerModel = OBJHighModel::CreateFromOBJ("Plane_2");
+	playerModel.reset(OBJHighModel::CreateFromOBJ("Plane_2"));
 }
 
 void ResultScene::Update(DebugText* debugText)
@@ -125,16 +125,6 @@ void ResultScene::PostEffectDraw(ID3D12GraphicsCommandList* cmdList)
 void ResultScene::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
 {
 
-}
-
-void ResultScene::DeleteAllObject()
-{
-	delete gameObjectManager;
-	delete bloom;
-	delete windowTexture;
-	delete playerModel;
-	delete stage_clearTexture;
-	//delete objHighCharacter;
 }
 
 void ResultScene::SceneProcessing(DebugText* debugText)

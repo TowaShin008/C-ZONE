@@ -58,23 +58,17 @@ public:
 
 	void Scene3(DebugText* debugText);
 
-
-	/// <summary>
-	/// 全てのオブジェクトの削除処理
-	/// </summary>
-	void DeleteAllObject()override;
-
 	/// <summary>
 	/// 次のシーンへ
 	/// </summary>
 	/// <returns>シーン列挙型</returns>
 	Scene Next()override;
 private:
-	GameObjectManager* gameObjectManager = nullptr;
-	Sprite* windowTexture = nullptr;
-	Sprite* stage_clearTexture = nullptr;
-	Bloom* bloom = nullptr;
-	OBJHighModel* playerModel = nullptr;
+	std::unique_ptr<GameObjectManager> gameObjectManager;
+	std::unique_ptr<Sprite> windowTexture;
+	std::unique_ptr<Sprite> stage_clearTexture;
+	std::unique_ptr<Bloom> bloom;
+	std::unique_ptr<OBJHighModel> playerModel;
 	OBJHighCharacter* playerObject = nullptr;
 	int delayTime = 0;
 	bool blurFlag = false;
@@ -89,10 +83,7 @@ public:
 	/// ポストエフェクトの生成
 	/// </summary>
 	void CreatePostEffect();
-	/// <summary>
-	/// レーザーゲージ処理
-	/// </summary>
-	void LaserGaugeProcessing();
+
 	/// <summary>
 	/// モデルのロード
 	/// </summary>

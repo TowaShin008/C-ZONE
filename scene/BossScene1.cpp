@@ -295,10 +295,6 @@ void BossScene1::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
 	}
 }
 
-void BossScene1::DeleteAllObject()
-{
-}
-
 void BossScene1::SceneProcessing()
 {
 	switch (sceneWave)

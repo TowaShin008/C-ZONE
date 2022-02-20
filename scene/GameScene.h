@@ -96,11 +96,6 @@ public:
 	virtual void Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText);
 
 	/// <summary>
-	/// 全てのオブジェクトの削除処理
-	/// </summary>
-	virtual void DeleteAllObject();
-
-	/// <summary>
 	/// カメラのセット
 	/// </summary>
 	/// <param name="camera">カメラオブジェクト</param>

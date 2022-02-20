@@ -52,11 +52,6 @@ public:
 	void Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText);
 
 	/// <summary>
-	/// 全てのオブジェクトの削除処理
-	/// </summary>
-	void DeleteAllObject()override;
-
-	/// <summary>
 	/// 次のシーンへ
 	/// </summary>
 	/// <returns>シーン列挙型</returns>

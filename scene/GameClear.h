@@ -51,19 +51,14 @@ public:
 	void Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)override;
 
 	/// <summary>
-	/// 全てのオブジェクトの削除処理
-	/// </summary>
-	void DeleteAllObject()override;
-
-	/// <summary>
 	/// 次のシーンへ
 	/// </summary>
 	/// <returns>シーン列挙型</returns>
 	Scene Next()override;
 private:
-	GameObjectManager* gameObjectManager = nullptr;
-	Sprite* gameClearTexture = nullptr;
-	Bloom* bloom = nullptr;
+	std::unique_ptr<GameObjectManager> gameObjectManager;
+	std::unique_ptr<Sprite> gameClearTexture;
+	std::unique_ptr<Bloom> bloom;
 
 	//OBJHighCharacter* objHighCharacter = nullptr;
 

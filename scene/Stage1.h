@@ -54,11 +54,6 @@ public:
 	void Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)override;
 
 	/// <summary>
-	/// 全てのオブジェクトの削除処理
-	/// </summary>
-	void DeleteAllObject()override;
-
-	/// <summary>
 	/// ウェーブ切り替え処理
 	/// </summary>
 	void WaveProcessing();
@@ -146,5 +141,10 @@ public:
 	/// モデルのロード
 	/// </summary>
 	void LoadAllModel();
+
+	/// <summary>
+	/// マップデータのセット
+	/// </summary>
+	void SetMapData();
 };
 

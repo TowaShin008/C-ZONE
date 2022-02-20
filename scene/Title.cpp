@@ -143,8 +143,8 @@ void Title::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* deb
 
 	titleIcon->Draw();
 
-	
-	if (alphaCount < 180)
+	const int alphaMaxCount = 180;
+	if (alphaCount < alphaMaxCount)
 	{
 		alphaCount++;
 	}
@@ -182,10 +182,6 @@ void Title::PostEffectDraw(ID3D12GraphicsCommandList* cmdList)
 void Title::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
 {
 
-}
-
-void Title::DeleteAllObject()
-{
 }
 
 Scene Title::Next()

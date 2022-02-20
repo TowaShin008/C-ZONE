@@ -8,8 +8,6 @@ SceneManager::SceneManager(ID3D12Device* arg_device, ID3D12GraphicsCommandList* 
 
 SceneManager::~SceneManager()
 {
-    currentScene->DeleteAllObject();
-    //scenes.clear();
 }
 
 
@@ -31,17 +29,11 @@ void SceneManager::Add(const Scene& name, GameScene* scene,Camera* camera)
 
 void SceneManager::ChangeScene(const Scene& name)
 {
-    //何かシーンが登録されていたら
-    if (currentScene != nullptr)
-    {
-        //現在のシーンの終了処理
-        currentScene->DeleteAllObject();
-    }
     const Scene previousScene = currentScene->GetSceneName();
+
     //マップから次のシーンを取り出し、
     //現在のシーンに設定
     currentScene = scenes[name];
-
 
     currentScene->SetPreviousScene(previousScene);
     //シーンの初期化

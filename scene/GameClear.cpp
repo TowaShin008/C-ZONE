@@ -22,7 +22,7 @@ void GameClear::Initialize(unsigned int arg_score)
 
 void GameClear::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
 {
-	gameObjectManager = new GameObjectManager();
+	gameObjectManager.reset(new GameObjectManager());
 	gameObjectManager->Initialize(score);
 
 	CreatePostEffect();
@@ -37,13 +37,13 @@ void GameClear::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList*
 	gameObjectManager->UpdateAllObject({0,0,0});
 
 	//テクスチャの生成処理
-	gameClearTexture = Sprite::Create(L"Resources/gameclear.png", { WindowSize::window_width / 2.0f,WindowSize::window_height / 2.0f });
+	gameClearTexture.reset(Sprite::Create(L"Resources/gameclear.png", { WindowSize::window_width / 2.0f,WindowSize::window_height / 2.0f }));
 	gameClearTexture->SetAnchorPoint({ 0.5f,0.5f });
 }
 
 void GameClear::CreatePostEffect()
 {
-	bloom = new Bloom();
+	bloom.reset(new Bloom());
 	bloom->Initialize();
 	bloom->SetFadeOutFlag(false);
 }
@@ -76,7 +76,7 @@ void GameClear::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText*
 
 	gameObjectManager->DrawAllObject();
 
-	Sprite::BeginDraw(cmdList, false);
+	Sprite::BeginDraw(cmdList, true);
 	gameClearTexture->Draw();
 	Sprite::EndDraw();
 
@@ -91,13 +91,6 @@ void GameClear::PostEffectDraw(ID3D12GraphicsCommandList* cmdList)
 void GameClear::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
 {
 
-}
-
-void GameClear::DeleteAllObject()
-{
-	delete gameObjectManager;
-	delete bloom;
-	delete gameClearTexture;
 }
 
 Scene GameClear::Next()

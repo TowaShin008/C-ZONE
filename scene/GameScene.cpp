@@ -40,11 +40,6 @@ void GameScene::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
 
 }
 
-void GameScene::DeleteAllObject()
-{
-
-}
-
 Scene GameScene::Next()
 {
 	return Scene::TITLE;

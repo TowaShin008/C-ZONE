@@ -23,7 +23,7 @@ void GameOver::Initialize(unsigned int arg_score)
 
 void GameOver::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
 {
-	gameObjectManager = new GameObjectManager();
+	gameObjectManager.reset(new GameObjectManager());
 	gameObjectManager->Initialize(score);
 
 	CreatePostEffect();
@@ -40,7 +40,7 @@ void GameOver::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* 
 	gameObjectManager->UpdateAllObject({ 0,0,0 });
 
 	//テクスチャの生成処理
-	gameOverTexture = Sprite::Create(L"Resources/gameover.png", { WindowSize::window_width / 2.0f, WindowSize::window_height / 2.0f});
+	gameOverTexture.reset(Sprite::Create(L"Resources/gameover.png", { WindowSize::window_width / 2.0f, WindowSize::window_height / 2.0f}));
 	gameOverTexture->SetAnchorPoint({ 0.5f,0.5f });
 
 	//背景のグラデーションをするための配列
@@ -69,13 +69,13 @@ void GameOver::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* 
 			//生成位置を一行ずつ互い違いにずらす
 			if (j % 2 == 1)
 			{
-				bgHexagon[i][j] = Sprite::Create(L"Resources/white_hexagon_s.png", { 130.0f * i - 35.0f, 115.0f * j - 200.0f });
+				bgHexagon[i][j].reset(Sprite::Create(L"Resources/white_hexagon_s.png", { 130.0f * i - 35.0f, 115.0f * j - 200.0f }));
 				bgHexagon[i][j]->SetLugTime(gradationMap[i][j] * 30);
 				bgHexagon[i][j]->SetScale({ 170.0f,170.0f });
 			}
 			else
 			{
-				bgHexagon[i][j] = Sprite::Create(L"Resources/white_hexagon_s.png", { 130.0f * i - 100.0f, 115.0f * j - 200.0f });
+				bgHexagon[i][j].reset(Sprite::Create(L"Resources/white_hexagon_s.png", { 130.0f * i - 100.0f, 115.0f * j - 200.0f }));
 				bgHexagon[i][j]->SetLugTime(gradationMap[i][j] * 30);
 				bgHexagon[i][j]->SetScale({ 170.0f,170.0f });
 			}
@@ -90,7 +90,7 @@ void GameOver::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* 
 void GameOver::CreatePostEffect()
 {
 	//ポストエフェクト生成処理
-	bloom = new Bloom();
+	bloom.reset(new Bloom());
 	bloom->Initialize();
 	bloom->SetFadeOutFlag(false);
 }
@@ -158,30 +158,7 @@ void GameOver::PostEffectDraw(ID3D12GraphicsCommandList* cmdList)
 
 void GameOver::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
 {
-	//if (endingMoveTime < ENDINGMOVEMAXTIME)
-	//{
-	//	gameObjectManager->DrawAllObject(cmdList);
 
-	//	Sprite::BeginDraw(cmdList);
-	//	gameOverTexture_1->Draw();
-	//	gameOverTexture_2->Draw();
-	//	Sprite::EndDraw();
-	//}
-}
-
-void GameOver::DeleteAllObject()
-{
-	delete gameObjectManager;
-	delete gameOverTexture;
-	delete bloom;
-	//背景の削除処理
-	for (int i = 0; i < gradationMap.size(); i++)
-	{
-		for (int j = 0; j < gradationMap[i].size(); j++)
-		{
-			delete bgHexagon[i][j];
-		}
-	}
 }
 
 Scene GameOver::Next()

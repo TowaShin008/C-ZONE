@@ -52,21 +52,16 @@ public:
 	void Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)override;
 
 	/// <summary>
-	/// 全てのオブジェクトの削除処理
-	/// </summary>
-	void DeleteAllObject()override;
-
-	/// <summary>
 	/// 次のシーンへ
 	/// </summary>
 	/// <returns>シーン列挙型</returns>
 	Scene Next()override;
 private:
-	GameObjectManager* gameObjectManager = nullptr;
-	Sprite* gameOverTexture = nullptr;
-	Bloom* bloom = nullptr;
+	std::unique_ptr<GameObjectManager> gameObjectManager;
+	std::unique_ptr<Sprite> gameOverTexture;
+	std::unique_ptr<Bloom> bloom;
 
-	std::vector<std::vector<Sprite*>>bgHexagon;
+	std::vector<std::vector<std::unique_ptr<Sprite>>>bgHexagon;
 	std::vector<std::vector<int>> gradationMap;
 
 	float rotateY = 0.0f;
@@ -80,10 +75,7 @@ public:
 	/// ポストエフェクトの生成
 	/// </summary>
 	void CreatePostEffect();
-	/// <summary>
-	/// レーザーゲージ処理
-	/// </summary>
-	void LaserGaugeProcessing();
+
 	/// <summary>
 	/// モデルのロード
 	/// </summary>
