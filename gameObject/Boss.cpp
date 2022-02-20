@@ -131,7 +131,6 @@ void Boss::Update(const Vector3& incrementValue, const Vector3& playerPosition)
 	centerPosition += incrementValue.x;
 	if (isDeadFlag == false)
 	{
-		HRESULT result;
 		SetScrollIncrement(incrementValue);
 		if (moveLugTime <= 0)
 		{
