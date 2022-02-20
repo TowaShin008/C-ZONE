@@ -382,7 +382,7 @@ void Squid::StayMove(const Vector3& playerPosition)
 	const float tentacleMaxAngle = 360.0f;
 	switch (currentPhase)
 	{
-	case MOVEPHASE::PHASE1://左に進む処理
+	case MOVEPHASE::PHASE1://定位置に来たら次のフェーズへ
 
 		if (position.y >= 0)
 		{
@@ -392,7 +392,7 @@ void Squid::StayMove(const Vector3& playerPosition)
 
 		break;
 
-	case MOVEPHASE::PHASE2://下に進む処理
+	case MOVEPHASE::PHASE2://ゲームプレイ時の動作
 
 		//触手をうねらせる処理
 		tentacleAngle += tentacleAngleIncrementSize;
@@ -447,7 +447,7 @@ void Squid::StayMove(const Vector3& playerPosition)
 
 		break;
 
-	case MOVEPHASE::PHASE3://下に進む処理
+	case MOVEPHASE::PHASE3://死亡動作
 
 		velocity = { 0,-1,0 };
 
@@ -612,8 +612,7 @@ void Squid::UpTentacleAttack()
 			for (int i = 0; i < tentaclesBlocks.size(); ++i)
 			{
 				Vector3 position = tentaclesBlocks[i]->GetPosition();
-				position= { 20.0f, i * 1.4f + 12.0f,0.0f };
-				position.z = 0.0f;
+				position = { 20.0f, i * 1.4f + 12.0f,0.0f };
 				tentaclesBlocks[i]->SetPosition(position);
 			}
 			attackPhase = MOVEPHASE::PHASE2;
@@ -621,7 +620,7 @@ void Squid::UpTentacleAttack()
 
 		break;
 
-	case MOVEPHASE::PHASE2://下に下がる処理
+	case MOVEPHASE::PHASE2://上から下に下がる処理
 
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
@@ -685,7 +684,7 @@ void Squid::UpTentacleAttack()
 
 		break;
 
-	case MOVEPHASE::PHASE5://上に上がる処理
+	case MOVEPHASE::PHASE5://下から上に上がる処理
 
 		for (int i = 0; i < tentaclesBlocks.size(); ++i)
 		{
@@ -891,14 +890,16 @@ void Squid::BreathMove()
 
 	const float eyeIncrementCount = 0.5f;
 	eyeScaleCount += eyeIncrementCount;
-	if (eyeScaleCount > 180)
+	const float eyeScaleMaxCount = 180.0f;
+	if (eyeScaleCount > eyeScaleMaxCount)
 	{
 		eyeScaleCount = 0.0f;
 	}
 
 	Vector3 eyeRotation = leftEye->GetRotasion();
 	const float eyeRotationIncrementSize = 1.0f;
-	if (eyeRotation.z < 360.0f)
+	const float eyeMaxRotation = 360.0f;
+	if (eyeRotation.z < eyeMaxRotation)
 	{
 		eyeRotation.z += eyeRotationIncrementSize;
 	}

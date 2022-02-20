@@ -155,8 +155,6 @@ void AircraftCarrier::Update(const Vector3& incrementValue)
 	SetScrollIncrement(incrementValue);
 	if (isDeadFlag == false)
 	{
-		HRESULT result;
-
 		if (moveLugTime <= 0)
 		{
 			if (moveEndFlag == false)
