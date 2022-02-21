@@ -145,6 +145,8 @@ public:
 	/// <summary>
 	/// マップデータのセット
 	/// </summary>
-	void SetMapData();
+	/// <param name="device">デバイス</param>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	void SetMapData(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList);
 };
 

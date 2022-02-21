@@ -55,57 +55,7 @@ void Stage1::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* ar
 	normalEnemyObjects.resize(ENEMYNUM);
 
 	//マップデータのセット
-	SetMapData();
-
-
-	blocks.resize(map.size());
-	tankEnemys.resize(1);
-
-	for (int i = 0; i < map.size(); ++i)
-	{
-		blocks[i].resize(map[i].size());
-		for (int j = 0; j < map[i].size(); ++j)
-		{
-			if (map[i][j] == 1 || map[i][j] == 2)//iが縦でjが横
-			{//通常ブロックの生成
-				blocks[i][j] = Block::Create(device, arg_cmdList,{ j * 1.31f - 19.25f, -i * 1.4f + 9.8f ,0.0f});
-				//モデル1のセット
-				blocks[i][j]->SetOBJModel(blockModel.get());
-				blocks[i][j]->Update({ incrementValue,0,0 });
-				blocks[i][j]->SetColor({ 0.0f,0.0f,1.0f,1.0f });
-				gameObjectManager->AddGameObject(blocks[i][j]);
-			}
-		}
-	}
-
-	blocks_2.resize(map_2.size());
-
-
-	for (int i = 0; i < map_2.size(); ++i)
-	{
-		blocks_2[i].resize(map_2[i].size());
-		for (int j = 0; j < map_2[i].size(); ++j)
-		{
-			if (map_2[i][j] == 1 || map_2[i][j] == 2)//iが縦でjが横
-			{//通常ブロックの生成
-				blocks_2[i][j] = Block::Create(device, arg_cmdList,{ (j + 25) * 1.31f - 19.25f, -i * 1.4f + 9.8f ,0.0f });
-				//モデル1のセット
-				blocks_2[i][j]->SetOBJModel(blockModel.get());
-				blocks_2[i][j]->Update({ incrementValue,0,0 });
-				blocks_2[i][j]->SetColor({ 0.0f,0.0f,1.0f,1.0f });
-				gameObjectManager->AddGameObject(blocks_2[i][j]);
-			}
-			if (map_2[i][j] == 3)
-			{
-				//キャラクター1の生成
-				tankEnemys[0] = TankEnemy::Create(device, arg_cmdList,{ (j + 25) * 1.31f, -i * 1.4f ,0.0f });
-				//モデル1のセット
-				tankEnemys[0]->SetOBJModel(sphereModel.get(), tankBulletModel.get(), scoreModel.get());
-				//tankEnemys[0]->SetPosition({ 10 + 10.0f, -6.0f,0.0f });
-				gameObjectManager->AddGameObject(tankEnemys[0]);
-			}
-		}
-	}
+	SetMapData(device,arg_cmdList);
 
 
 	//カメラターゲットセット
@@ -487,7 +437,7 @@ void Stage1::LaserGaugeProcessing()
 	}
 }
 
-void Stage1::SetMapData()
+void Stage1::SetMapData(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
 {
 	map = {
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -526,4 +476,54 @@ void Stage1::SetMapData()
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 	};
+
+
+	blocks.resize(map.size());
+	tankEnemys.resize(1);
+
+	for (int i = 0; i < map.size(); ++i)
+	{
+		blocks[i].resize(map[i].size());
+		for (int j = 0; j < map[i].size(); ++j)
+		{
+			if (map[i][j] == 1 || map[i][j] == 2)//iが縦でjが横
+			{//通常ブロックの生成
+				blocks[i][j] = Block::Create(device, arg_cmdList, { j * 1.31f - 19.25f, -i * 1.4f + 9.8f ,0.0f });
+				//モデル1のセット
+				blocks[i][j]->SetOBJModel(blockModel.get());
+				blocks[i][j]->Update({ incrementValue,0,0 });
+				blocks[i][j]->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+				gameObjectManager->AddGameObject(blocks[i][j]);
+			}
+		}
+	}
+
+	blocks_2.resize(map_2.size());
+
+
+	for (int i = 0; i < map_2.size(); ++i)
+	{
+		blocks_2[i].resize(map_2[i].size());
+		for (int j = 0; j < map_2[i].size(); ++j)
+		{
+			if (map_2[i][j] == 1 || map_2[i][j] == 2)//iが縦でjが横
+			{//通常ブロックの生成
+				blocks_2[i][j] = Block::Create(device, arg_cmdList, { (j + 25) * 1.31f - 19.25f, -i * 1.4f + 9.8f ,0.0f });
+				//モデル1のセット
+				blocks_2[i][j]->SetOBJModel(blockModel.get());
+				blocks_2[i][j]->Update({ incrementValue,0,0 });
+				blocks_2[i][j]->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+				gameObjectManager->AddGameObject(blocks_2[i][j]);
+			}
+			if (map_2[i][j] == 3)
+			{
+				//キャラクター1の生成
+				tankEnemys[0] = TankEnemy::Create(device, arg_cmdList, { (j + 25) * 1.31f, -i * 1.4f ,0.0f });
+				//モデル1のセット
+				tankEnemys[0]->SetOBJModel(sphereModel.get(), tankBulletModel.get(), scoreModel.get());
+				//tankEnemys[0]->SetPosition({ 10 + 10.0f, -6.0f,0.0f });
+				gameObjectManager->AddGameObject(tankEnemys[0]);
+			}
+		}
+	}
 }
