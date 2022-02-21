@@ -29,9 +29,9 @@ void Stage2::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* ar
 
 	//motionBlur = new MotionBlur();
 	//motionBlur->Initialize();
-
+	//ポストエフェクトの生成
 	CreatePostEffect();
-
+	//モデルのロード
 	LoadAllModel();
 
 	stage2Texture.reset(Sprite::Create(L"Resources/stage2.png", { (float)WindowSize::window_width / 2,(float)WindowSize::window_height / 2 }));
