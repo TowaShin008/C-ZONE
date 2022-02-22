@@ -295,7 +295,9 @@ void BossScene1::Scene1()
 
 		const float changeSceneTime = 0.6f;
 		if (easingTime > changeSceneTime)
+		{
 			fadeOut->SetFadeOutFlag(true);
+		}
 	}
 	else
 	{
@@ -313,7 +315,9 @@ void BossScene1::Scene2()
 	const float incrementPlayerPosition = 0.05f;
 	const float playerEndPosition = 0.0f;
 	if (playerPosition.z < playerEndPosition)
+	{
 		playerPosition.z += incrementPlayerPosition;
+	}
 
 	playerObject->SetPosition(playerPosition);
 	//カメラターゲットセット
@@ -325,7 +329,9 @@ void BossScene1::Scene2()
 	{
 		const float incrementEasingTime = 0.0015f;
 		if (easingTime < easingMaxTime)
+		{
 			easingTime += incrementEasingTime;
+		}
 
 		float rotationEasing = easeOut({ 5.0f,0.0f }, { 0.0f,0.0f }, easingTime).x;
 		camera->SetEye({ rotationEasing,rotationEasing,-20.2f });
@@ -371,7 +377,9 @@ void BossScene1::LaserGaugeProcessing()
 	int laserEnergy = playerObject->GetLaserEnergy();
 	const float maxEnergy = 200.0f;
 	if (laserEnergy < maxEnergy)
+	{
 		laserGauge->SetColor({ 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f });
+	}
 	//レーザーのエネルギーゲージの更新処理
 	laserGauge->SetScale({ 4.0f ,(laserEnergy / maxEnergy),4.0f });
 	laserGauge->Update({ incrementValue,0.0f,0.0f });
