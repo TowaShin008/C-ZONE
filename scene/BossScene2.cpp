@@ -28,90 +28,15 @@ void BossScene2::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList
 {
 	gameObjectManager.reset(new GameObjectManager());
 	gameObjectManager->Initialize(score);
-
+	
+	//ポストエフェクトの生成
 	CreatePostEffect();
-
+	
+	//モデルのロード
 	LoadAllModel();
-
-
-	sea.reset(OBJCharacter::Create(device, { 0.0f,-100.0f,50.0f }));
-	sea->SetOBJModel(seaModel.get());
-	sea->SetScale({ 1000.0f,50.0f,1000.0f });
-
-	//キャラクター1の生成
-	playerObject = Player::Create(device, arg_cmdList, { 0.0f,0.0f,-40.0f });
-
-	warningTexture.reset(Sprite::Create(L"Resources/warning.png", { (float)WindowSize::window_width / 8,(float)WindowSize::window_height / 2 - 50.0f }));
-	warningBarTexture_1.reset(Sprite::Create(L"Resources/warningBar.png", { WindowSize::window_width,(float)WindowSize::window_height / 3 * 1.0f }));
-	//warningBarTexture_1->SetSlideTextureFlag(true, true);
-	warningBarTexture_2.reset(Sprite::Create(L"Resources/warningBar.png", { -WindowSize::window_width,(float)WindowSize::window_height / 3 * 2.0f }));
-	//warningBarTexture_2->SetSlideTextureFlag(true, false);
-
-
-		//キャラクター1の生成
-	squid.reset(Squid::Create(device, arg_cmdList, { scrollPos + 5.0f + 25.0f,0.0f,0.0f }));
-	//モデル1のセット
-	squid->SetOBJModel(eyeModel.get(), blockBodyModel.get());
-	squid->SetIsDeadFlag(true);
-	squid->SetCenterPos(scrollPos);
-	squid->Update({ incrementValue,0.0f,0.0f }, playerObject->GetPosition());
-
-	squid->Initialize();
-	squid->SetMoveLugTime(0);
-	squid->SetPosition({ 0.0f,-50.0f,50.0f });
-	squid->SetShotFlag(false);
-
-	for (int i = 0; i < squid->GetTentacle().size(); i++)
-	{
-		gameObjectManager->AddGameObject(squid->GetTentacle()[i]);
-	}
-
-
-	playerObject->SetBossSceneFlag(true);
-	gameObjectManager->AddGameObject(squid->GetLeftSquidEye());
-	gameObjectManager->AddGameObject(squid->GetRightSquidEye());
-
-	playerObject->SetBossSceneFlag(true);
-	playerObject->SetMoveFlag(false);
-	playerObject->SetShotFlag(false);
-
-	//モデル1のセット
-	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), missileModel.get());
-
-	//カメラターゲットセット
-	camera->SetTarget({ 0,0,0 });
-	camera->SetEye({ -40,-60,-20.2f });
-	//マネージャークラスにオブジェクトのアドレスを全て追加
-	gameObjectManager->AddGameObject(playerObject);
-
-	//マネージャークラスに入っているオブジェクト全てをアップデート
-	laserGauge.reset(OBJHighCharacter::Create(device, arg_cmdList));
-	laserGauge->SetOBJModel(laserModel.get());
-	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
-	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
-
-	lifeTexture.reset(Sprite::Create(L"Resources/player_texture.png", { 100.0f, 190.0f }));
-	lifeTexture->SetAnchorPoint({ 0.5f,0.5f });
-	lifeTexture->SetScale({ 104.0f,68.0f });
-
-	gaugeFrame.reset(Sprite::Create(L"Resources/gauge_frame.png", { (float)WindowSize::window_width / 2 + 8.0f,(float)WindowSize::window_height - 50.0f }));
-	gaugeFrame->SetScale({ 675.0f,70.0f });
-	gaugeFrame->SetAnchorPoint({ 0.5f,0.5f });
-
-	gaugeParticle.reset(ParticleManager::Create(device));
-
-	//bossPosition = squid->GetPosition();
-
-	//bossPosition.x += 4.0f;
-
-	camera->SetTarget({-5.0f, -11.0f, 50.0f});
-
-	//easingTime = 0;
-	//camera->SetTarget({ 0,0,0 });
-	//camera->SetEye({ 0,0,-20.2f });
-	//playerObject->SetMoveFlag(true);
-	//playerObject->SetShotFlag(true);
-	//playerObject->SetPosition({ 0.0f,0.0f,0.0f });
+	
+	//ゲームオブジェクトの生成
+	CreateGameObject(device, arg_cmdList);
 }
 
 void BossScene2::CreatePostEffect()
@@ -594,4 +519,86 @@ void BossScene2::LaserGaugeProcessing()
 	{
 		particleLugtime--;
 	}
+}
+
+void BossScene2::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
+{
+	sea.reset(OBJCharacter::Create(device, { 0.0f,-100.0f,50.0f }));
+	sea->SetOBJModel(seaModel.get());
+	sea->SetScale({ 1000.0f,50.0f,1000.0f });
+
+	//キャラクター1の生成
+	playerObject = Player::Create(device, arg_cmdList, { 0.0f,0.0f,-40.0f });
+
+	warningTexture.reset(Sprite::Create(L"Resources/warning.png", { (float)WindowSize::window_width / 8,(float)WindowSize::window_height / 2 - 50.0f }));
+	warningBarTexture_1.reset(Sprite::Create(L"Resources/warningBar.png", { WindowSize::window_width,(float)WindowSize::window_height / 3 * 1.0f }));
+	//warningBarTexture_1->SetSlideTextureFlag(true, true);
+	warningBarTexture_2.reset(Sprite::Create(L"Resources/warningBar.png", { -WindowSize::window_width,(float)WindowSize::window_height / 3 * 2.0f }));
+	//warningBarTexture_2->SetSlideTextureFlag(true, false);
+
+
+		//キャラクター1の生成
+	squid.reset(Squid::Create(device, arg_cmdList, { scrollPos + 5.0f + 25.0f,0.0f,0.0f }));
+	//モデル1のセット
+	squid->SetOBJModel(eyeModel.get(), blockBodyModel.get());
+	squid->SetIsDeadFlag(true);
+	squid->SetCenterPos(scrollPos);
+	squid->Update({ incrementValue,0.0f,0.0f }, playerObject->GetPosition());
+
+	squid->Initialize();
+	squid->SetMoveLugTime(0);
+	squid->SetPosition({ 0.0f,-50.0f,50.0f });
+	squid->SetShotFlag(false);
+
+	for (int i = 0; i < squid->GetTentacle().size(); i++)
+	{
+		gameObjectManager->AddGameObject(squid->GetTentacle()[i]);
+	}
+
+
+	playerObject->SetBossSceneFlag(true);
+	gameObjectManager->AddGameObject(squid->GetLeftSquidEye());
+	gameObjectManager->AddGameObject(squid->GetRightSquidEye());
+
+	playerObject->SetBossSceneFlag(true);
+	playerObject->SetMoveFlag(false);
+	playerObject->SetShotFlag(false);
+
+	//モデル1のセット
+	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), missileModel.get());
+
+	//カメラターゲットセット
+	camera->SetTarget({ 0,0,0 });
+	camera->SetEye({ -40,-60,-20.2f });
+	//マネージャークラスにオブジェクトのアドレスを全て追加
+	gameObjectManager->AddGameObject(playerObject);
+
+	//マネージャークラスに入っているオブジェクト全てをアップデート
+	laserGauge.reset(OBJHighCharacter::Create(device, arg_cmdList));
+	laserGauge->SetOBJModel(laserModel.get());
+	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
+
+	lifeTexture.reset(Sprite::Create(L"Resources/player_texture.png", { 100.0f, 190.0f }));
+	lifeTexture->SetAnchorPoint({ 0.5f,0.5f });
+	lifeTexture->SetScale({ 104.0f,68.0f });
+
+	gaugeFrame.reset(Sprite::Create(L"Resources/gauge_frame.png", { (float)WindowSize::window_width / 2 + 8.0f,(float)WindowSize::window_height - 50.0f }));
+	gaugeFrame->SetScale({ 675.0f,70.0f });
+	gaugeFrame->SetAnchorPoint({ 0.5f,0.5f });
+
+	gaugeParticle.reset(ParticleManager::Create(device));
+
+	//bossPosition = squid->GetPosition();
+
+	//bossPosition.x += 4.0f;
+
+	camera->SetTarget({ -5.0f, -11.0f, 50.0f });
+
+	//easingTime = 0;
+	//camera->SetTarget({ 0,0,0 });
+	//camera->SetEye({ 0,0,-20.2f });
+	//playerObject->SetMoveFlag(true);
+	//playerObject->SetShotFlag(true);
+	//playerObject->SetPosition({ 0.0f,0.0f,0.0f });
 }

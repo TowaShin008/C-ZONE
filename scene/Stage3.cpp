@@ -29,86 +29,18 @@ void Stage3::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* ar
 
 	//motionBlur = new MotionBlur();
 	//motionBlur->Initialize();
+	
 	//ポストエフェクトの生成
 	CreatePostEffect();
+	
 	//モデルのロード
 	LoadAllModel();
-
-	stage3Texture.reset(Sprite::Create(L"Resources/stage3.png", { (float)WindowSize::window_width / 2,(float)WindowSize::window_height / 2 }));
-	stage3Texture->SetAnchorPoint({ 0.5f,0.5f });
-
-	lifeTexture.reset(Sprite::Create(L"Resources/player_texture.png", { 100.0f, 190.0f }));
-	lifeTexture->SetAnchorPoint({ 0.5f,0.5f });
-	lifeTexture->SetScale({ 104.0f,68.0f });
-
-	gaugeFrame.reset(Sprite::Create(L"Resources/gauge_frame.png", { (float)WindowSize::window_width / 2 + 8.0f,(float)WindowSize::window_height - 50.0f }));
-	gaugeFrame->SetScale({ 675.0f,70.0f });
-	gaugeFrame->SetAnchorPoint({ 0.5f,0.5f });
-	//キャラクター1の生成
-	playerObject = Player::Create(device, arg_cmdList, { -10.0f,0.0f,-15.0f });
-
-	//モデル1のセット
-	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), missileModel.get());
-
-	normalEnemyObjects.resize(ENEMYNUM);
-
+	
 	//マップデータのセット
 	SetMapData(device,arg_cmdList);
-
-
-	//カメラターゲットセット
-	camera->SetTarget({ 0,0,0 });
-	camera->SetEye({ 0,0,-20.2f });
-	//マネージャークラスにオブジェクトのアドレスを全て追加
-	gameObjectManager->AddGameObject(playerObject);
-
-	//先に敵機の生成とモデルセットとオブジェクトマネージャーへの追加をしておく
-	for (int i = 0; i < normalEnemyObjects.size(); i++)
-	{
-		//キャラクター1の生成
-		normalEnemyObjects[i] = NormalEnemy::Create(device, arg_cmdList, { 5.0f + 25.0f,12.0f,0.0f });
-		//モデル1のセット
-		normalEnemyObjects[i]->SetOBJModel(enemyPlaneModel.get(), redBulletModel.get(), scoreModel.get());
-		normalEnemyObjects[i]->SetIsDeadFlag(true);
-		normalEnemyObjects[i]->Update({ incrementValue,0,0 });
-		gameObjectManager->AddGameObject(normalEnemyObjects[i]);
-	}
-
-	for (int i = 0; i < normalEnemyObjects.size(); i++)
-	{
-		//キャラクター1の生成
-		normalEnemyObjects[i]->SetCenterPos(scrollPos);
-	}
-
-
-
-	for (int i = 0; i < tankEnemys.size(); i++)
-	{
-		//キャラクター1の生成
-		tankEnemys[i]->SetCenterPos(scrollPos);
-	}
-
-	//キャラクター1の生成
-	aircraftCarrier = AircraftCarrier::Create(device, arg_cmdList, { scrollPos + 5.0f + 25.0f,0.0f,0.0f });
-	//モデル1のセット
-	aircraftCarrier->SetOBJModel(aircraftCarrierPlaneModel.get(), alienModel.get(), scoreModel.get());
-	aircraftCarrier->SetIsDeadFlag(true);
-	aircraftCarrier->SetCenterPos(scrollPos);
-	aircraftCarrier->Update({ incrementValue,0.0f,0.0f });
-	gameObjectManager->AddGameObject(aircraftCarrier);
-
-	for (int i = 0; i < aircraftCarrier->GetAliens().size(); i++)
-	{
-		gameObjectManager->AddGameObject(aircraftCarrier->GetAliens()[i]);
-	}
-
-	//マネージャークラスに入っているオブジェクト全てをアップデート
-	laserGauge.reset(OBJHighCharacter::Create(device, arg_cmdList));
-	laserGauge->SetOBJModel(laserModel.get());
-	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
-	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
-
-	gaugeParticle.reset(ParticleManager::Create(device));
+	
+	//ゲームオブジェクトの生成
+	CreateGameObject(device, arg_cmdList);
 }
 
 void Stage3::CreatePostEffect()
@@ -532,4 +464,79 @@ void Stage3::SetMapData(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmd
 			}
 		}
 	}
+}
+
+void Stage3::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
+{
+	stage3Texture.reset(Sprite::Create(L"Resources/stage3.png", { (float)WindowSize::window_width / 2,(float)WindowSize::window_height / 2 }));
+	stage3Texture->SetAnchorPoint({ 0.5f,0.5f });
+
+	lifeTexture.reset(Sprite::Create(L"Resources/player_texture.png", { 100.0f, 190.0f }));
+	lifeTexture->SetAnchorPoint({ 0.5f,0.5f });
+	lifeTexture->SetScale({ 104.0f,68.0f });
+
+	gaugeFrame.reset(Sprite::Create(L"Resources/gauge_frame.png", { (float)WindowSize::window_width / 2 + 8.0f,(float)WindowSize::window_height - 50.0f }));
+	gaugeFrame->SetScale({ 675.0f,70.0f });
+	gaugeFrame->SetAnchorPoint({ 0.5f,0.5f });
+	//キャラクター1の生成
+	playerObject = Player::Create(device, arg_cmdList, { -10.0f,0.0f,-15.0f });
+
+	//モデル1のセット
+	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), missileModel.get());
+
+	normalEnemyObjects.resize(ENEMYNUM);
+
+	//カメラターゲットセット
+	camera->SetTarget({ 0,0,0 });
+	camera->SetEye({ 0,0,-20.2f });
+	//マネージャークラスにオブジェクトのアドレスを全て追加
+	gameObjectManager->AddGameObject(playerObject);
+
+	//先に敵機の生成とモデルセットとオブジェクトマネージャーへの追加をしておく
+	for (int i = 0; i < normalEnemyObjects.size(); i++)
+	{
+		//キャラクター1の生成
+		normalEnemyObjects[i] = NormalEnemy::Create(device, arg_cmdList, { 5.0f + 25.0f,12.0f,0.0f });
+		//モデル1のセット
+		normalEnemyObjects[i]->SetOBJModel(enemyPlaneModel.get(), redBulletModel.get(), scoreModel.get());
+		normalEnemyObjects[i]->SetIsDeadFlag(true);
+		normalEnemyObjects[i]->Update({ incrementValue,0,0 });
+		gameObjectManager->AddGameObject(normalEnemyObjects[i]);
+	}
+
+	for (int i = 0; i < normalEnemyObjects.size(); i++)
+	{
+		//キャラクター1の生成
+		normalEnemyObjects[i]->SetCenterPos(scrollPos);
+	}
+
+
+
+	for (int i = 0; i < tankEnemys.size(); i++)
+	{
+		//キャラクター1の生成
+		tankEnemys[i]->SetCenterPos(scrollPos);
+	}
+
+	//キャラクター1の生成
+	aircraftCarrier = AircraftCarrier::Create(device, arg_cmdList, { scrollPos + 5.0f + 25.0f,0.0f,0.0f });
+	//モデル1のセット
+	aircraftCarrier->SetOBJModel(aircraftCarrierPlaneModel.get(), alienModel.get(), scoreModel.get());
+	aircraftCarrier->SetIsDeadFlag(true);
+	aircraftCarrier->SetCenterPos(scrollPos);
+	aircraftCarrier->Update({ incrementValue,0.0f,0.0f });
+	gameObjectManager->AddGameObject(aircraftCarrier);
+
+	for (int i = 0; i < aircraftCarrier->GetAliens().size(); i++)
+	{
+		gameObjectManager->AddGameObject(aircraftCarrier->GetAliens()[i]);
+	}
+
+	//マネージャークラスに入っているオブジェクト全てをアップデート
+	laserGauge.reset(OBJHighCharacter::Create(device, arg_cmdList));
+	laserGauge->SetOBJModel(laserModel.get());
+	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
+
+	gaugeParticle.reset(ParticleManager::Create(device));
 }

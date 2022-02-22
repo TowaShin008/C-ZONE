@@ -28,67 +28,15 @@ void BossScene1::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList
 {
 	gameObjectManager.reset(new GameObjectManager());
 	gameObjectManager->Initialize(score);
-
+	
+	//ポストエフェクトの生成
 	CreatePostEffect();
-
+	
+	//モデルのロード
 	LoadAllModel();
-
-	//キャラクター1の生成
-	playerObject = Player::Create(device, arg_cmdList, { 0.0f,0.0f,-40.0f });
-
-	warningTexture.reset(Sprite::Create(L"Resources/warning.png", { (float)WindowSize::window_width / 8,(float)WindowSize::window_height / 2 - 50.0f }));
-	warningBarTexture_1.reset(Sprite::Create(L"Resources/warningBar.png", { WindowSize::window_width,(float)WindowSize::window_height / 3 * 1.0f }));
-	//warningBarTexture_1->SetSlideTextureFlag(true, true);
-	warningBarTexture_2.reset(Sprite::Create(L"Resources/warningBar.png", { -WindowSize::window_width,(float)WindowSize::window_height / 3 * 2.0f }));
-	//warningBarTexture_2->SetSlideTextureFlag(true, false);
-
-
-	//キャラクター1の生成
-	boss = Boss::Create(device, arg_cmdList, { scrollPos + 5.0f + 25.0f,0.0f,0.0f });
-	//モデル1のセット
-	boss->SetOBJModel(enemyPlaneModel.get(), redBulletModel.get());
-	boss->SetCenterPos(scrollPos);
-	boss->Update({ incrementValue,0.0f,0.0f }, playerObject->GetPosition());
-
-	boss->Initialize();
-	boss->SetPosition({ 0.0f,0.0f,50.0f });
-	boss->SetShotFlag(false);
-
-	playerObject->SetBossSceneFlag(true);
-	gameObjectManager->AddGameObject(boss);
-
-	playerObject->SetBossSceneFlag(true);
-	playerObject->SetMoveFlag(false);
-	playerObject->SetShotFlag(false);
-
-	//モデル1のセット
-	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), missileModel.get());
-
-	//カメラターゲットセット
-	camera->SetTarget({ 0,0,0 });
-	camera->SetEye({ 5,5,-20.2f });
-	//マネージャークラスにオブジェクトのアドレスを全て追加
-	gameObjectManager->AddGameObject(playerObject);
-
-	//マネージャークラスに入っているオブジェクト全てをアップデート
-	laserGauge.reset(OBJHighCharacter::Create(device, arg_cmdList));
-	laserGauge->SetOBJModel(laserModel.get());
-	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
-	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
-
-	lifeTexture.reset(Sprite::Create(L"Resources/player_texture.png", { 100.0f, 190.0f }));
-	lifeTexture->SetAnchorPoint({ 0.5f,0.5f });
-	lifeTexture->SetScale({ 104.0f,68.0f });
-
-	gaugeFrame.reset(Sprite::Create(L"Resources/gauge_frame.png", { (float)WindowSize::window_width / 2 + 8.0f,(float)WindowSize::window_height - 50.0f }));
-	gaugeFrame->SetScale({ 675.0f,70.0f });
-	gaugeFrame->SetAnchorPoint({ 0.5f,0.5f });
-
-	gaugeParticle.reset(ParticleManager::Create(device));
-
-	bossPosition = boss->GetPosition();
-
-	camera->SetTarget(bossPosition);
+	
+	//ゲームオブジェクトの生成
+	CreateGameObject(device, arg_cmdList);
 }
 
 void BossScene1::CreatePostEffect()
@@ -482,4 +430,64 @@ void BossScene1::LaserGaugeProcessing()
 	{
 		particleLugtime--;
 	}
+}
+
+void BossScene1::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
+{
+	//キャラクター1の生成
+	playerObject = Player::Create(device, arg_cmdList, { 0.0f,0.0f,-40.0f });
+
+	warningTexture.reset(Sprite::Create(L"Resources/warning.png", { (float)WindowSize::window_width / 8,(float)WindowSize::window_height / 2 - 50.0f }));
+	warningBarTexture_1.reset(Sprite::Create(L"Resources/warningBar.png", { WindowSize::window_width,(float)WindowSize::window_height / 3 * 1.0f }));
+	//warningBarTexture_1->SetSlideTextureFlag(true, true);
+	warningBarTexture_2.reset(Sprite::Create(L"Resources/warningBar.png", { -WindowSize::window_width,(float)WindowSize::window_height / 3 * 2.0f }));
+	//warningBarTexture_2->SetSlideTextureFlag(true, false);
+
+
+	//キャラクター1の生成
+	boss = Boss::Create(device, arg_cmdList, { scrollPos + 5.0f + 25.0f,0.0f,0.0f });
+	//モデル1のセット
+	boss->SetOBJModel(enemyPlaneModel.get(), redBulletModel.get());
+	boss->SetCenterPos(scrollPos);
+	boss->Update({ incrementValue,0.0f,0.0f }, playerObject->GetPosition());
+
+	boss->Initialize();
+	boss->SetPosition({ 0.0f,0.0f,50.0f });
+	boss->SetShotFlag(false);
+
+	playerObject->SetBossSceneFlag(true);
+	gameObjectManager->AddGameObject(boss);
+
+	playerObject->SetBossSceneFlag(true);
+	playerObject->SetMoveFlag(false);
+	playerObject->SetShotFlag(false);
+
+	//モデル1のセット
+	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), missileModel.get());
+
+	//カメラターゲットセット
+	camera->SetTarget({ 0,0,0 });
+	camera->SetEye({ 5,5,-20.2f });
+	//マネージャークラスにオブジェクトのアドレスを全て追加
+	gameObjectManager->AddGameObject(playerObject);
+
+	//マネージャークラスに入っているオブジェクト全てをアップデート
+	laserGauge.reset(OBJHighCharacter::Create(device, arg_cmdList));
+	laserGauge->SetOBJModel(laserModel.get());
+	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
+
+	lifeTexture.reset(Sprite::Create(L"Resources/player_texture.png", { 100.0f, 190.0f }));
+	lifeTexture->SetAnchorPoint({ 0.5f,0.5f });
+	lifeTexture->SetScale({ 104.0f,68.0f });
+
+	gaugeFrame.reset(Sprite::Create(L"Resources/gauge_frame.png", { (float)WindowSize::window_width / 2 + 8.0f,(float)WindowSize::window_height - 50.0f }));
+	gaugeFrame->SetScale({ 675.0f,70.0f });
+	gaugeFrame->SetAnchorPoint({ 0.5f,0.5f });
+
+	gaugeParticle.reset(ParticleManager::Create(device));
+
+	bossPosition = boss->GetPosition();
+
+	camera->SetTarget(bossPosition);
 }

@@ -133,5 +133,11 @@ public:
 	/// モデルのロード
 	/// </summary>
 	void LoadAllModel();
+	/// <summary>
+	/// ゲームオブジェクトの生成
+	/// </summary>
+	/// <param name="device">デバイス</param>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	void CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList);
 };
 
