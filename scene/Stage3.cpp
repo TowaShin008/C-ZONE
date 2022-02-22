@@ -231,7 +231,7 @@ void Stage3::WaveProcessing()
 
 	const int subBossScene = 4;
 	if (wave < subBossScene)
-	{
+	{//中ボスシーン以外であれば次のウェーブへ進むためのカウンターを進める
 		nextWaveCount++;
 	}
 
@@ -242,7 +242,7 @@ void Stage3::WaveProcessing()
 	}
 
 	if (bloom->GetFadeOutCount() <= 0.0f && wave > subBossScene)
-	{
+	{//ステージが終わったら現在のスコアを保存
 		score = gameObjectManager->GetScore();
 		endFlag = true;
 	}
