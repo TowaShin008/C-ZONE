@@ -344,24 +344,7 @@ void BossScene1::Scene2()
 
 void BossScene1::Scene3()
 {
-	//boss->SetShotFlag(false);
-	//if (easingTime < 1.0f)
-	//{
-	//	easingTime += 0.005f;
-	//	float rotationEasing = easeOut({ 5.0f,0.0f }, { 0.0f,0.0f }, easingTime).x;
-	//	camera->SetEye({ rotationEasing,rotationEasing,-20.2f });
-	//}
-	//else
-	//{
-	//	sceneWave++;
-	//	easingTime = 0;
-	//	camera->SetTarget({ 0,0,0 });
-	//	camera->SetEye({ 0,0,-20.2f });
-	//	boss->SetShotFlag(true);
-	//	boss->SetShotLugTime(240);
-	//	playerObject->SetMoveFlag(true);
-	//	playerObject->SetShotFlag(true);
-	//}
+
 }
 
 void BossScene1::Scene4()
@@ -395,6 +378,7 @@ void BossScene1::LaserGaugeProcessing()
 	gaugeParticle->Update();
 
 	if (particleLugtime <= 0 && playerObject->GetLaserIsDead() == false)
+	{
 		if (gaugeParticle->GetParticleLength() < 20)
 		{//レーザーゲージ消費時のパーティクル演出
 			const float rnd_pos = 1.5f;
@@ -425,6 +409,7 @@ void BossScene1::LaserGaugeProcessing()
 
 			particleLugtime = 2;
 		}
+	}
 
 	if (particleLugtime > 0)
 	{

@@ -349,7 +349,9 @@ void Stage2::LaserGaugeProcessing()
 {
 	int laserEnergy = playerObject->GetLaserEnergy();
 	if (laserEnergy < 200)
+	{
 		laserGauge->SetColor({ 1 - (laserEnergy / 200.0f),0.0f,laserEnergy / 200.0f,1.0f });
+	}
 
 	//レーザーのエネルギーゲージの更新処理
 	laserGauge->SetScale({ 4.0f ,(laserEnergy / 200.0f),4.0f });
@@ -357,6 +359,7 @@ void Stage2::LaserGaugeProcessing()
 	gaugeParticle->Update();
 
 	if (particleLugtime <= 0 && playerObject->GetLaserIsDead() == false)
+	{
 		if (gaugeParticle->GetParticleLength() < 20)
 		{//レーザーゲージ消費時のパーティクル演出
 			const float rnd_pos = 1.5f;
@@ -385,6 +388,7 @@ void Stage2::LaserGaugeProcessing()
 
 			particleLugtime = 2;
 		}
+	}
 
 	if (particleLugtime > 0)
 	{
