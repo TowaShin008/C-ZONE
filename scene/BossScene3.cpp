@@ -287,11 +287,14 @@ void BossScene3::Scene1()
 {
 	boss->SetShotFlag(false);
 	boss->SetBodyAttackFlag(false);
-	if (easingTime < 1.0f)
+
+	const float easingMaxTime = 1.0f;
+	if (easingTime < easingMaxTime)
 	{
 		const Vector2 startPosition = { 0.0f,0.0f };
 		const Vector2 endPosition = { 630.0f,0.0f };
-		easingTime += 0.001f;
+		const float easingTimeIncrementSize = 0.001f;
+		easingTime += easingTimeIncrementSize;
 		float rotationEasing = easeOut(startPosition, endPosition, easingTime).x;
 		camera->SetEye({ cos(rotationEasing / 180 * XM_PI) * (bossPosition.z),0,sin(rotationEasing / 180 * XM_PI) * (bossPosition.z) + (bossPosition.z) });
 
@@ -316,10 +319,10 @@ void BossScene3::Scene2()
 
 	Vector3 playerPosition = playerObject->GetPosition();
 
-	const float incrementPlayerPosition = 0.05f;
 	const float playerEndPosition = 0.0f;
 	if (playerPosition.z < playerEndPosition)
 	{
+		const float incrementPlayerPosition = 0.05f;
 		playerPosition.z += incrementPlayerPosition;
 	}
 
@@ -416,7 +419,12 @@ void BossScene3::LaserGaugeProcessing()
 			pos = laserGauge->GetPosition();
 			pos.x = pos.x - scrollPos + (laserEnergy / maxEnergy) * 16.0f;
 
-			gaugeParticle->Add(life, pos, vel, acc, 1.0f, 0.0f, { 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+			const float startScale = 1.0f;
+			const float endScale = 0.0f;
+			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+			const Vector4 startColor = { 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f };
+			const Vector4 endColor = white;
+			gaugeParticle->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
 
 			particleLugtime = 2;
 		}

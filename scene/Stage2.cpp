@@ -137,11 +137,13 @@ void Stage2::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* de
 	ParticleManager::PostDraw();
 	debugText->DrawAll(cmdList);
 
-	if ((wave == 0 || wave == 1) && nextWaveCount < 350)
+	const int nextWaveMaxCount = 350;
+	if ((wave == 0 || wave == 1) && nextWaveCount < nextWaveMaxCount)
 	{
 		Sprite::BeginDraw(cmdList, false);
 
-		if (alphaCount < 180)
+		const int alphaMaxCount = 180;
+		if (alphaCount < alphaMaxCount)
 		{
 			alphaCount++;
 		}
@@ -348,13 +350,14 @@ Scene Stage2::Next()
 void Stage2::LaserGaugeProcessing()
 {
 	int laserEnergy = playerObject->GetLaserEnergy();
+	const float maxEnergy = 200.0f;
 	if (laserEnergy < 200)
 	{
-		laserGauge->SetColor({ 1 - (laserEnergy / 200.0f),0.0f,laserEnergy / 200.0f,1.0f });
+		laserGauge->SetColor({ 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f });
 	}
 
 	//レーザーのエネルギーゲージの更新処理
-	laserGauge->SetScale({ 4.0f ,(laserEnergy / 200.0f),4.0f });
+	laserGauge->SetScale({ 4.0f ,(laserEnergy / maxEnergy),4.0f });
 	laserGauge->Update({ incrementValue,0.0f,0.0f });
 	gaugeParticle->Update();
 
@@ -382,9 +385,14 @@ void Stage2::LaserGaugeProcessing()
 			life = (int)(20.0f * ((dis.x * 2.0f) * (-1.0f)));
 
 			pos = laserGauge->GetPosition();
-			pos.x = pos.x - scrollPos + (laserEnergy / 200.0f) * 16.0f;
+			pos.x = pos.x - scrollPos + (laserEnergy / maxEnergy) * 16.0f;
 
-			gaugeParticle->Add(life, pos, vel, acc, 1.0f, 0.0f, { 1 - (laserEnergy / 200.0f),0.0f,laserEnergy / 200.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+			const float startScale = 1.0f;
+			const float endScale = 0.0f;
+			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+			const Vector4 startColor = { 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f };
+			const Vector4 endColor = white;
+			gaugeParticle->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
 
 			particleLugtime = 2;
 		}

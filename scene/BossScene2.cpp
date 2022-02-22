@@ -366,21 +366,25 @@ void BossScene2::SceneProcessing()
 void BossScene2::Scene1()
 {
 	squid->SetAttackFlag(false);
-	if (easingTime < 1.0f)
+
+	const float easingMaxTime = 1.0f;
+	if (easingTime < easingMaxTime)
 	{
 		if (squid->GetPosition().y < 0.0f)
 		{
 			Vector3 bossPosition = squid->GetPosition();
 			const Vector2 startPosition = { -100.0f,0.0f };
 			const Vector2 endPosition = { 0.0f,0.0f };
-			easingTime += 0.001f;
+
+			const float easingTimeIncrementSize = 0.001f;
+			easingTime += easingTimeIncrementSize;
 			float rotationEasing = easeOut(startPosition, endPosition, easingTime).x;
 			bossPosition.y = rotationEasing;
 			squid->SetPosition(bossPosition);
 		}
 		else
 		{
-			easingTime = 1.0f;
+			easingTime = easingMaxTime;
 		}
 
 		const float changeSceneTime = 0.6f;
@@ -502,7 +506,12 @@ void BossScene2::LaserGaugeProcessing()
 			pos = laserGauge->GetPosition();
 			pos.x = pos.x - scrollPos + (laserEnergy / maxEnergy) * 16.0f;
 
-			gaugeParticle->Add(life, pos, vel, acc, 1.0f, 0.0f, { 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f }, { 1.0f,1.0f,1.0f,1.0f });
+			const float startScale = 1.0f;
+			const float endScale = 0.0f;
+			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+			const Vector4 startColor = { 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f };
+			const Vector4 endColor = white;
+			gaugeParticle->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
 
 			particleLugtime = 2;
 		}
@@ -582,16 +591,5 @@ void BossScene2::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandLis
 
 	gaugeParticle.reset(ParticleManager::Create(device));
 
-	//bossPosition = squid->GetPosition();
-
-	//bossPosition.x += 4.0f;
-
 	camera->SetTarget({ -5.0f, -11.0f, 50.0f });
-
-	//easingTime = 0;
-	//camera->SetTarget({ 0,0,0 });
-	//camera->SetEye({ 0,0,-20.2f });
-	//playerObject->SetMoveFlag(true);
-	//playerObject->SetShotFlag(true);
-	//playerObject->SetPosition({ 0.0f,0.0f,0.0f });
 }
