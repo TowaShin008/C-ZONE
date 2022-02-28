@@ -89,7 +89,7 @@ public:
 	/// </summary>
 	/// <param name="camera">カメラ</param>
 	static void SetCamera(Camera* arg_camera) { Block::camera = arg_camera; }
-
+	//ステージブロックかのフラグ
 	void SetStageBlockFlag(bool arg_stageblockFlag) { stageblockFlag = arg_stageblockFlag; }
 
 	void SetParent(Block* arg_parent) { parent = arg_parent; }
