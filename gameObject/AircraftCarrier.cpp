@@ -31,11 +31,11 @@ AircraftCarrier::~AircraftCarrier()
 	//}
 }
 
-void AircraftCarrier::CreateConstBuffer(ID3D12Device* device)
+void AircraftCarrier::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 	//定数バッファの生成(位置)
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -43,7 +43,7 @@ void AircraftCarrier::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 	//定数バッファの生成(マテリアル)
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -59,19 +59,19 @@ void AircraftCarrier::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-AircraftCarrier* AircraftCarrier::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& position)
+AircraftCarrier* AircraftCarrier::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	AircraftCarrier* aircraftCarrier = new AircraftCarrier(arg_cmdList);
 
 	aircraftCarrier->Initialize();
 
-	aircraftCarrier->SetPosition(position);
+	aircraftCarrier->SetPosition(arg_position);
 
-	aircraftCarrier->CreateConstBuffer(device);
+	aircraftCarrier->CreateConstBuffer(arg_device);
 	//弾丸の装備
-	aircraftCarrier->AttachBullet(device);
+	aircraftCarrier->AttachElien(arg_device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	//パーティクル色のセット
 	deathParticle->SetSelectColor(2);
 
@@ -80,16 +80,16 @@ AircraftCarrier* AircraftCarrier::Create(ID3D12Device* device, ID3D12GraphicsCom
 	return aircraftCarrier;
 }
 
-void AircraftCarrier::SetEye(const Vector3& eye)
+void AircraftCarrier::SetEye(const Vector3& arg_eye)
 {
-	AircraftCarrier::camera->SetEye(eye);
+	AircraftCarrier::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void AircraftCarrier::SetTarget(const Vector3& target)
+void AircraftCarrier::SetTarget(const Vector3& arg_target)
 {
-	AircraftCarrier::camera->SetTarget(target);
+	AircraftCarrier::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -99,23 +99,23 @@ void AircraftCarrier::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void AircraftCarrier::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* alienModel, OBJModel* scoreModel)
+void AircraftCarrier::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_alienModel, OBJModel* arg_scoreModel)
 {
 	objModel = arg_objModel;
-	SetAlienModel(alienModel,scoreModel);
+	SetAlienModel(arg_alienModel,arg_scoreModel);
 }
 
-void AircraftCarrier::SetAlienModel(OBJModel* alienModel, OBJModel* scoreModel)
+void AircraftCarrier::SetAlienModel(OBJModel* arg_alienModel, OBJModel* arg_scoreModel)
 {
 	//先に敵機の生成とモデルセットとオブジェクトマネージャーへの追加をしておく
 	for (int i = 0; i < aliens.size(); i++)
 	{
 		//モデル1のセット
-		aliens[i]->SetOBJModel(alienModel,scoreModel);
+		aliens[i]->SetOBJModel(arg_alienModel,arg_scoreModel);
 	}
 }
 
-void AircraftCarrier::AttachBullet(ID3D12Device* device)
+void AircraftCarrier::AttachElien(ID3D12Device* arg_device)
 {
 	aliens.resize(10);
 
@@ -123,7 +123,7 @@ void AircraftCarrier::AttachBullet(ID3D12Device* device)
 	for (int i = 0; i < aliens.size(); i++)
 	{
 		//キャラクター1の生成
-		aliens[i] = Alien::Create(device, cmdList, { 5.0f + 25.0f,12.0f,0.0f });
+		aliens[i] = Alien::Create(arg_device, cmdList, { 5.0f + 25.0f,12.0f,0.0f });
 		aliens[i]->SetIsDeadFlag(true);
 	}
 }
@@ -149,17 +149,17 @@ void AircraftCarrier::Initialize()
 	invisibleTime = 0;
 }
 //プレイヤーの更新処理
-void AircraftCarrier::Update(const Vector3& incrementValue)
+void AircraftCarrier::Update(const Vector3& arg_incrementValue)
 {
-	centerPosition += incrementValue.x;
-	SetScrollIncrement(incrementValue);
+	centerPosition += arg_incrementValue.x;
+	SetScrollIncrement(arg_incrementValue);
 	if (isDeadFlag == false)
 	{
 		if (moveLugTime <= 0)
 		{
 			if (moveEndFlag == false)
 			{
-				Move(incrementValue);
+				Move(arg_incrementValue);
 			}
 		}
 		else
@@ -255,7 +255,7 @@ void AircraftCarrier::TransferConstBuff()
 	constBuffB0->Unmap(0, nullptr);
 }
 
-void AircraftCarrier::Move(const Vector3& incrementValue)
+void AircraftCarrier::Move(const Vector3& arg_incrementValue)
 {
 	//動きの種類
 	switch (currentType)
@@ -292,7 +292,7 @@ void AircraftCarrier::Move(const Vector3& incrementValue)
 
 	case MOVETYPE::STAY:
 		//停止
-		StayMove(incrementValue);
+		StayMove(arg_incrementValue);
 
 		break;
 
@@ -508,7 +508,7 @@ void AircraftCarrier::DownCurveMove()
 	}
 }
 
-void AircraftCarrier::StayMove(const Vector3& incrementValue)
+void AircraftCarrier::StayMove(const Vector3& arg_incrementValue)
 {
 	switch (currentPhase)
 	{
@@ -554,7 +554,7 @@ void AircraftCarrier::StayMove(const Vector3& incrementValue)
 				aliens[i]->SetMoveLugTime(i * 30);
 				aliens[i]->SetPosition(upPosition);
 				aliens[i]->SetMoveType(MOVETYPE::UPCURVE);
-				aliens[i]->Update(incrementValue);
+				aliens[i]->Update(arg_incrementValue);
 			}
 
 			Vector3 downPosition = position;
@@ -565,7 +565,7 @@ void AircraftCarrier::StayMove(const Vector3& incrementValue)
 				aliens[i]->SetMoveLugTime((i - 10 / 2) * 30 + 240);
 				aliens[i]->SetPosition(downPosition);
 				aliens[i]->SetMoveType(MOVETYPE::DOWNCURVE);
-				aliens[i]->Update(incrementValue);
+				aliens[i]->Update(arg_incrementValue);
 			}
 
 			lanchFlag = false;
@@ -600,9 +600,9 @@ void AircraftCarrier::IsDead()
 	isDeadFlag = true;
 }
 
-void AircraftCarrier::SetMoveType(const MOVETYPE& moveType)
+void AircraftCarrier::SetMoveType(const MOVETYPE& arg_moveType)
 {
-	currentType = moveType;
+	currentType = arg_moveType;
 
 	if (currentType == MOVETYPE::UPCURVE)
 	{
@@ -616,9 +616,9 @@ void AircraftCarrier::SetMoveType(const MOVETYPE& moveType)
 	}
 }
 
-void AircraftCarrier::SetScrollIncrement(const Vector3& incrementValue)
+void AircraftCarrier::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void AircraftCarrier::Damage()

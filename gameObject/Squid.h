@@ -25,25 +25,32 @@ class Squid :public GameObject
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public:
-	//コンストラクタ
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
+	/// <param name="arg_cmdList">コマンドリスト</param>
 	Squid(ID3D12GraphicsCommandList* arg_cmdList);
 
-	//デストラクタ
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	~Squid();
 
 	/// <summary>
 	/// オブジェクトの生成処理
 	/// </summary>
-	/// <param name="device">デバイス</param>
-	/// <param name="position">ポジション</param>
+	/// <param name="arg_device">デバイス</param>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	/// <param name="arg_position">ポジション</param>
 	/// <returns>キャラクターオブジェクト</returns>
-	static Squid* Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position = { 0.0f,0.0f,0.0f });
+	static Squid* Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position = { 0.0f,0.0f,0.0f });
 
 
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	void CreateConstBuffer(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void CreateConstBuffer(ID3D12Device* arg_device);
 
 	/// <summary>
 	/// 初期化処理
@@ -53,45 +60,51 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	void Update(const Vector3& incrementValue, const Vector3& playerPosition);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	/// <param name="arg_playerPosition">プレイヤーオブジェクト</param>
+	void Update(const Vector3& arg_incrementValue, const Vector3& arg_playerPosition);
 
 	/// <summary>
 	/// 描画処理
 	/// </summary>
-	/// <param name="cmdList">コマンドリスト</param>
 	void Draw();
 
 	/// <summary>
 	/// モデルのセット
 	/// </summary>
-	/// <param name="objModel">モデル</param>
-	void SetOBJModel(OBJModel* eyeModel, OBJModel* bodyModel);
+	/// <param name="arg_eyeModel">目のモデル</param>
+	/// <param name="arg_bodyModel">体のモデル</param>
+	void SetOBJModel(OBJModel* arg_eyeModel, OBJModel* arg_bodyModel);
 
 	/// <summary>
-	/// 体のモデルのモデルのセット
+	/// 体のモデルのセット
 	/// </summary>
-	/// <param name="bulletModel">モデル</param>
-	void SetBodyModel(OBJModel* bodyModel);
+	/// <param name="arg_bulletModel">モデル</param>
+	void SetBodyModel(OBJModel* arg_bodyModel);
 
 	/// <summary>
-	/// 目のモデルのモデルのセット
+	/// 目のモデルのセット
 	/// </summary>
-	/// <param name="bulletModel">モデル</param>
-	void SetEyeModel(OBJModel* eyeModel);
+	/// <param name="arg_eyeModel">モデル</param>
+	void SetEyeModel(OBJModel* arg_eyeModel);
 
-	void SetTentaclesModel(OBJModel* tentacleModel);
+	/// <summary>
+	/// 触手モデルのセット
+	/// </summary>
+	/// <param name="arg_tentacleModel">モデル</param>
+	void SetTentaclesModel(OBJModel* arg_tentacleModel);
 
 	/// <summary>
 	/// 視点座標のセット
 	/// </summary>
-	/// <param name="eye">視点座標</param>
-	static void SetEye(const Vector3& eye);
+	/// <param name="arg_eye">視点座標</param>
+	static void SetEye(const Vector3& arg_eye);
 
 	/// <summary>
 	/// 注視点座標のセット
 	/// </summary>
-	/// <param name="target">注視点座標</param>
-	static void SetTarget(const Vector3& target);
+	/// <param name="arg_target">注視点座標</param>
+	static void SetTarget(const Vector3& arg_target);
 
 	/// <summary>
 	/// ビュー行列の更新処理
@@ -101,23 +114,26 @@ public:
 	/// <summary>
 	/// カメラのセット
 	/// </summary>
-	/// <param name="camera">カメラ</param>
+	/// <param name="arg_camera">カメラ</param>
 	static void SetCamera(Camera* arg_camera) { Squid::camera = arg_camera; }
 
 	/// <summary>
 	/// 体をリサイズし生成する
 	/// </summary>
-	void AttachBody(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void AttachBody(ID3D12Device* arg_device);
 
 	/// <summary>
 	/// 触手をリサイズし生成する
 	/// </summary>
-	void AttachTentacles(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void AttachTentacles(ID3D12Device* arg_device);
 
 	/// <summary>
 	/// 目をリサイズし生成する
 	/// </summary>
-	void AttachEye(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void AttachEye(ID3D12Device* arg_device);
 private:
 	UINT descpriptorSize;
 	static ID3D12GraphicsCommandList* cmdList;
@@ -181,13 +197,13 @@ public:
 	/// <summary>
 	/// 移動処理
 	/// </summary>
-	/// <param name="playerPosition">プレイヤーポジション</param>
-	void Move(const Vector3& playerPosition);
+	/// <param name="arg_playerPosition">プレイヤーポジション</param>
+	void Move(const Vector3& arg_playerPosition);
 
 	/// <summary>
 	/// ムーブフェイズのセット
 	/// </summary>
-	/// <param name="movePhase">ムーブフェイズ</param>
+	/// <param name="arg_movePhase">ムーブフェイズ</param>
 	void SetMovePhase(const MOVEPHASE& arg_currentPhase) { currentPhase = arg_currentPhase; }
 
 	/// <summary>
@@ -205,12 +221,13 @@ public:
 	/// <summary>
 	/// ある程度進んで停止する処理処理
 	/// </summary>
-	void StayMove(const Vector3& playerPosition);
+	/// <param name="arg_playerPosition">プレイヤーポジション</param>
+	void StayMove(const Vector3& arg_playerPosition);
 
 	/// <summary>
 	/// ムーブラグタイムのセット
 	/// </summary>
-	/// <param name="moveLugTime">ムーブラグタイム</param>
+	/// <param name="arg_moveLugTime">ムーブラグタイム</param>
 	void SetMoveLugTime(int arg_moveLugTime) { moveLugTime = arg_moveLugTime; }
 
 	/// <summary>
@@ -245,19 +262,19 @@ public:
 	/// <summary>
 	/// ポジションの移動
 	/// </summary>
-	/// <param name="incrementValue">ポジションの増加量</param>
-	void SetScrollIncrement(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">ポジションの増加量</param>
+	void SetScrollIncrement(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// センターポジションのセット
 	/// </summary>
-	/// <param name="centerPosition"></param>
+	/// <param name="arg_centerPosition">画面の中心座標</param>
 	void SetCenterPos(float arg_centerPosition) { centerPosition = arg_centerPosition; }
 
 	/// <summary>
 	/// HPのセット
 	/// </summary>
-	/// <param name="hp">HP</param>
+	/// <param name="arg_hp">HP</param>
 	void SetHP(int arg_hp) { hp = arg_hp; }
 
 	/// <summary>
@@ -284,7 +301,7 @@ public:
 	/// <summary>
 	/// 死亡演出用のパーティクルのセット
 	/// </summary>
-	/// <param name="deathParticle">パーティクル</param>
+	/// <param name="arg_deathParticle">パーティクル</param>
 	void SetDeathParticleManager(ParticleManager* arg_deathParticle) { deathParticle.reset(arg_deathParticle); }
 
 	/// <summary>

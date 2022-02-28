@@ -22,11 +22,11 @@ Laser::~Laser()
 
 }
 
-void Laser::CreateConstBuffer(ID3D12Device* device)
+void Laser::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -34,7 +34,7 @@ void Laser::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -50,27 +50,27 @@ void Laser::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-Laser* Laser::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,Vector3 position)
+Laser* Laser::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	Laser* laser = new Laser(arg_cmdList);
 
-	laser->SetPosition(position);
+	laser->SetPosition(arg_position);
 
-	laser->CreateConstBuffer(device);
+	laser->CreateConstBuffer(arg_device);
 
 	return laser;
 }
 
-void Laser::SetEye(const Vector3& eye)
+void Laser::SetEye(const Vector3& arg_eye)
 {
-	Laser::camera->SetEye(eye);
+	Laser::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void Laser::SetTarget(const Vector3& target)
+void Laser::SetTarget(const Vector3& arg_target)
 {
-	Laser::camera->SetTarget(target);
+	Laser::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -95,9 +95,9 @@ void Laser::Initialize()
 }
 
 //プレイヤーの更新処理
-void Laser::Update(const Vector3& incrementValue)
+void Laser::Update(const Vector3& arg_incrementValue)
 {
-	SetScrollIncrement(incrementValue);
+	SetScrollIncrement(arg_incrementValue);
 	//定数バッファの転送
 	TransferConstBuff();
 
@@ -165,9 +165,9 @@ void Laser::TransferConstBuff()
 	constBuffB0->Unmap(0, nullptr);
 }
 
-void Laser::SetScrollIncrement(const Vector3& incrementValue)
+void Laser::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 bool Laser::IsCollision(GameObject* arg_otherObject)

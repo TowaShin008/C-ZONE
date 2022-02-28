@@ -26,11 +26,11 @@ UnionCharacter::~UnionCharacter()
 	}
 }
 
-void UnionCharacter::CreateConstBuffer(ID3D12Device* device)
+void UnionCharacter::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -38,7 +38,7 @@ void UnionCharacter::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -54,33 +54,33 @@ void UnionCharacter::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-UnionCharacter* UnionCharacter::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,Vector3 position)
+UnionCharacter* UnionCharacter::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	UnionCharacter* unionCharacter = new UnionCharacter(arg_cmdList);
 
 	unionCharacter->Initialize();
 
-	unionCharacter->SetPosition(position);
+	unionCharacter->SetPosition(arg_position);
 
-	unionCharacter->CreateConstBuffer(device);
+	unionCharacter->CreateConstBuffer(arg_device);
 
-	unionCharacter->AttachBullet(device);
+	unionCharacter->AttachBullet(arg_device);
 
 	unionCharacter->SetLanchFlag(true);
 
 	return unionCharacter;
 }
 
-void UnionCharacter::SetEye(const Vector3& eye)
+void UnionCharacter::SetEye(const Vector3& arg_eye)
 {
-	UnionCharacter::camera->SetEye(eye);
+	UnionCharacter::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void UnionCharacter::SetTarget(const Vector3& target)
+void UnionCharacter::SetTarget(const Vector3& arg_target)
 {
-	UnionCharacter::camera->SetTarget(target);
+	UnionCharacter::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -96,21 +96,21 @@ void UnionCharacter::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulle
 	SetBulletModel(arg_bulletModel);
 }
 
-void UnionCharacter::SetBulletModel(OBJModel* bulletModel)
+void UnionCharacter::SetBulletModel(OBJModel* arg_bulletModel)
 {
 	for (int i = 0; i < bullets.size();i++)
 	{
-		bullets[i]->SetOBJModel(bulletModel);
+		bullets[i]->SetOBJModel(arg_bulletModel);
 	}
 }
 
-void UnionCharacter::AttachBullet(ID3D12Device* device)
+void UnionCharacter::AttachBullet(ID3D12Device* arg_device)
 {
 	bullets.resize(BULLETMAXNUM);
 
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i] = Bullet::Create(device, cmdList);
+		bullets[i] = Bullet::Create(arg_device, cmdList);
 		bullets[i]->SetIsDeadFlag(true);
 		bullets[i]->SetCharacterType(CHARACTERTYPE::FRIEND);
 		bullets[i]->SetVelocity({1.0f,0.0f,0.0f});
@@ -127,7 +127,7 @@ void UnionCharacter::Initialize()
 }
 
 //ユニオンの更新処理
-void UnionCharacter::Update(GameObject* player, const Vector3& incrementValue)
+void UnionCharacter::Update(GameObject* arg_player, const Vector3& arg_incrementValue)
 {
 	if (isDeadFlag)
 	{ 
@@ -135,16 +135,16 @@ void UnionCharacter::Update(GameObject* player, const Vector3& incrementValue)
 	}
 
 	//移動処理
-	Move(player);
+	Move(arg_player);
 	//弾の発射処理
-	if (shotFlag && player->GetPosition().z >= 0.0f)
+	if (shotFlag && arg_player->GetPosition().z >= 0.0f)
 	{
-		ShotBullet(incrementValue);
+		ShotBullet(arg_incrementValue);
 	}
 
-	UpdateAttack(incrementValue);
+	UpdateAttack(arg_incrementValue);
 	//定数バッファの転送
-	TransferConstBuff(incrementValue);
+	TransferConstBuff(arg_incrementValue);
 }
 
 void UnionCharacter::Draw()
@@ -173,9 +173,9 @@ void UnionCharacter::Draw()
 	
 }
 
-void UnionCharacter::SetScrollIncrement(const Vector3& incrementValue)
+void UnionCharacter::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void UnionCharacter::SetBossSceneFlag(bool arg_bossSceneFlag)
@@ -205,21 +205,21 @@ void UnionCharacter::SetBossSceneFlag(bool arg_bossSceneFlag)
 	}
 }
 
-bool UnionCharacter::IsPlayerCollision(const Vector3& otherPosition, float otherRadius)
+bool UnionCharacter::IsPlayerCollision(const Vector3& arg_otherPosition, float arg_otherRadius)
 {
 	if (lanchFlag)
 	{
 		return false;
 	}
 
-	if (Collision::CheckSphereToSphere({ {otherPosition.x + 1.0f,otherPosition.y,otherPosition.z},{otherRadius} },
+	if (Collision::CheckSphereToSphere({ {arg_otherPosition.x + 1.0f,arg_otherPosition.y,arg_otherPosition.z},{arg_otherRadius} },
 		{ {position.x     ,position.y     ,position.z     },{0.5f       } }))
 	{
 		playerFrontFlag = true;
 		playerBackFlag = false;
 		return true;
 	}
-	else if (Collision::CheckSphereToSphere({ {otherPosition.x - 1.0f,otherPosition.y,otherPosition.z},{otherRadius} },
+	else if (Collision::CheckSphereToSphere({ {arg_otherPosition.x - 1.0f,arg_otherPosition.y,arg_otherPosition.z},{arg_otherRadius} },
 		{ {position.x     ,position.y     ,position.z     },{0.5f       } }))
 	{
 		playerFrontFlag = false;
@@ -240,7 +240,7 @@ void UnionCharacter::SetLanchFlag(bool arg_lanchFlag)
 	}
 }
 
-void UnionCharacter::ShotBullet(const Vector3& incrementValue)
+void UnionCharacter::ShotBullet(const Vector3& arg_incrementValue)
 {
 	if (shotLugTime < 1)
 	{
@@ -269,12 +269,12 @@ void UnionCharacter::ShotBullet(const Vector3& incrementValue)
 	}
 }
 
-void UnionCharacter::TransferConstBuff(const Vector3& incrementValue)
+void UnionCharacter::TransferConstBuff(const Vector3& arg_incrementValue)
 {
 	HRESULT result;
 	XMMATRIX matScale, matRot, matTrans;
 	UpdateViewMatrix();
-	SetScrollIncrement(incrementValue);
+	SetScrollIncrement(arg_incrementValue);
 
 	if (bossSceneFlag)
 	{
@@ -339,10 +339,10 @@ void UnionCharacter::TransferConstBuff(const Vector3& incrementValue)
 	//constBuffB1->Unmap(0, nullptr);
 }
 
-void UnionCharacter::Move(GameObject* player)
+void UnionCharacter::Move(GameObject* arg_player)
 {
-	const Vector3 playerPosition = player->GetPosition();
-	if (player != nullptr)
+	const Vector3 playerPosition = arg_player->GetPosition();
+	if (arg_player != nullptr)
 	{//2点のベクトル計算
 		Vector3 basePosition = { 0,0,0 };
 		if (lanchFlag)
@@ -462,14 +462,14 @@ bool UnionCharacter::IsCollision(GameObject* arg_otherObject)
 	return false;
 }
 
-void UnionCharacter::UpdateAttack(const Vector3& incrementValue)
+void UnionCharacter::UpdateAttack(const Vector3& arg_incrementValue)
 {
 	for (int i = 0; i < bullets.size(); i++)
 	{
 		if (bullets[i]->GetIsDeadFlag() == true)
 			continue;
 
-		bullets[i]->Update(incrementValue);
+		bullets[i]->Update(arg_incrementValue);
 
 		if (bossSceneFlag == false)
 		{

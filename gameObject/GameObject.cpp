@@ -15,7 +15,7 @@ void GameObject::Initialize()
 
 }
 
-void GameObject::Update(const Vector3& incrementValue)
+void GameObject::Update(const Vector3& arg_incrementValue)
 {
 
 }

@@ -26,11 +26,11 @@ NormalEnemy::~NormalEnemy()
 	}
 }
 
-void NormalEnemy::CreateConstBuffer(ID3D12Device* device)
+void NormalEnemy::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -38,7 +38,7 @@ void NormalEnemy::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -46,7 +46,7 @@ void NormalEnemy::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB1));
 
-	scoreCharacter.reset(OBJCharacter::Create(device));
+	scoreCharacter.reset(OBJCharacter::Create(arg_device));
 	scoreCharacter->SetScale({2.0f,2.0f,2.0f});
 	scoreCharacter->SetRotation({0,0,180.0f});
 
@@ -58,19 +58,19 @@ void NormalEnemy::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-NormalEnemy* NormalEnemy::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,Vector3 position)
+NormalEnemy* NormalEnemy::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	NormalEnemy* normalEnemy = new NormalEnemy(arg_cmdList);
 
 	normalEnemy->Initialize();
 
-	normalEnemy->SetPosition(position);
+	normalEnemy->SetPosition(arg_position);
 
-	normalEnemy->CreateConstBuffer(device);
+	normalEnemy->CreateConstBuffer(arg_device);
 
-	normalEnemy->AttachBullet(device);
+	normalEnemy->AttachBullet(arg_device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 
 	deathParticle->SetSelectColor(2);
 
@@ -79,16 +79,16 @@ NormalEnemy* NormalEnemy::Create(ID3D12Device* device, ID3D12GraphicsCommandList
 	return normalEnemy;
 }
 
-void NormalEnemy::SetEye(const Vector3& eye)
+void NormalEnemy::SetEye(const Vector3& arg_eye)
 {
-	NormalEnemy::camera->SetEye(eye);
+	NormalEnemy::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void NormalEnemy::SetTarget(const Vector3& target)
+void NormalEnemy::SetTarget(const Vector3& arg_target)
 {
-	NormalEnemy::camera->SetTarget(target);
+	NormalEnemy::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -98,28 +98,28 @@ void NormalEnemy::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void NormalEnemy::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* bulletModel, OBJModel* arg_scoreModel)
+void NormalEnemy::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel, OBJModel* arg_scoreModel)
 {
 	objModel = arg_objModel;
-	SetBulletModel(bulletModel);
+	SetBulletModel(arg_bulletModel);
 	scoreCharacter->SetOBJModel(arg_scoreModel);
 }
 
-void NormalEnemy::SetBulletModel(OBJModel* bulletModel)
+void NormalEnemy::SetBulletModel(OBJModel* arg_bulletModel)
 {
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i]->SetOBJModel(bulletModel);
+		bullets[i]->SetOBJModel(arg_bulletModel);
 	}
 }
 
-void NormalEnemy::AttachBullet(ID3D12Device* device)
+void NormalEnemy::AttachBullet(ID3D12Device* arg_device)
 {
 	bullets.resize(BULLETMAXNUM);
 
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i] = Bullet::Create(device,cmdList);
+		bullets[i] = Bullet::Create(arg_device,cmdList);
 		bullets[i]->SetIsDeadFlag(true);
 		bullets[i]->SetCharacterType(CHARACTERTYPE::ENEMY);
 		bullets[i]->SetVelocity({-0.2f,0.0f,0.0f});
@@ -144,10 +144,10 @@ void NormalEnemy::Initialize()
 	invisibleTime = 0;
 }
 //プレイヤーの更新処理
-void NormalEnemy::Update(const Vector3& incrementValue)
+void NormalEnemy::Update(const Vector3& arg_incrementValue)
 {
-	centerPosition += incrementValue.x;
-	SetScrollIncrement(incrementValue);
+	centerPosition += arg_incrementValue.x;
+	SetScrollIncrement(arg_incrementValue);
 	if (moveLugTime <= 0)
 	{
 		if (isDeadFlag == false)
@@ -179,7 +179,7 @@ void NormalEnemy::Update(const Vector3& incrementValue)
 		else
 		{
 			//スコア演出
-			ScoreProcessing(incrementValue);
+			ScoreProcessing(arg_incrementValue);
 		}
 	}
 	else
@@ -201,7 +201,7 @@ void NormalEnemy::Update(const Vector3& incrementValue)
 
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i]->Update(incrementValue);
+		bullets[i]->Update(arg_incrementValue);
 		if (bullets[i]->GetPosition().x < centerPosition + SCREENLEFT - 4.0f)
 		{
 			bullets[i]->SetIsDeadFlag(true);
@@ -527,9 +527,9 @@ void NormalEnemy::IsDead()
 	isDeadFlag = true;
 }
 
-void NormalEnemy::SetMoveType(const MOVETYPE& moveType)
+void NormalEnemy::SetMoveType(const MOVETYPE& arg_moveType)
 {
-	currentType = moveType;
+	currentType = arg_moveType;
 
 	if (currentType == MOVETYPE::UPCURVE)
 	{
@@ -543,9 +543,9 @@ void NormalEnemy::SetMoveType(const MOVETYPE& moveType)
 	}
 }
 
-void NormalEnemy::SetScrollIncrement(const Vector3& incrementValue)
+void NormalEnemy::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void NormalEnemy::Damage()
@@ -688,7 +688,7 @@ void NormalEnemy::ShotBullet()
 	}
 }
 
-void NormalEnemy::ScoreProcessing(Vector3 incrementValue)
+void NormalEnemy::ScoreProcessing(const Vector3& arg_incrementValue)
 {
 	//現在のスコアの色とスケールを取得
 	Vector4 scoreColor = scoreCharacter->GetColor();
@@ -709,5 +709,5 @@ void NormalEnemy::ScoreProcessing(Vector3 incrementValue)
 	scoreCharacter->SetScale(scoreScale);
 	scoreCharacter->SetColor(scoreColor);
 	scoreCharacter->SetPosition({ position.x,position.y,position.z + 5.0f });
-	scoreCharacter->Update(incrementValue);
+	scoreCharacter->Update(arg_incrementValue);
 }

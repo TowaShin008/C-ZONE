@@ -21,11 +21,11 @@ FinalBossEye::~FinalBossEye()
 {
 }
 
-void FinalBossEye::CreateConstBuffer(ID3D12Device* device)
+void FinalBossEye::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -33,7 +33,7 @@ void FinalBossEye::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -49,30 +49,30 @@ void FinalBossEye::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-FinalBossEye* FinalBossEye::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position)
+FinalBossEye* FinalBossEye::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	FinalBossEye* finalBossEye = new FinalBossEye(arg_cmdList);
 	finalBossEye->Initialize();
-	finalBossEye->SetPosition(position);
-	finalBossEye->CreateConstBuffer(device);
+	finalBossEye->SetPosition(arg_position);
+	finalBossEye->CreateConstBuffer(arg_device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	deathParticle->SetSelectColor(2);
 	finalBossEye->SetDeathParticleManager(deathParticle);
 
 	return finalBossEye;
 }
 
-void FinalBossEye::SetEye(const Vector3& eye)
+void FinalBossEye::SetEye(const Vector3& arg_eye)
 {
-	FinalBossEye::camera->SetEye(eye);
+	FinalBossEye::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void FinalBossEye::SetTarget(const Vector3& target)
+void FinalBossEye::SetTarget(const Vector3& arg_target)
 {
-	FinalBossEye::camera->SetTarget(target);
+	FinalBossEye::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -100,12 +100,12 @@ void FinalBossEye::Initialize()
 	invisibleTime = 0;
 }
 //プレイヤーの更新処理
-void FinalBossEye::Update(const Vector3& incrementValue)
+void FinalBossEye::Update(const Vector3& arg_incrementValue)
 {
-	centerPosition += incrementValue.x;
+	centerPosition += arg_incrementValue.x;
 	if (isDeadFlag == false)
 	{
-		SetScrollIncrement(incrementValue);
+		SetScrollIncrement(arg_incrementValue);
 		if (moveEndFlag == false)
 		{//移動処理
 			Move();
@@ -202,9 +202,9 @@ void FinalBossEye::IsDead()
 }
 
 
-void FinalBossEye::SetScrollIncrement(const Vector3& incrementValue)
+void FinalBossEye::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void FinalBossEye::Damage()

@@ -21,11 +21,11 @@ SquidEye::~SquidEye()
 {
 }
 
-void SquidEye::CreateConstBuffer(ID3D12Device* device)
+void SquidEye::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -33,7 +33,7 @@ void SquidEye::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -49,30 +49,30 @@ void SquidEye::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-SquidEye* SquidEye::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position)
+SquidEye* SquidEye::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	SquidEye* squidEye = new SquidEye(arg_cmdList);
 	squidEye->Initialize();
-	squidEye->SetPosition(position);
-	squidEye->CreateConstBuffer(device);
+	squidEye->SetPosition(arg_position);
+	squidEye->CreateConstBuffer(arg_device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	deathParticle->SetSelectColor(2);
 	squidEye->SetDeathParticleManager(deathParticle);
 
 	return squidEye;
 }
 
-void SquidEye::SetEye(const Vector3& eye)
+void SquidEye::SetEye(const Vector3& arg_eye)
 {
-	SquidEye::camera->SetEye(eye);
+	SquidEye::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void SquidEye::SetTarget(const Vector3& target)
+void SquidEye::SetTarget(const Vector3& arg_target)
 {
-	SquidEye::camera->SetTarget(target);
+	SquidEye::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -100,12 +100,12 @@ void SquidEye::Initialize()
 	invisibleTime = 0;
 }
 //プレイヤーの更新処理
-void SquidEye::Update(const Vector3& incrementValue)
+void SquidEye::Update(const Vector3& arg_incrementValue)
 {
-	centerPosition += incrementValue.x;
+	centerPosition += arg_incrementValue.x;
 	if (isDeadFlag == false)
 	{
-		SetScrollIncrement(incrementValue);
+		SetScrollIncrement(arg_incrementValue);
 		if (moveEndFlag == false)
 		{//移動処理
 			Move();
@@ -203,9 +203,9 @@ void SquidEye::IsDead()
 }
 
 
-void SquidEye::SetScrollIncrement(const Vector3& incrementValue)
+void SquidEye::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void SquidEye::Damage()

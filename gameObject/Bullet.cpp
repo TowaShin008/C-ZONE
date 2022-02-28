@@ -20,11 +20,11 @@ Bullet::~Bullet()
 
 }
 
-void Bullet::CreateConstBuffer(ID3D12Device* device)
+void Bullet::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -32,7 +32,7 @@ void Bullet::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -48,27 +48,27 @@ void Bullet::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-Bullet* Bullet::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,Vector3 position)
+Bullet* Bullet::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	Bullet* bullet = new Bullet(arg_cmdList);
 
-	bullet->SetPosition(position);
+	bullet->SetPosition(arg_position);
 
-	bullet->CreateConstBuffer(device);
+	bullet->CreateConstBuffer(arg_device);
 
 	return bullet;
 }
 
-void Bullet::SetEye(const Vector3& eye)
+void Bullet::SetEye(const Vector3& arg_eye)
 {
-	Bullet::camera->SetEye(eye);
+	Bullet::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void Bullet::SetTarget(const Vector3& target)
+void Bullet::SetTarget(const Vector3& arg_target)
 {
-	Bullet::camera->SetTarget(target);
+	Bullet::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -86,7 +86,7 @@ void Bullet::Initialize()
 }
 
 //プレイヤーの更新処理
-void Bullet::Update(const Vector3& incrementValue)
+void Bullet::Update(const Vector3& arg_incrementValue)
 {
 	if (isDeadFlag)
 	{
@@ -95,7 +95,7 @@ void Bullet::Update(const Vector3& incrementValue)
 	//移動処理
 	Move();
 
-	SetScrollIncrement(incrementValue);
+	SetScrollIncrement(arg_incrementValue);
 	//定数バッファの転送
 	TransferConstBuff();
 }
@@ -168,9 +168,9 @@ void Bullet::Move()
 	position = position + velocity * speed;
 }
 
-void Bullet::SetScrollIncrement(const Vector3& incrementValue)
+void Bullet::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 bool Bullet::IsCollision(GameObject* arg_otherObject)

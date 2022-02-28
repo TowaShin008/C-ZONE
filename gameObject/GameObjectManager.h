@@ -17,19 +17,20 @@ public:
 	/// <summary>
 	/// 初期化処理
 	/// </summary>
-	/// <param name="score">スコア</param>
+	/// <param name="arg_score">スコア</param>
 	void Initialize(unsigned int arg_score);
 
 	/// <summary>
 	/// オブジェクト追加処理
 	/// </summary>
-	/// <param name="gameObject">ゲームオブジェクト</param>
-	void AddGameObject(GameObject* gameObject);
+	/// <param name="arg_gameObject">ゲームオブジェクト</param>
+	void AddGameObject(GameObject* arg_gameObject);
 
 	/// <summary>
 	/// すべてのオブジェクトのアップデート処理
 	/// </summary>
-	void UpdateAllObject(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void UpdateAllObject(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// すべてのオブジェクトの描画処理

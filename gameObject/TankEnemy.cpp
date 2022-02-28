@@ -27,11 +27,11 @@ TankEnemy::~TankEnemy()
 	}
 }
 
-void TankEnemy::CreateConstBuffer(ID3D12Device* device)
+void TankEnemy::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -39,7 +39,7 @@ void TankEnemy::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -52,26 +52,26 @@ void TankEnemy::CreateConstBuffer(ID3D12Device* device)
 		assert(0);
 	}
 
-	scoreCharacter.reset(OBJCharacter::Create(device));
+	scoreCharacter.reset(OBJCharacter::Create(arg_device));
 	scoreCharacter->SetScale({ 2.0f,2.0f,2.0f });
 	scoreCharacter->SetRotation({ 0,0,180.0f });
 
 	UpdateViewMatrix();
 }
 
-TankEnemy* TankEnemy::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position)
+TankEnemy* TankEnemy::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	TankEnemy* tankEnemy = new TankEnemy(arg_cmdList);
 
 	tankEnemy->Initialize();
 
-	tankEnemy->SetPosition({ position.x - 19.25f,position.y + 9.8f,0.0f });
+	tankEnemy->SetPosition({ arg_position.x - 19.25f,arg_position.y + 9.8f,0.0f });
 
-	tankEnemy->CreateConstBuffer(device);
+	tankEnemy->CreateConstBuffer(arg_device);
 
-	tankEnemy->AttachBullet(device);
+	tankEnemy->AttachBullet(arg_device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 
 	deathParticle->SetSelectColor(2);
 
@@ -80,16 +80,16 @@ TankEnemy* TankEnemy::Create(ID3D12Device* device, ID3D12GraphicsCommandList* ar
 	return tankEnemy;
 }
 
-void TankEnemy::SetEye(const Vector3& eye)
+void TankEnemy::SetEye(const Vector3& arg_eye)
 {
-	TankEnemy::camera->SetEye(eye);
+	TankEnemy::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void TankEnemy::SetTarget(const Vector3& target)
+void TankEnemy::SetTarget(const Vector3& arg_target)
 {
-	TankEnemy::camera->SetTarget(target);
+	TankEnemy::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -99,28 +99,28 @@ void TankEnemy::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void TankEnemy::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* bulletModel, OBJModel* scoreModel)
+void TankEnemy::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel, OBJModel* arg_scoreModel)
 {
 	objModel = arg_objModel;
-	SetBulletModel(bulletModel);
-	scoreCharacter->SetOBJModel(scoreModel);
+	SetBulletModel(arg_bulletModel);
+	scoreCharacter->SetOBJModel(arg_scoreModel);
 }
 
-void TankEnemy::SetBulletModel(OBJModel* bulletModel)
+void TankEnemy::SetBulletModel(OBJModel* arg_bulletModel)
 {
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i]->SetOBJModel(bulletModel);
+		bullets[i]->SetOBJModel(arg_bulletModel);
 	}
 }
 
-void TankEnemy::AttachBullet(ID3D12Device* device)
+void TankEnemy::AttachBullet(ID3D12Device* arg_device)
 {
 	bullets.resize(BULLETMAXNUM);
 
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i] = Bullet::Create(device, cmdList);
+		bullets[i] = Bullet::Create(arg_device, cmdList);
 		bullets[i]->SetIsDeadFlag(true);
 		bullets[i]->SetSpeed({ 0.2f,0.2f,0.2f });
 		bullets[i]->SetCharacterType(CHARACTERTYPE::ENEMY);
@@ -146,9 +146,9 @@ void TankEnemy::Initialize()
 	brakeCount = 0.0f;
 }
 //プレイヤーの更新処理
-void TankEnemy::Update(const Vector3& incrementValue)
+void TankEnemy::Update(const Vector3& arg_incrementValue)
 {
-	centerPosition += incrementValue.x;
+	centerPosition += arg_incrementValue.x;
 	//SetScrollIncrement(incrementValue);
 	if (moveLugTime <= 0)
 	{
@@ -177,7 +177,7 @@ void TankEnemy::Update(const Vector3& incrementValue)
 		else
 		{
 			//スコア演出
-			ScoreProcessing(incrementValue);
+			ScoreProcessing(arg_incrementValue);
 		}
 	}
 	else
@@ -199,7 +199,7 @@ void TankEnemy::Update(const Vector3& incrementValue)
 
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i]->Update(incrementValue);
+		bullets[i]->Update(arg_incrementValue);
 		const float bulletRange = -4.0f;
 		if (bullets[i]->GetPosition().x < centerPosition + SCREENLEFT + bulletRange)
 		{
@@ -563,9 +563,9 @@ void TankEnemy::IsDead()
 	isDeadFlag = true;
 }
 
-void TankEnemy::SetMoveType(const MOVETYPE& moveType)
+void TankEnemy::SetMoveType(const MOVETYPE& arg_moveType)
 {
-	currentType = moveType;
+	currentType = arg_moveType;
 
 	if (currentType == MOVETYPE::UPCURVE)
 	{
@@ -579,9 +579,9 @@ void TankEnemy::SetMoveType(const MOVETYPE& moveType)
 	}
 }
 
-void TankEnemy::SetScrollIncrement(const Vector3& incrementValue)
+void TankEnemy::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void TankEnemy::DeathParticleProcessing()
@@ -714,7 +714,7 @@ void TankEnemy::CriticalDamage()
 	}
 }
 
-void TankEnemy::ScoreProcessing(Vector3 incrementValue)
+void TankEnemy::ScoreProcessing(const Vector3& arg_incrementValue)
 {
 	Vector4 scoreColor = scoreCharacter->GetColor();
 	Vector3 scoreScale = scoreCharacter->GetScale();
@@ -732,5 +732,5 @@ void TankEnemy::ScoreProcessing(Vector3 incrementValue)
 	scoreCharacter->SetScale(scoreScale);
 	scoreCharacter->SetColor(scoreColor);
 	scoreCharacter->SetPosition({ position.x,position.y,position.z + 5.0f });
-	scoreCharacter->Update(incrementValue);
+	scoreCharacter->Update(arg_incrementValue);
 }

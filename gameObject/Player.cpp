@@ -36,11 +36,11 @@ Player::~Player()
 	}
 }
 
-void Player::CreateConstBuffer(ID3D12Device* device)
+void Player::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -48,7 +48,7 @@ void Player::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -64,55 +64,55 @@ void Player::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-Player* Player::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,Vector3 position)
+Player* Player::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	Player* player = new Player(arg_cmdList);
 
-	UnionCharacter* unionCharacter = UnionCharacter::Create(device, arg_cmdList);
+	UnionCharacter* unionCharacter = UnionCharacter::Create(arg_device, arg_cmdList);
 	player->SetUnionCharacter(unionCharacter);
 
 	player->Initialize();
-	player->SetPosition(position);
-	player->CreateConstBuffer(device);
-	player->AttachBullet(device);
+	player->SetPosition(arg_position);
+	player->CreateConstBuffer(arg_device);
+	player->AttachBullet(arg_device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 
 	deathParticle->SetSelectColor(0);
 
 	player->SetDeathParticleManager(deathParticle);
 
 	ParticleManager* chargeParticleMan;
-	chargeParticleMan = ParticleManager::Create(device);
+	chargeParticleMan = ParticleManager::Create(arg_device);
 	player->SetChargePerticleManager(chargeParticleMan);
 
 
 	ParticleManager* chargeMaxParticleMan;
-	chargeMaxParticleMan = ParticleManager::Create(device);
+	chargeMaxParticleMan = ParticleManager::Create(arg_device);
 	player->SetChargeMaxPerticleManager(chargeMaxParticleMan);
 
 
 	ParticleManager* chargeBulletParticleMan;
-	chargeBulletParticleMan = ParticleManager::Create(device);
+	chargeBulletParticleMan = ParticleManager::Create(arg_device);
 	player->SetChargeBulletPerticleManager(chargeBulletParticleMan);
 
 	ParticleManager* jetParticleMan;
-	jetParticleMan = ParticleManager::Create(device);
+	jetParticleMan = ParticleManager::Create(arg_device);
 	player->SetJetPerticleManager(jetParticleMan);
 
 	return player;
 }
 
-void Player::SetEye(const Vector3& eye)
+void Player::SetEye(const Vector3& arg_eye)
 {
-	Player::camera->SetEye(eye);
+	Player::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void Player::SetTarget(const Vector3& target)
+void Player::SetTarget(const Vector3& arg_target)
 {
-	Player::camera->SetTarget(target);
+	Player::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -122,51 +122,51 @@ void Player::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void Player::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* bulletModel, OBJHighModel* unionModel, OBJModel* uBulletmodel,OBJHighModel* laserModel, OBJHighModel* missileModel)
+void Player::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel, OBJHighModel* arg_unionModel, OBJModel* arg_uBulletmodel,OBJHighModel* arg_laserModel, OBJHighModel* arg_missileModel)
 {
 	objModel = arg_objModel;
-	SetBulletModel(bulletModel);
-	SetLaserModel(laserModel);
-	SetMissileModel(missileModel);
-	unionCharacter->SetOBJModel(unionModel, uBulletmodel);
+	SetBulletModel(arg_bulletModel);
+	SetLaserModel(arg_laserModel);
+	SetMissileModel(arg_missileModel);
+	unionCharacter->SetOBJModel(arg_unionModel, arg_uBulletmodel);
 }
 
-void Player::SetBulletModel(OBJModel* bulletModel)
+void Player::SetBulletModel(OBJModel* arg_bulletModel)
 {
 	for (int i = 0; i < bullets.size();i++)
 	{
-		bullets[i]->SetOBJModel(bulletModel);
+		bullets[i]->SetOBJModel(arg_bulletModel);
 	}
 
-	chargeBullet->SetOBJModel(bulletModel);
+	chargeBullet->SetOBJModel(arg_bulletModel);
 }
 
-void Player::SetLaserModel(OBJHighModel* laserModel)
+void Player::SetLaserModel(OBJHighModel* arg_laserModel)
 {
-	laser->SetOBJModel(laserModel);
+	laser->SetOBJModel(arg_laserModel);
 }
 
-void Player::SetMissileModel(OBJHighModel* missileModel)
+void Player::SetMissileModel(OBJHighModel* arg_missileModel)
 {
 	for (int i = 0; i < missiles.size(); i++)
 	{
-		missiles[i]->SetOBJModel(missileModel);
+		missiles[i]->SetOBJModel(arg_missileModel);
 	}
 }
 
-void Player::AttachBullet(ID3D12Device* device)
+void Player::AttachBullet(ID3D12Device* arg_device)
 {
 	bullets.resize(BULLETMAXNUM);
 
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i] = Bullet::Create(device,cmdList);
+		bullets[i] = Bullet::Create(arg_device,cmdList);
 		bullets[i]->SetIsDeadFlag(true);
 		bullets[i]->SetCharacterType(CHARACTERTYPE::FRIEND);
 		bullets[i]->SetVelocity({1.0f,0.0f,0.0f});
 	}
 
-	chargeBullet.reset(Bullet::Create(device,cmdList));
+	chargeBullet.reset(Bullet::Create(arg_device,cmdList));
 	chargeBullet->SetIsDeadFlag(true);
 	chargeBullet->SetSpeed({ 1.0f,1.0f,1.0f });
 	chargeBullet->SetCharacterType(CHARACTERTYPE::FRIEND);
@@ -177,7 +177,7 @@ void Player::AttachBullet(ID3D12Device* device)
 
 	for (int i = 0; i < missiles.size()/2; i++)
 	{
-		missiles[i] = Missile::Create(device,cmdList);
+		missiles[i] = Missile::Create(arg_device,cmdList);
 		missiles[i]->SetIsDeadFlag(true);
 		missiles[i]->SetUpShotFlag(true);
 		missiles[i]->SetCharacterType(CHARACTERTYPE::FRIEND);
@@ -186,14 +186,14 @@ void Player::AttachBullet(ID3D12Device* device)
 
 	for (int i = missiles.size() / 2; i < missiles.size(); i++)
 	{
-		missiles[i] = Missile::Create(device,cmdList);
+		missiles[i] = Missile::Create(arg_device,cmdList);
 		missiles[i]->SetIsDeadFlag(true);
 		missiles[i]->SetUpShotFlag(false);
 		missiles[i]->SetCharacterType(CHARACTERTYPE::FRIEND);
 		missiles[i]->SetVelocity({ 0.0f,0.0f,0.0f });
 	}
 
-	laser.reset(Laser::Create(device,cmdList));
+	laser.reset(Laser::Create(arg_device,cmdList));
 	laser->SetIsDeadFlag(true);
 	laser->SetCharacterType(CHARACTERTYPE::FRIEND);
 	laser->SetScale({ 0.0f,5.0f,0.0f });
@@ -226,7 +226,7 @@ void Player::Initialize()
 }
 
 //プレイヤーの更新処理
-void Player::Update(const Vector3& incrementValue)
+void Player::Update(const Vector3& arg_incrementValue)
 {
 	if (isDeadFlag)
 	{
@@ -236,19 +236,19 @@ void Player::Update(const Vector3& incrementValue)
 	//移動処理
 	if (moveFlag)
 	{
-		Move(incrementValue);
+		Move(arg_incrementValue);
 	}
 
 	if (shotFlag)
 	{
 		//弾の発射処理
-		ShotBullet(incrementValue);
+		ShotBullet(arg_incrementValue);
 		//チャージ弾の発射処理
-		ShotChargeBullet(incrementValue);
+		ShotChargeBullet(arg_incrementValue);
 		//レーザーの発射処理
-		ShotLaser(incrementValue);
+		ShotLaser(arg_incrementValue);
 		//ミサイルの発射処理
-		ShotMissile(incrementValue);
+		ShotMissile(arg_incrementValue);
 	}
 
 	DeathParticleProcessing();
@@ -256,13 +256,13 @@ void Player::Update(const Vector3& incrementValue)
 	//プレイヤーと子機の当たり判定
 	unionCharacter->IsPlayerCollision(position, 0.5f);
 	//子機の更新処理
-	unionCharacter->Update(this, incrementValue);
+	unionCharacter->Update(this, arg_incrementValue);
 
-	SetScrollIncrement(incrementValue);
+	SetScrollIncrement(arg_incrementValue);
 	//定数バッファの転送
 	TransferConstBuff();
 
-	UpdateAttack(incrementValue);
+	UpdateAttack(arg_incrementValue);
 
 	//各パーティクルのアップデート処理
 	chargeParticleManager->Update();
@@ -321,9 +321,9 @@ void Player::Draw()
 	}
 }
 
-void Player::SetScrollIncrement(const Vector3& incrementValue)
+void Player::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void Player::Damage()
@@ -430,7 +430,7 @@ void Player::SetBossSceneFlag(bool arg_bossSceneFlag)
 	unionCharacter->SetBossSceneFlag(bossSceneFlag);
 }
 
-void Player::ShotBullet(const Vector3& incrementValue)
+void Player::ShotBullet(const Vector3& arg_incrementValue)
 {
 	//弾発射処理
 	if ((Input::GetInstance()->KeyState(DIK_SPACE) || Input::GetInstance()->PadButtonState(XINPUT_GAMEPAD_A))&& shotLugTime < 1)
@@ -458,7 +458,7 @@ void Player::ShotBullet(const Vector3& incrementValue)
 	}
 }
 
-void Player::ShotChargeBullet(const Vector3& incrementValue)
+void Player::ShotChargeBullet(const Vector3& arg_incrementValue)
 {
 	//チャージ弾発射処理
 	if (Input::GetInstance()->KeyState(DIK_LCONTROL))
@@ -569,7 +569,7 @@ void Player::ShotChargeBullet(const Vector3& incrementValue)
 	}
 }
 
-void Player::ShotLaser(const Vector3& incrementValue)
+void Player::ShotLaser(const Vector3& arg_incrementValue)
 {
 	//弾発射処理
 	if ((Input::GetInstance()->KeyState(DIK_B) || Input::GetInstance()->PadButtonState(XINPUT_GAMEPAD_B))&&isAbleToChargeLaser == false)
@@ -634,7 +634,7 @@ void Player::ShotLaser(const Vector3& incrementValue)
 	}
 }
 
-void Player::ShotMissile(const Vector3& incrementValue)
+void Player::ShotMissile(const Vector3& arg_incrementValue)
 {
 	//弾発射処理
 	if ((Input::GetInstance()->KeyState(DIK_SPACE) || Input::GetInstance()->PadButtonState(XINPUT_GAMEPAD_A)) && shotMissileLugTime < 1)
@@ -736,7 +736,7 @@ void Player::TransferConstBuff()
 	//constBuffB1->Unmap(0, nullptr);
 }
 
-void Player::Move(const Vector3& incrementValue)
+void Player::Move(const Vector3& arg_incrementValue)
 {
 	if (bossSceneFlag == false)
 		rotation.x = 270.0f;
@@ -745,7 +745,7 @@ void Player::Move(const Vector3& incrementValue)
 		rotation.y = 0.0f;
 
 	velocity = { 0,0,0 };
-	centerPosition += incrementValue.x;
+	centerPosition += arg_incrementValue.x;
 
 	if (spawnFlag == false)
 	{
@@ -948,12 +948,12 @@ bool Player::SpawnProcessing()
 	return false;
 }
 
-void Player::UpdateAttack(const Vector3& incrementValue)
+void Player::UpdateAttack(const Vector3& arg_incrementValue)
 {
 	//通常弾更新処理
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i]->Update(incrementValue);
+		bullets[i]->Update(arg_incrementValue);
 
 		if (bossSceneFlag == false)
 		{
@@ -973,7 +973,7 @@ void Player::UpdateAttack(const Vector3& incrementValue)
 	//チャージ弾更新処理
 	if (chargeBullet->GetIsDeadFlag() == false)
 	{
-		chargeBullet->Update(incrementValue);
+		chargeBullet->Update(arg_incrementValue);
 
 		if (chargeBulletParticleManager->GetParticleLength() < 1)
 		{
@@ -1025,13 +1025,13 @@ void Player::UpdateAttack(const Vector3& incrementValue)
 	//レーザー更新処理
 	if (laser->GetIsDeadFlag() == false)
 	{
-		laser->Update(incrementValue);
+		laser->Update(arg_incrementValue);
 	}
 
 	//ミサイル更新処理
 	for (int i = 0; i < missiles.size(); i++)
 	{
-		missiles[i]->Update(incrementValue, centerPosition);
+		missiles[i]->Update(arg_incrementValue, centerPosition);
 
 		if (bossSceneFlag == false)
 		{

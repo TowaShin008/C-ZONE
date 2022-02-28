@@ -37,11 +37,11 @@ Squid::~Squid()
 	//delete rightEye;
 }
 
-void Squid::CreateConstBuffer(ID3D12Device* device)
+void Squid::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -49,7 +49,7 @@ void Squid::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -65,33 +65,33 @@ void Squid::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-Squid* Squid::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position)
+Squid* Squid::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	Squid* squid = new Squid(arg_cmdList);
 	squid->Initialize();
-	squid->SetPosition(position);
-	squid->CreateConstBuffer(device);
-	squid->AttachTentacles(device);
-	squid->AttachBody(device);
-	squid->AttachEye(device);
+	squid->SetPosition(arg_position);
+	squid->CreateConstBuffer(arg_device);
+	squid->AttachTentacles(arg_device);
+	squid->AttachBody(arg_device);
+	squid->AttachEye(arg_device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	deathParticle->SetSelectColor(2);
 	squid->SetDeathParticleManager(deathParticle);
 
 	return squid;
 }
 
-void Squid::SetEye(const Vector3& eye)
+void Squid::SetEye(const Vector3& arg_eye)
 {
-	Squid::camera->SetEye(eye);
+	Squid::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void Squid::SetTarget(const Vector3& target)
+void Squid::SetTarget(const Vector3& arg_target)
 {
-	Squid::camera->SetTarget(target);
+	Squid::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -101,14 +101,14 @@ void Squid::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void Squid::SetOBJModel(OBJModel* eyeModel, OBJModel* bodyModel)
+void Squid::SetOBJModel(OBJModel* arg_eyeModel, OBJModel* arg_bodyModel)
 {
-	SetEyeModel(eyeModel);
-	SetBodyModel(bodyModel);
-	SetTentaclesModel(bodyModel);
+	SetEyeModel(arg_eyeModel);
+	SetBodyModel(arg_bodyModel);
+	SetTentaclesModel(arg_bodyModel);
 }
 
-void Squid::SetBodyModel(OBJModel* bodyModel)
+void Squid::SetBodyModel(OBJModel* arg_bodyModel)
 {
 	for (int i = 0; i < map.size(); ++i)
 	{
@@ -117,28 +117,28 @@ void Squid::SetBodyModel(OBJModel* bodyModel)
 			if (map[i][j] == 1 || map[i][j] == 2)//iが縦でjが横
 			{
 				//モデル1のセット
-				bodyBlocks[i][j]->SetOBJModel(bodyModel);
+				bodyBlocks[i][j]->SetOBJModel(arg_bodyModel);
 			}
 		}
 	}
 }
 
-void Squid::SetTentaclesModel(OBJModel* bodyModel)
+void Squid::SetTentaclesModel(OBJModel* arg_bodyModel)
 {
 	for (int i = 0; i < tentaclesBlocks.size(); ++i)
 	{
-		tentaclesBlocks[i]->SetOBJModel(bodyModel);
+		tentaclesBlocks[i]->SetOBJModel(arg_bodyModel);
 	}
 }
 
 
-void Squid::SetEyeModel(OBJModel* eyeModel)
+void Squid::SetEyeModel(OBJModel* arg_eyeModel)
 {
-	leftEye->SetOBJModel(eyeModel);
-	rightEye->SetOBJModel(eyeModel);
+	leftEye->SetOBJModel(arg_eyeModel);
+	rightEye->SetOBJModel(arg_eyeModel);
 }
 
-void Squid::AttachBody(ID3D12Device* device)
+void Squid::AttachBody(ID3D12Device* arg_device)
 {
 	map = {
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -170,7 +170,7 @@ void Squid::AttachBody(ID3D12Device* device)
 		{
 			if (map[i][j] == 1 || map[i][j] == 2)//iが縦でjが横
 			{//通常ブロックの生成
-				bodyBlocks[i][j] = Block::Create(device, cmdList, { j * 6.8f + blockFixPos.x + position.x, -i * 7.1f + blockFixPos.y + +position.y,position.z });
+				bodyBlocks[i][j] = Block::Create(arg_device, cmdList, { j * 6.8f + blockFixPos.x + position.x, -i * 7.1f + blockFixPos.y + +position.y,position.z });
 				bodyBlocks[i][j]->SetStageBlockFlag(false);
 				bodyBlocks[i][j]->SetScale({1.0f,1.0f,1.0f});
 				bodyBlocks[i][j]->Update({ 0.1f,0,0 });
@@ -180,7 +180,7 @@ void Squid::AttachBody(ID3D12Device* device)
 	}
 }
 
-void Squid::AttachTentacles(ID3D12Device* device)
+void Squid::AttachTentacles(ID3D12Device* arg_device)
 {
 	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
 
@@ -188,7 +188,7 @@ void Squid::AttachTentacles(ID3D12Device* device)
 	tentaclesBlocks.resize(TENTACLESNUM);
 	for (int i = 0; i < tentaclesBlocks.size(); ++i)
 	{//触手の初期化処理
-		tentaclesBlocks[i] = Block::Create(device, cmdList, { blockFixPosition.x + position.x , -i * 1.4f + blockFixPosition.y + position.y ,blockFixPosition.z + position.z });
+		tentaclesBlocks[i] = Block::Create(arg_device, cmdList, { blockFixPosition.x + position.x , -i * 1.4f + blockFixPosition.y + position.y ,blockFixPosition.z + position.z });
 		tentaclesBlocks[i]->SetStageBlockFlag(false);
 		tentaclesBlocks[i]->SetScale({ 0.2f,0.2f,0.2f });
 		tentaclesBlocks[i]->Update({ 0.1f,0,0 });
@@ -196,18 +196,18 @@ void Squid::AttachTentacles(ID3D12Device* device)
 	}
 }
 
-void Squid::AttachEye(ID3D12Device* device)
+void Squid::AttachEye(ID3D12Device* arg_device)
 {
 	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
 	//左目の初期化処理
 	const Vector3 leftEyeFixPosition = { -18.5f,-12.0f,0.0f };
-	leftEye = SquidEye::Create(device, cmdList, { leftEyeFixPosition.x + position.x,leftEyeFixPosition.y + position.y , leftEyeFixPosition.z + position.z });
+	leftEye = SquidEye::Create(arg_device, cmdList, { leftEyeFixPosition.x + position.x,leftEyeFixPosition.y + position.y , leftEyeFixPosition.z + position.z });
 	leftEye->SetScale({ 1.0f,1.0f,1.0f });
 	leftEye->Update({ 0.0f,0,0 });
 	leftEye->SetColor(white);
 	//右目の初期化処理
 	const Vector3 rightEyeFixPosition = { 9.0f,-12.0f,0.0f };
-	rightEye = SquidEye::Create(device, cmdList, { rightEyeFixPosition.x + position.x,rightEyeFixPosition.y + position.y ,rightEyeFixPosition.z + position.z });
+	rightEye = SquidEye::Create(arg_device, cmdList, { rightEyeFixPosition.x + position.x,rightEyeFixPosition.y + position.y ,rightEyeFixPosition.z + position.z });
 	rightEye->SetScale({ 1.0f,1.0f,1.0f });
 	rightEye->Update({ 0.0f,0,0 });
 	rightEye->SetColor(white);
@@ -230,21 +230,21 @@ void Squid::Initialize()
 	invisibleTime = 0;
 }
 //プレイヤーの更新処理
-void Squid::Update(const Vector3& incrementValue, const Vector3& playerPosition)
+void Squid::Update(const Vector3& arg_incrementValue, const Vector3& arg_playerPosition)
 {
-	centerPosition += incrementValue.x;
+	centerPosition += arg_incrementValue.x;
 
-	leftEye->Update(incrementValue);
-	rightEye->Update(incrementValue);
+	leftEye->Update(arg_incrementValue);
+	rightEye->Update(arg_incrementValue);
 	if (isDeadFlag == false)
 	{
-		SetScrollIncrement(incrementValue);
+		SetScrollIncrement(arg_incrementValue);
 
 		if (moveLugTime <= 0)
 		{
 			if (moveEndFlag == false)
 			{//移動処理
-				Move(playerPosition);
+				Move(arg_playerPosition);
 			}
 		}
 		else
@@ -354,14 +354,14 @@ void Squid::TransferConstBuff()
 	constBuffB0->Unmap(0, nullptr);
 }
 
-void Squid::Move(const Vector3& playerPosition)
+void Squid::Move(const Vector3& arg_playerPosition)
 {
 	//動きの種類
 	switch (currentType)
 	{
 	case MOVETYPE::STAY:
 
-		StayMove(playerPosition);
+		StayMove(arg_playerPosition);
 
 		break;
 
@@ -375,7 +375,7 @@ void Squid::Move(const Vector3& playerPosition)
 	position.y = position.y + velocity.y * speed.y;
 }
 
-void Squid::StayMove(const Vector3& playerPosition)
+void Squid::StayMove(const Vector3& arg_playerPosition)
 {
 	const float leftEyeMinPositionY = -100.0f;
 	const float tentacleAngleIncrementSize = 4.0f;
@@ -425,7 +425,7 @@ void Squid::StayMove(const Vector3& playerPosition)
 
 			if (rnd == 0)
 			{//プレイヤーのY軸のポジションによって攻撃方法を変える
-				if (playerPosition.y > 0.0f)
+				if (arg_playerPosition.y > 0.0f)
 				{
 					upTentacleAttackFlag = true;
 				}
@@ -474,9 +474,9 @@ void Squid::IsDead()
 }
 
 
-void Squid::SetScrollIncrement(const Vector3& incrementValue)
+void Squid::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void Squid::Damage()

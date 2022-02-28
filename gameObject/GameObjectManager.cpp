@@ -18,16 +18,16 @@ void GameObjectManager::Initialize(unsigned int arg_score)
 	score = arg_score;
 }
 
-void GameObjectManager::AddGameObject(GameObject* gameObject)
+void GameObjectManager::AddGameObject(GameObject* arg_gameObject)
 {
-	gameObjects.emplace_back(gameObject);
+	gameObjects.emplace_back(arg_gameObject);
 }
 
-void GameObjectManager::UpdateAllObject(const Vector3& incrementValue)
+void GameObjectManager::UpdateAllObject(const Vector3& arg_incrementValue)
 {
 	for (int i = 0; i < gameObjects.size(); i++)
 	{
-		gameObjects[i]->Update(incrementValue);
+		gameObjects[i]->Update(arg_incrementValue);
 	}
 }
 

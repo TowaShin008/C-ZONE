@@ -105,12 +105,12 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	virtual void Update(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	virtual void Update(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// 描画処理
 	/// </summary>
-	/// <param name="cmdList"></param>
 	virtual void Draw();
 
 	/// <summary>
@@ -123,7 +123,7 @@ public:
 	/// <summary>
 	/// ポジションのセット
 	/// </summary>
-	/// <param name="position">ポジション</param>
+	/// <param name="arg_position">ポジション</param>
 	void SetPosition(const Vector3& arg_position) { position = arg_position; }
 
 	/// <summary>
@@ -141,7 +141,7 @@ public:
 	/// <summary>
 	/// 死亡フラグのセット
 	/// </summary>
-	/// <param name="isDeadFlag">死亡フラグ</param>
+	/// <param name="arg_isDeadFlag">死亡フラグ</param>
 	void SetIsDeadFlag(bool arg_isDeadFlag) { isDeadFlag = arg_isDeadFlag; }
 
 	/// <summary>
@@ -153,7 +153,7 @@ public:
 	/// <summary>
 	/// スケールのセット
 	/// </summary>
-	/// <param name="scale">スケール</param>
+	/// <param name="arg_scale">スケール</param>
 	void SetScale(const Vector3& arg_scale) { scale = arg_scale; }
 
 	/// <summary>
@@ -165,7 +165,7 @@ public:
 	/// <summary>
 	/// 回転角度のセット
 	/// </summary>
-	/// <param name="rotation"></param>
+	/// <param name="arg_rotation"></param>
 	void SetRotation(const Vector3& arg_rotation) { rotation = arg_rotation; }
 
 	/// <summary>
@@ -177,7 +177,7 @@ public:
 	/// <summary>
 	/// カラーのセット
 	/// </summary>
-	/// <param name="color">カラー</param>
+	/// <param name="arg_color">カラー</param>
 	void SetColor(const Vector4& arg_color) { color = arg_color; }
 protected:
 	Vector3 position = { 0.0f,0.0f,0.0f };
@@ -195,12 +195,27 @@ protected:
 	int invisibleTime = 0;
 public:
 	/// <summary>
-	/// 運動方向
+	/// 運動方向のセット
 	/// </summary>
-	/// <param name="velocity"></param>
+	/// <param name="arg_velocity">運動方向</param>
 	void SetVelocity(const Vector3& arg_velocity) { velocity = arg_velocity; }
+
+	/// <summary>
+	/// 運動方向の取得
+	/// </summary>
+	/// <returns>運動方向</returns>
 	const Vector3& GetVelocity() { return velocity; }
+
+	/// <summary>
+	/// スピードのセット
+	/// </summary>
+	/// <param name="arg_speed">スピード</param>
 	void SetSpeed(const Vector3& arg_speed) { speed = arg_speed; }
+
+	/// <summary>
+	/// スピードの取得
+	/// </summary>
+	/// <returns>スピード</returns>
 	const Vector3& GetSpeed() { return speed; }
 
 	int GetHp() { return hp; };
@@ -208,29 +223,36 @@ public:
 	/// <summary>
 	/// モーションブラーの適用
 	/// </summary>
-	/// <param name="motionBlurFlag">モーションブラーフラグ</param>
+	/// <param name="arg_motionBlurFlag">モーションブラーフラグ</param>
 	void SetMotionBlurFlag(bool arg_motionBlurFlag) { motionBlurFlag = arg_motionBlurFlag; }
 
 	/// <summary>
 	/// 当たり判定の半径をセット
 	/// </summary>
-	/// <param name="arg_collisionRadius"></param>
+	/// <param name="arg_collisionRadius">当たり判定の半径</param>
 	void SetCollisionRadius(float arg_collisionRadius) { collisionRadius = arg_collisionRadius; }
 
 	/// <summary>
-	/// 当たり判定の半径をセット
+	/// 当たり判定の半径を取得
 	/// </summary>
-	/// <param name="arg_collisionRadius"></param>
 	float GetCollisionRadius() { return collisionRadius; }
 
+	/// <summary>
+	/// キャラクタータイプのセット
+	/// </summary>
+	/// <param name="arg_characterType">キャラクタータイプ</param>
 	void SetCharacterType(CHARACTERTYPE arg_characterType) { characterType = arg_characterType; }
 
+	/// <summary>
+	/// キャラクタータイプの取得
+	/// </summary>
+	/// <returns>キャラクタータイプ</returns>
 	CHARACTERTYPE GetCharacterType() { return characterType; }
 
 	/// <summary>
 	/// 当たり判定
 	/// </summary>
-	/// <param name="otherObject">相手のオブジェクト</param>
+	/// <param name="arg_otherObject">相手のオブジェクト</param>
 	/// <returns>当たったかどうか</returns>
 	virtual bool IsCollision(GameObject* arg_otherObject);
 

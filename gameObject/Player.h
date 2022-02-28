@@ -43,17 +43,18 @@ public:
 	/// <summary>
 	/// オブジェクトの生成処理
 	/// </summary>
-	/// <param name="device">デバイス</param>
-	/// <param name="position">ポジション</param>
+	/// <param name="arg_device">デバイス</param>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	/// <param name="arg_position">ポジション</param>
 	/// <returns>キャラクターオブジェクト</returns>
-	static Player* Create(ID3D12Device* device,ID3D12GraphicsCommandList* arg_cmdList,Vector3 position = { 0.0f,0.0f,0.0f });
+	static Player* Create(ID3D12Device* arg_device,ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position = { 0.0f,0.0f,0.0f });
 
 
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void CreateConstBuffer(ID3D12Device* arg_device);
 
 	/// <summary>
 	/// 初期化処理
@@ -63,7 +64,8 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	void Update(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void Update(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// 描画処理
@@ -74,42 +76,42 @@ public:
 	/// <summary>
 	/// モデルのセット
 	/// </summary>
-	/// <param name="objModel">自機のモデル</param>
-	/// <param name="bulletModel">自機から出る弾のモデル</param>
-	/// <param name="unionModel">子機のモデル</param>
-	/// <param name="uBulletmodel">子機から出る弾のモデル</param>
-	/// <param name="laserModel">レーザーのモデル</param>
-	void SetOBJModel(OBJHighModel* arg_objModel, OBJModel* bulletModel,OBJHighModel* unionModel,OBJModel* uBulletmodel,OBJHighModel* laserModel,OBJHighModel* missileModel);
+	/// <param name="arg_objModel">自機のモデル</param>
+	/// <param name="arg_bulletModel">自機から出る弾のモデル</param>
+	/// <param name="arg_unionModel">子機のモデル</param>
+	/// <param name="arg_uBulletmodel">子機から出る弾のモデル</param>
+	/// <param name="arg_laserModel">レーザーのモデル</param>
+	void SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel,OBJHighModel* arg_unionModel,OBJModel* arg_uBulletmodel,OBJHighModel* arg_laserModel,OBJHighModel* arg_missileModel);
 
 	/// <summary>
 	/// 弾丸モデルのセット
 	/// </summary>
-	/// <param name="bulletModel">モデル</param>
-	void SetBulletModel(OBJModel* bulletModel);
+	/// <param name="arg_bulletModel">モデル</param>
+	void SetBulletModel(OBJModel* arg_bulletModel);
 
 	/// <summary>
 	/// レーザーモデルのセット
 	/// </summary>
-	/// <param name="bulletModel">モデル</param>
-	void SetLaserModel(OBJHighModel* laserModel);
+	/// <param name="arg_bulletModel">モデル</param>
+	void SetLaserModel(OBJHighModel* arg_laserModel);
 
 	/// <summary>
 	/// ミサイルモデルのセット
 	/// </summary>
-	/// <param name="bulletModel">モデル</param>
-	void SetMissileModel(OBJHighModel* missileModel);
+	/// <param name="arg_bulletModel">モデル</param>
+	void SetMissileModel(OBJHighModel* arg_missileModel);
 
 	/// <summary>
 	/// 視点座標のセット
 	/// </summary>
-	/// <param name="eye">視点座標</param>
-	static void SetEye(const Vector3& eye);
+	/// <param name="arg_eye">視点座標</param>
+	static void SetEye(const Vector3& arg_eye);
 
 	/// <summary>
 	/// 注視点座標のセット
 	/// </summary>
-	/// <param name="target">注視点座標</param>
-	static void SetTarget(const Vector3& target);
+	/// <param name="arg_target">注視点座標</param>
+	static void SetTarget(const Vector3& arg_target);
 
 	/// <summary>
 	/// ビュー行列の更新処理
@@ -119,13 +121,14 @@ public:
 	/// <summary>
 	/// カメラのセット
 	/// </summary>
-	/// <param name="camera">カメラ</param>
+	/// <param name="arg_camera">カメラ</param>
 	static void SetCamera(Camera* arg_camera) { Player::camera = arg_camera; }
 
 	/// <summary>
-	/// プレイヤーの弾をリサイズし生成する
+	/// 弾をリサイズし生成する
 	/// </summary>
-	void AttachBullet(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void AttachBullet(ID3D12Device* arg_device);
 
 private:
 	UINT descpriptorSize;
@@ -194,7 +197,7 @@ public:
 	/// <summary>
 	/// ユニオンのセット
 	/// </summary>
-	/// <param name="unionCharacter">ユニオンのポインタ</param>
+	/// <param name="arg_unionCharacter">ユニオンのポインタ</param>
 	void SetUnionCharacter(UnionCharacter* arg_unionCharacter) { unionCharacter.reset(arg_unionCharacter); }
 
 	/// <summary>
@@ -206,33 +209,33 @@ public:
 	/// <summary>
 	/// パーティクルのセット
 	/// </summary>
-	/// <param name="particleMan">パーティクルマネージャー</param>
+	/// <param name="arg_particleMan">パーティクルマネージャー</param>
 	void SetChargePerticleManager(ParticleManager* arg_particleManager) { chargeParticleManager.reset(arg_particleManager); }
 
 	/// <summary>
 	/// パーティクルのセット
 	/// </summary>
-	/// <param name="particleMan">パーティクルマネージャー</param>
+	/// <param name="arg_particleMan">パーティクルマネージャー</param>
 	void SetChargeMaxPerticleManager(ParticleManager* arg_particleMaxManager) { chargeMaxParticleManager.reset(arg_particleMaxManager); }
 
 	/// <summary>
 	/// パーティクルのセット
 	/// </summary>
-	/// <param name="particleMan">パーティクルマネージャー</param>
+	/// <param name="arg_particleMan">パーティクルマネージャー</param>
 	void SetChargeBulletPerticleManager(ParticleManager* arg_particleBulletManager) { chargeBulletParticleManager.reset(arg_particleBulletManager); }
 
 
 	/// <summary>
 	/// パーティクルのセット
 	/// </summary>
-	/// <param name="particleMan">パーティクルマネージャー</param>
+	/// <param name="arg_particleMan">パーティクルマネージャー</param>
 	void SetJetPerticleManager(ParticleManager* arg_jetParticletManager) { jetParticleManager.reset(arg_jetParticletManager); }
 
 	/// <summary>
 	/// ポジションの移動
 	/// </summary>
-	/// <param name="incrementValue">ポジションの増加量</param>
-	void SetScrollIncrement(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">ポジションの増加量</param>
+	void SetScrollIncrement(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// moveFlagのセット
@@ -243,7 +246,7 @@ public:
 	/// <summary>
 	/// HPのセット
 	/// </summary>
-	/// <param name="hp">HP</param>
+	/// <param name="arg_hp">HP</param>
 	void SetHP(int arg_hp) { hp = arg_hp; }
 
 	/// <summary>
@@ -255,7 +258,7 @@ public:
 	/// <summary>
 	/// ボス戦への切り替え
 	/// </summary>
-	/// <param name="bossSceneFlag">ボス戦になっているかどうか</param>
+	/// <param name="arg_bossSceneFlag">ボス戦になっているかどうか</param>
 	void SetBossSceneFlag(bool arg_bossSceneFlag);
 
 	/// <summary>
@@ -273,27 +276,31 @@ public:
 	/// <summary>
 	/// 弾の発射処理
 	/// </summary>
-	void ShotBullet(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void ShotBullet(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// チャージ弾の発射処理
 	/// </summary>
-	void ShotChargeBullet(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void ShotChargeBullet(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// レーザーの発射処理
 	/// </summary>
+	/// <param name="arg_incrementValue">スクロール量</param>
 	void ShotLaser(const Vector3& incrementValue);
 
 	/// <summary>
 	/// レーザーの発射処理
 	/// </summary>
-	void ShotMissile(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void ShotMissile(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// レーザーエネルギーの取得
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>レーザーエネルギー</returns>
 	int GetLaserEnergy() { return laserEnergy; }
 
 	/// <summary>
@@ -304,8 +311,8 @@ public:
 	/// <summary>
 	/// 移動処理
 	/// </summary>
-	/// <param name="incrementValue"></param>
-	void Move(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue"></param>
+	void Move(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// HPを１減らす
@@ -320,13 +327,13 @@ public:
 	/// <summary>
 	/// 死亡演出用のパーティクルのセット
 	/// </summary>
-	/// <param name="deathParticle">パーティクル</param>
+	/// <param name="arg_deathParticle">パーティクル</param>
 	void SetDeathParticleManager(ParticleManager* arg_deathParticle) { deathParticle.reset(arg_deathParticle); }
 
 	/// <summary>
 	/// 死亡演出の発生フラグ
 	/// </summary>
-	/// <param name="deathParticle">死亡フラグの発生フラグ</param>
+	/// <param name="arg_deathParticle">死亡フラグの発生フラグ</param>
 	void SetDeathParticleFlag(bool arg_deathParticleFlag) { deathParticleFlag = arg_deathParticleFlag; }
 
 	/// <summary>
@@ -337,7 +344,7 @@ public:
 	/// <summary>
 	/// 当たり判定
 	/// </summary>
-	/// <param name="otherObject">相手のオブジェクト</param>
+	/// <param name="arg_otherObject">相手のオブジェクト</param>
 	/// <returns>当たったかどうか</returns>
 	bool IsCollision(GameObject* arg_otherObject)override;
 
@@ -362,7 +369,7 @@ public:
 	/// <summary>
 	/// 攻撃手段の更新処理
 	/// </summary>
-	/// <param name="incrementValue">スクロール量</param>
-	void UpdateAttack(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void UpdateAttack(const Vector3& arg_incrementValue);
 };
 

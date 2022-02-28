@@ -21,11 +21,11 @@ HomingBullet::~HomingBullet()
 {
 }
 
-void HomingBullet::CreateConstBuffer(ID3D12Device* device)
+void HomingBullet::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -33,7 +33,7 @@ void HomingBullet::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -49,27 +49,27 @@ void HomingBullet::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-HomingBullet* HomingBullet::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position)
+HomingBullet* HomingBullet::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	HomingBullet* homingBullet = new HomingBullet(arg_cmdList);
 
-	homingBullet->SetPosition(position);
+	homingBullet->SetPosition(arg_position);
 
-	homingBullet->CreateConstBuffer(device);
+	homingBullet->CreateConstBuffer(arg_device);
 
 	return homingBullet;
 }
 
-void HomingBullet::SetEye(const Vector3& eye)
+void HomingBullet::SetEye(const Vector3& arg_eye)
 {
-	HomingBullet::camera->SetEye(eye);
+	HomingBullet::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void HomingBullet::SetTarget(const Vector3& target)
+void HomingBullet::SetTarget(const Vector3& arg_target)
 {
-	HomingBullet::camera->SetTarget(target);
+	HomingBullet::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -90,7 +90,7 @@ void HomingBullet::Initialize()
 }
 
 //プレイヤーの更新処理
-void HomingBullet::Update(const Vector3& incrementValue,const Vector3& arg_targetPosition)
+void HomingBullet::Update(const Vector3& arg_incrementValue,const Vector3& arg_targetPosition)
 {
 	if (isDeadFlag)
 	{
@@ -105,7 +105,7 @@ void HomingBullet::Update(const Vector3& incrementValue,const Vector3& arg_targe
 		particleLugtime--;
 	}
 
-	SetScrollIncrement(incrementValue);
+	SetScrollIncrement(arg_incrementValue);
 	//定数バッファの転送
 	TransferConstBuff();
 
@@ -183,9 +183,9 @@ void HomingBullet::Move(const Vector3& arg_targetPosition)
 	position += velocity * speed;
 }
 
-void HomingBullet::SetScrollIncrement(const Vector3& incrementValue)
+void HomingBullet::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 bool HomingBullet::IsCollision(GameObject* arg_otherObject)

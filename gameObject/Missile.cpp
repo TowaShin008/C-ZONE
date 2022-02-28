@@ -23,11 +23,11 @@ Missile::~Missile()
 {
 }
 
-void Missile::CreateConstBuffer(ID3D12Device* device)
+void Missile::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -35,7 +35,7 @@ void Missile::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -51,31 +51,31 @@ void Missile::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-Missile* Missile::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position)
+Missile* Missile::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	Missile* missile = new Missile(arg_cmdList);
 
-	missile->SetPosition(position);
+	missile->SetPosition(arg_position);
 
-	missile->CreateConstBuffer(device);
+	missile->CreateConstBuffer(arg_device);
 
 	ParticleManager* missileParticleMan;
-	missileParticleMan = ParticleManager::Create(device);
+	missileParticleMan = ParticleManager::Create(arg_device);
 	missile->SetMissilePerticleMan(missileParticleMan);
 
 	return missile;
 }
 
-void Missile::SetEye(const Vector3& eye)
+void Missile::SetEye(const Vector3& arg_eye)
 {
-	Missile::camera->SetEye(eye);
+	Missile::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void Missile::SetTarget(const Vector3& target)
+void Missile::SetTarget(const Vector3& arg_target)
 {
-	Missile::camera->SetTarget(target);
+	Missile::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -118,7 +118,7 @@ void Missile::Initialize()
 }
 
 //プレイヤーの更新処理
-void Missile::Update(const Vector3& incrementValue, float centerPosition)
+void Missile::Update(const Vector3& arg_incrementValue, float arg_centerPosition)
 {
 	if (isDeadFlag)
 	{
@@ -127,9 +127,9 @@ void Missile::Update(const Vector3& incrementValue, float centerPosition)
 	//移動処理
 	Move();
 	//煙パーティクル
-	MissileParticleProcessing(centerPosition);
+	MissileParticleProcessing(arg_centerPosition);
 	
-	SetScrollIncrement(incrementValue);
+	SetScrollIncrement(arg_incrementValue);
 	//定数バッファの転送
 	TransferConstBuff();
 
@@ -277,12 +277,12 @@ void Missile::Move()
 	}
 }
 
-void Missile::SetScrollIncrement(const Vector3& incrementValue)
+void Missile::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
-void Missile::MissileParticleProcessing(float centerPosition)
+void Missile::MissileParticleProcessing(float arg_centerPosition)
 {
 	//ミサイルの後ろから出るパーティクル処理
 	if (rotation.x >= 360.0f || rotation.x <= 0.0f)
@@ -314,7 +314,7 @@ void Missile::MissileParticleProcessing(float centerPosition)
 
 
 			pos = position;
-			pos.x = pos.x - centerPosition;
+			pos.x = pos.x - arg_centerPosition;
 			pos.x += 0.5f;
 
 			const float startScale = 0.0f;

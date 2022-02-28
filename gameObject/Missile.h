@@ -34,16 +34,18 @@ public:
 	/// <summary>
 	/// オブジェクトの生成処理
 	/// </summary>
-	/// <param name="device">デバイス</param>
-	/// <param name="position">ポジション</param>
+	/// <param name="arg_device">デバイス</param>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	/// <param name="arg_position">ポジション</param>
 	/// <returns>キャラクターオブジェクト</returns>
-	static Missile* Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position = { 0.0f,0.0f,0.0f });
+	static Missile* Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position = { 0.0f,0.0f,0.0f });
 
 
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	void CreateConstBuffer(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void CreateConstBuffer(ID3D12Device* arg_device);
 
 	/// <summary>
 	/// 初期化処理
@@ -53,31 +55,32 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	void Update(const Vector3& incrementValue, float centerPosition);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	/// <param name="arg_centerPosition">画面の中心座標</param>
+	void Update(const Vector3& arg_incrementValue, float arg_centerPosition);
 
 	/// <summary>
 	/// 描画処理
 	/// </summary>
-	/// <param name="cmdList">コマンドリスト</param>
 	void Draw()override;
 
 	/// <summary>
 	/// モデルのセット
 	/// </summary>
-	/// <param name="objModel">モデル</param>
+	/// <param name="arg_objModel">モデル</param>
 	void SetOBJModel(OBJHighModel* arg_objModel) { objModel = arg_objModel; }
 
 	/// <summary>
 	/// 視点座標のセット
 	/// </summary>
-	/// <param name="eye">視点座標</param>
-	static void SetEye(const Vector3& eye);
+	/// <param name="arg_eye">視点座標</param>
+	static void SetEye(const Vector3& arg_eye);
 
 	/// <summary>
 	/// 注視点座標のセット
 	/// </summary>
-	/// <param name="target">注視点座標</param>
-	static void SetTarget(const Vector3& target);
+	/// <param name="arg_target">注視点座標</param>
+	static void SetTarget(const Vector3& arg_target);
 
 	/// <summary>
 	/// ビュー行列の更新処理
@@ -87,28 +90,38 @@ public:
 	/// <summary>
 	/// カメラのセット
 	/// </summary>
-	/// <param name="camera">カメラ</param>
+	/// <param name="arg_camera">カメラ</param>
 	static void SetCamera(Camera* arg_camera) { Missile::camera = arg_camera; }
 
 	/// <summary>
 	/// ポジションの移動
 	/// </summary>
-	/// <param name="incrementValue">ポジションの増加量</param>
-	void SetScrollIncrement(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">ポジションの増加量</param>
+	void SetScrollIncrement(const Vector3& arg_incrementValue);
+
 	/// <summary>
 	/// 当たり判定
 	/// </summary>
-	/// <param name="otherObject">相手のオブジェクト</param>
+	/// <param name="arg_otherObject">相手のオブジェクト</param>
 	/// <returns>当たったかどうか</returns>
 	bool IsCollision(GameObject* arg_otherObject);
 
+	/// <summary>
+	/// 上部からの発射フラグ
+	/// </summary>
+	/// <param name="arg_upShotFlag">上部からの発射フラグ</param>
 	void SetUpShotFlag(bool arg_upShotFlag) { upShotFlag = arg_upShotFlag; }
 
-	void SetBossSceneFlag(bool arg_bossSceneFlag) { bossSceneFlag = arg_bossSceneFlag; }
 	/// <summary>
-/// パーティクルのセット
-/// </summary>
-/// <param name="particleMan">パーティクルマネージャー</param>
+	/// ボスシーンかどうかのフラグ
+	/// </summary>
+	/// <param name="arg_bossSceneFlag">ボスシーンフラグ</param>
+	void SetBossSceneFlag(bool arg_bossSceneFlag) { bossSceneFlag = arg_bossSceneFlag; }
+
+	/// <summary>
+	/// パーティクルのセット
+	/// </summary>
+	/// <param name="arg_particleMan">パーティクルマネージャー</param>
 	void SetMissilePerticleMan(ParticleManager* arg_particleMissileMan) { missileParticleMan.reset(arg_particleMissileMan); }
 private:
 	UINT descpriptorSize;
@@ -143,6 +156,6 @@ public:
 	/// <summary>
 	/// 煙パーティクル処理
 	/// </summary>
-	/// <param name="centerPosition">画面の中心点</param>
-	void MissileParticleProcessing(float centerPosition);
+	/// <param name="arg_centerPosition">画面の中心点</param>
+	void MissileParticleProcessing(float arg_centerPosition);
 };

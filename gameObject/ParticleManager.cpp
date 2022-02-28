@@ -12,12 +12,12 @@ using namespace Microsoft::WRL;
 //const float ParticleManager::prizmHeight = 8.0f;			// 柱の高さ
 ID3D12GraphicsCommandList* ParticleManager::cmdList = nullptr;
 
-bool ParticleManager::Initialize(ID3D12Device * device)
+bool ParticleManager::Initialize(ID3D12Device * arg_device)
 {
 	// nullptrチェック
-	assert(device);
+	assert(arg_device);
 
-	ParticleManager::device = device;
+	ParticleManager::device = arg_device;
 
 	// デスクリプタヒープの初期化
 	InitializeDescriptorHeap();
@@ -34,13 +34,13 @@ bool ParticleManager::Initialize(ID3D12Device * device)
 	return true;
 }
 
-void ParticleManager::PreDraw(ID3D12GraphicsCommandList * cmdList)
+void ParticleManager::PreDraw(ID3D12GraphicsCommandList * arg_cmdList)
 {
 	// PreDrawとPostDrawがペアで呼ばれていなければエラー
 	assert(ParticleManager::cmdList == nullptr);
 
 	// コマンドリストをセット
-	ParticleManager::cmdList = cmdList;
+	ParticleManager::cmdList = arg_cmdList;
 
 	// パイプラインステートの設定
 	ParticleManager::cmdList->SetPipelineState(PipelineState::particlePipelineState.Get());
@@ -56,7 +56,7 @@ void ParticleManager::PostDraw()
 	ParticleManager::cmdList = nullptr;
 }
 
-ParticleManager * ParticleManager::Create(ID3D12Device* device)
+ParticleManager * ParticleManager::Create(ID3D12Device* arg_device)
 {
 	// 3Dオブジェクトのインスタンスを生成
 	ParticleManager* particleMan = new ParticleManager();
@@ -64,7 +64,7 @@ ParticleManager * ParticleManager::Create(ID3D12Device* device)
 		return nullptr;
 	}
 
-	particleMan->Initialize(device);
+	particleMan->Initialize(arg_device);
 
 	// 初期化
 	if (!particleMan->CreateConstBuff()) {
@@ -76,38 +76,38 @@ ParticleManager * ParticleManager::Create(ID3D12Device* device)
 	return particleMan;
 }
 
-void ParticleManager::SetEye(const Vector3& eye)
+void ParticleManager::SetEye(const Vector3& arg_eye)
 {
-	ParticleManager::eye = eye;
+	ParticleManager::eye = arg_eye;
 
 	UpdateViewMatrix();
 }
 
-void ParticleManager::SetTarget(const Vector3& target)
+void ParticleManager::SetTarget(const Vector3& arg_target)
 {
-	ParticleManager::target = target;
+	ParticleManager::target = arg_target;
 
 	UpdateViewMatrix();
 }
 
-void ParticleManager::CameraMoveVector(const Vector3& move)
+void ParticleManager::CameraMoveVector(const Vector3& arg_move)
 {
 	Vector3 eye_moved = GetEye();
 	Vector3 target_moved = GetTarget();
 
-	eye_moved += move;
+	eye_moved += arg_move;
 
-	target_moved += move;
+	target_moved += arg_move;
 
 	SetEye(eye_moved);
 	SetTarget(target_moved);
 }
 
-void ParticleManager::CameraMoveEyeVector(const Vector3& move)
+void ParticleManager::CameraMoveEyeVector(const Vector3& arg_move)
 {
 	Vector3 eye_moved = GetEye();
 
-	eye_moved += move;
+	eye_moved += arg_move;
 
 	SetEye(eye_moved);
 }
@@ -427,21 +427,21 @@ void ParticleManager::Draw()
 	cmdList->DrawInstanced((UINT)std::distance(particles.begin(),particles.end()), 1, 0, 0);
 }
 
-void ParticleManager::Add(int life, const Vector3& position, const Vector3& velocity, const Vector3& accel, float start_scale, float end_scale, const Vector4& start_color, const Vector4& end_color)
+void ParticleManager::Add(int arg_life, const Vector3& arg_position, const Vector3& arg_velocity, const Vector3& accel, float arg_start_scale, float arg_end_scale, const Vector4& arg_start_color, const Vector4& arg_end_color)
 {
 	//リストに要素を追加
 	particles.emplace_front();
 	//追加した用の参照
 	Particle& p = particles.front();
 	//値のセット
-	p.position = position;
-	p.velocity = velocity;
+	p.position = arg_position;
+	p.velocity = arg_velocity;
 	p.accel = accel;
-	p.num_frame = life;
-	p.s_scale = start_scale;
-	p.e_scale = end_scale;
-	p.s_color = start_color;
-	p.e_color = end_color;
+	p.num_frame = arg_life;
+	p.s_scale = arg_start_scale;
+	p.e_scale = arg_end_scale;
+	p.s_color = arg_start_color;
+	p.e_color = arg_end_color;
 }
 
 void ParticleManager::ChangeSelectColor()

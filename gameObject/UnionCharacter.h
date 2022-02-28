@@ -29,6 +29,7 @@ public:
 	/// <summary>
 	/// コンストラクタ
 	/// </summary>
+	/// <param name="arg_cmdList">コマンドリスト</param>
 	UnionCharacter(ID3D12GraphicsCommandList* arg_cmdList);
 
 	/// <summary>
@@ -39,16 +40,18 @@ public:
 	/// <summary>
 	/// オブジェクトの生成処理
 	/// </summary>
-	/// <param name="device">デバイス</param>
-	/// <param name="position">ポジション</param>
+	/// <param name="arg_device">デバイス</param>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	/// <param name="arg_position">ポジション</param>
 	/// <returns>キャラクターオブジェクト</returns>
-	static UnionCharacter* Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,Vector3 position = { 0.0f,0.0f,0.0f });
+	static UnionCharacter* Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position = { 0.0f,0.0f,0.0f });
 
 
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	void CreateConstBuffer(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void CreateConstBuffer(ID3D12Device* arg_device);
 
 	/// <summary>
 	/// 初期化処理
@@ -58,37 +61,39 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	void Update(GameObject* player, const Vector3& incrementValue);
+	/// <param name="arg_player">プレイヤーオブジェクト</param>
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void Update(GameObject* arg_player, const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// 描画処理
 	/// </summary>
-	/// <param name="cmdList">コマンドリスト</param>
 	void Draw();
 
 	/// <summary>
 	/// モデルのセット
 	/// </summary>
-	/// <param name="objModel">モデル</param>
+	/// <param name="arg_objModel">モデル</param>
+	/// <param name="arg_bulletModel">弾丸モデル</param>
 	void SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel);
 
 	/// <summary>
 	/// 弾丸モデルのセット
 	/// </summary>
-	/// <param name="bulletModel">モデル</param>
-	void SetBulletModel(OBJModel* bulletModel);
+	/// <param name="arg_bulletModel">モデル</param>
+	void SetBulletModel(OBJModel* arg_bulletModel);
 
 	/// <summary>
 	/// 視点座標のセット
 	/// </summary>
-	/// <param name="eye">視点座標</param>
-	static void SetEye(const Vector3& eye);
+	/// <param name="arg_eye">視点座標</param>
+	static void SetEye(const Vector3& arg_eye);
 
 	/// <summary>
 	/// 注視点座標のセット
 	/// </summary>
-	/// <param name="target">注視点座標</param>
-	static void SetTarget(const Vector3& target);
+	/// <param name="arg_target">注視点座標</param>
+	static void SetTarget(const Vector3& arg_target);
 
 	/// <summary>
 	/// ビュー行列の更新処理
@@ -98,19 +103,20 @@ public:
 	/// <summary>
 	/// カメラのセット
 	/// </summary>
-	/// <param name="camera">カメラ</param>
+	/// <param name="arg_camera">カメラ</param>
 	static void SetCamera(Camera* arg_camera) { UnionCharacter::camera = arg_camera; }
 
 	/// <summary>
-	/// プレイヤーの弾をリサイズし生成する
+	/// 弾をリサイズし生成する
 	/// </summary>
-	void AttachBullet(ID3D12Device* device);
+	/// <param name="arg_device"></param>
+	void AttachBullet(ID3D12Device* arg_device);
 
 	/// <summary>
 	/// ポジションの移動
 	/// </summary>
-	/// <param name="incrementValue">ポジションの増加量</param>
-	void SetScrollIncrement(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void SetScrollIncrement(const Vector3& arg_incrementValue);
 private:
 	UINT descpriptorSize;
 	static ID3D12GraphicsCommandList* cmdList;
@@ -142,21 +148,23 @@ public:
 	/// <summary>
 	/// ボスシーンに移っているか
 	/// </summary>
-	/// <param name="bossSceneFlag">ボスフラグ</param>
+	/// <param name="arg_bossSceneFlag">ボスフラグ</param>
 	void SetBossSceneFlag(bool arg_bossSceneFlag);
 
 	/// <summary>
 	/// プレイヤーから発射されたか
 	/// </summary>
-	/// <param name="lanchFlag">発射フラグ</param>
+	/// <param name="arg_lanchFlag">発射フラグ</param>
 	void SetLanchFlag(bool arg_lanchFlag);
 	bool GetLanchFlag() { return lanchFlag; }
 
 	/// <summary>
 	/// プレイヤーに当たっているかどうか
 	/// </summary>
-	/// <returns>当たっているかどうか</returns>
-	bool IsPlayerCollision(const Vector3& otherPosition, float otherRadius);
+	/// <param name="arg_otherPosition">プレイヤーポジション</param>
+	/// <param name="arg_otherRadius">プレイヤー当たり判定半径</param>
+	/// <returns>当たっているか</returns>
+	bool IsPlayerCollision(const Vector3& arg_otherPosition, float arg_otherRadius);
 
 	/// <summary>
 	/// プレイヤーのすぐまえにいるかのセッターとゲッター
@@ -179,31 +187,32 @@ public:
 	/// <summary>
 	/// 弾の発射処理
 	/// </summary>
-	void ShotBullet(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void ShotBullet(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// 定数バッファの転送
 	/// </summary>
-	/// <param name="incrementValue">スクロールの移動量</param>
-	void TransferConstBuff(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void TransferConstBuff(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// 移動処理
 	/// </summary>
-	/// <param name="incrementValue">スクロールの移動量</param>
-	void Move(GameObject* player);
+	/// <param name="arg_player">プレイヤーオブジェクト</param>
+	void Move(GameObject* arg_player);
 
 	/// <summary>
 	/// 当たり判定
 	/// </summary>
-	/// <param name="otherObject">相手のオブジェクト</param>
+	/// <param name="arg_otherObject">相手のオブジェクト</param>
 	/// <returns>当たったかどうか</returns>
 	bool IsCollision(GameObject* arg_otherObject);
 
 	/// <summary>
 	/// 攻撃手段の更新処理
 	/// </summary>
-	/// <param name="incrementValue">スクロール量</param>
-	void UpdateAttack(const Vector3& incrementValue);
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void UpdateAttack(const Vector3& arg_incrementValue);
 };
 

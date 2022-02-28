@@ -65,24 +65,66 @@ public:
 public:
 	static const int vertexCount = 80;
 public:
-	bool Initialize(ID3D12Device* device);
+	/// <summary>
+	/// 初期化処理
+	/// </summary>
+	/// <param name="arg_device">デバイス</param>
+	/// <returns>生成の可否</returns>
+	bool Initialize(ID3D12Device* arg_device);
 
-	static void PreDraw(ID3D12GraphicsCommandList* cmdList);
+	/// <summary>
+	/// 描画前処理
+	/// </summary>
+	/// <param name="arg_cmdList"></param>
+	static void PreDraw(ID3D12GraphicsCommandList* arg_cmdList);
 
+	/// <summary>
+	/// 描画後処理
+	/// </summary>
 	static void PostDraw();
 
-	static ParticleManager* Create(ID3D12Device* device);
+	/// <summary>
+	/// オブジェクトの生成
+	/// </summary>
+	/// <param name="arg_device">デバイス</param>
+	/// <returns>キャラクターオブジェクト</returns>
+	static ParticleManager* Create(ID3D12Device* arg_device);
 
+	/// <summary>
+	/// 視点座標の取得
+	/// </summary>
+	/// <returns>視点座標</returns>
 	const Vector3& GetEye() { return eye; }
 
-	void SetEye(const Vector3& eye);
+	/// <summary>
+	/// 視点座標のセット
+	/// </summary>
+	/// <param name="arg_eye">視点座標</param>
+	void SetEye(const Vector3& arg_eye);
 
+	/// <summary>
+	/// 注視点座標の取得
+	/// </summary>
+	/// <returns>注視点座標</returns>
 	const Vector3& GetTarget() { return target; }
 
-	void SetTarget(const Vector3& target);
+	/// <summary>
+	/// 注視点座標のセット
+	/// </summary>
+	/// <param name="arg_target">注視点座標</param>
+	void SetTarget(const Vector3& arg_target);
 
-	void CameraMoveVector(const Vector3& move);
-	void CameraMoveEyeVector(const Vector3& move);
+	/// <summary>
+	/// 視点座標と注視点座標のスクロール
+	/// </summary>
+	/// <param name="arg_move">スクロール量</param>
+	void CameraMoveVector(const Vector3& arg_move);
+
+	/// <summary>
+	/// 視点座標のスクロール
+	/// </summary>
+	/// <param name="arg_move">スクロール量</param>
+	void CameraMoveEyeVector(const Vector3& arg_move);
 
 private:
 	ID3D12Device* device;
@@ -104,17 +146,60 @@ private:
 	XMMATRIX matBillboardY;
 
 private:
+	/// <summary>
+	/// デスクリプターヒープの生成
+	/// </summary>
+	/// <returns></returns>
 	bool InitializeDescriptorHeap();
+
+	/// <summary>
+	/// カメラの初期化
+	/// </summary>
 	void InitializeCamera();
+
+	/// <summary>
+	/// テクスチャのロード
+	/// </summary>
+	/// <returns></returns>
 	bool LoadTexture();
+
+	/// <summary>
+	/// モデルの生成
+	/// </summary>
 	void CreateModel();
+
+	/// <summary>
+	/// ビュー行列の更新
+	/// </summary>
 	void UpdateViewMatrix();
 
 public:
+
+	/// <summary>
+	/// 定数バッファの生成
+	/// </summary>
+	/// <returns>生成の可否</returns>
 	bool CreateConstBuff();
+
+	/// <summary>
+	/// 更新処理
+	/// </summary>
 	void Update();
+
+	/// <summary>
+	/// 描画処理
+	/// </summary>
 	void Draw();
+
+	/// <summary>
+	/// カラーの切り替え処理
+	/// </summary>
 	void ChangeSelectColor();
+
+	/// <summary>
+	/// カラーのセット
+	/// </summary>
+	/// <param name="arg_selectColor">カラー 0:BLUE 1:YELLOW 2:RED</param>
 	void SetSelectColor(int arg_selectColor) { selectColor = arg_selectColor; }
 
 private: // メンバ変数
@@ -122,11 +207,20 @@ private: // メンバ変数
 	int selectColor = 0;
 	
 	std::forward_list<Particle>particles;
-	public:
-		UINT GetParticleLength()
-		{
-			return (UINT)std::distance(particles.begin(), particles.end());
-		}
-		void Add(int life, const Vector3& position, const Vector3& velocity, const Vector3& accel,float start_scale,float end_scale, const Vector4& start_color, const Vector4& end_color);
+public:
+	UINT GetParticleLength(){ return (UINT)std::distance(particles.begin(), particles.end()); }
+
+	/// <summary>
+	/// パーティクルの追加
+	/// </summary>
+	/// <param name="arg_life">生存時間</param>
+	/// <param name="arg_position">ポジション</param>
+	/// <param name="arg_velocity">移動方向</param>
+	/// <param name="arg_accel">加速度</param>
+	/// <param name="arg_start_scale">開始スケール</param>
+	/// <param name="arg_end_scale">終了スケール</param>
+	/// <param name="arg_start_color">開始カラー</param>
+	/// <param name="arg_end_color">終了カラー</param>
+	void Add(int life, const Vector3& arg_position, const Vector3& arg_velocity, const Vector3& arg_accel,float arg_start_scale,float arg_end_scale, const Vector4& arg_start_color, const Vector4& arg_end_color);
 };
 

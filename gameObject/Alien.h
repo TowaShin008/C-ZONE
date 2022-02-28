@@ -31,6 +31,7 @@ public:
 	/// デストラクタ
 	/// </summary>
 	~Alien();
+
 	// 定数バッファ用データ構造体
 	struct  DissolveConstBufferData
 	{
@@ -45,13 +46,13 @@ public:
 	/// <param name="device">デバイス</param>
 	/// <param name="position">ポジション</param>
 	/// <returns>キャラクターオブジェクト</returns>
-	static Alien* Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position = { 0.0f,0.0f,0.0f });
-
+	static Alien* Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position = { 0.0f,0.0f,0.0f });
 
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	void CreateConstBuffer(ID3D12Device* device);
+	/// <param name="arg_device">デバイス</param>
+	void CreateConstBuffer(ID3D12Device* arg_device);
 
 	/// <summary>
 	/// 初期化処理
@@ -61,7 +62,8 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	void Update(const Vector3& incrementValue)override;
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void Update(const Vector3& arg_incrementValue)override;
 
 	/// <summary>
 	/// 描画処理
@@ -73,7 +75,7 @@ public:
 	/// モデルのセット
 	/// </summary>
 	/// <param name="objModel">モデル</param>
-	void SetOBJModel(OBJModel* arg_objModel,OBJModel* scoreModel);
+	void SetOBJModel(OBJModel* arg_objModel,OBJModel* arg_scoreModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -96,7 +98,7 @@ public:
 	/// カメラのセット
 	/// </summary>
 	/// <param name="camera">カメラ</param>
-	static void SetCamera(Camera* camera) { Alien::camera = camera; }
+	static void SetCamera(Camera* arg_camera) { Alien::camera = arg_camera; }
 
 private:
 	UINT descpriptorSize;
@@ -166,7 +168,7 @@ public:
 	/// ムーブタイプのセット
 	/// </summary>
 	/// <param name="moveType">ムーブタイプ</param>
-	void SetMoveType(const MOVETYPE& moveType);
+	void SetMoveType(const MOVETYPE& arg_moveType);
 
 	/// <summary>
 	/// ムーブタイプの取得
@@ -232,7 +234,7 @@ public:
 	/// ポジションの移動
 	/// </summary>
 	/// <param name="incrementValue">ポジションの増加量</param>
-	void SetScrollIncrement(const Vector3& incrementValue);
+	void SetScrollIncrement(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// センターポジションのセット
@@ -261,6 +263,6 @@ public:
 	/// スコア演出処理
 	/// </summary>
 	/// <param name="incrementValue">スクロール量</param>
-	void ScoreProcessing(Vector3 incrementValue);
+	void ScoreProcessing(const Vector3& arg_incrementValue);
 };
 

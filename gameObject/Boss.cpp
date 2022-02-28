@@ -22,11 +22,11 @@ Boss::~Boss()
 	delete bigBullet;
 }
 
-void Boss::CreateConstBuffer(ID3D12Device* device)
+void Boss::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -34,7 +34,7 @@ void Boss::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -50,31 +50,31 @@ void Boss::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-Boss* Boss::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,Vector3 position)
+Boss* Boss::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	Boss* boss = new Boss(arg_cmdList);
 	boss->Initialize();
-	boss->SetPosition(position);
-	boss->CreateConstBuffer(device);
-	boss->AttachBullet(device);
+	boss->SetPosition(arg_position);
+	boss->CreateConstBuffer(arg_device);
+	boss->AttachBullet(arg_device);
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	deathParticle->SetSelectColor(2);
 	boss->SetDeathParticleManager(deathParticle);
 
 	return boss;
 }
 
-void Boss::SetEye(const Vector3& eye)
+void Boss::SetEye(const Vector3& arg_eye)
 {
-	Boss::camera->SetEye(eye);
+	Boss::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void Boss::SetTarget(const Vector3& target)
+void Boss::SetTarget(const Vector3& arg_target)
 {
-	Boss::camera->SetTarget(target);
+	Boss::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -84,20 +84,20 @@ void Boss::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void Boss::SetOBJModel(OBJHighModel* arg_objModel, OBJHighModel* bulletModel)
+void Boss::SetOBJModel(OBJHighModel* arg_objModel, OBJHighModel* arg_bulletModel)
 {
 	objModel = arg_objModel;
-	SetBulletModel(bulletModel);
+	SetBulletModel(arg_bulletModel);
 }
 
-void Boss::SetBulletModel(OBJHighModel* bulletModel)
+void Boss::SetBulletModel(OBJHighModel* arg_bulletModel)
 {
-	bigBullet->SetOBJModel(bulletModel);
+	bigBullet->SetOBJModel(arg_bulletModel);
 }
 
-void Boss::AttachBullet(ID3D12Device* device)
+void Boss::AttachBullet(ID3D12Device* arg_device)
 {
-	bigBullet = HomingBullet::Create(device,cmdList);
+	bigBullet = HomingBullet::Create(arg_device,cmdList);
 	bigBullet->SetIsDeadFlag(true);
 	bigBullet->SetCollisionRadius(2.0f);
 	bigBullet->SetCharacterType(CHARACTERTYPE::ENEMY);
@@ -126,12 +126,12 @@ void Boss::Initialize()
 	invisibleTime = 0;
 }
 //プレイヤーの更新処理
-void Boss::Update(const Vector3& incrementValue, const Vector3& playerPosition)
+void Boss::Update(const Vector3& arg_incrementValue, const Vector3& arg_playerPosition)
 {
-	centerPosition += incrementValue.x;
+	centerPosition += arg_incrementValue.x;
 	if (isDeadFlag == false)
 	{
-		SetScrollIncrement(incrementValue);
+		SetScrollIncrement(arg_incrementValue);
 		if (moveLugTime <= 0)
 		{
 			if (moveEndFlag == false)
@@ -144,7 +144,7 @@ void Boss::Update(const Vector3& incrementValue, const Vector3& playerPosition)
 			moveLugTime--;
 		}
 		//射撃処理
-		ShotBullet(incrementValue,playerPosition);
+		ShotBullet(arg_incrementValue,arg_playerPosition);
 		//ダメージ演出
 		DamageEffect();
 
@@ -307,9 +307,9 @@ void Boss::IsDead()
 	isDeadFlag = true;
 }
 
-void Boss::SetMoveType(const MOVETYPE& moveType)
+void Boss::SetMoveType(const MOVETYPE& arg_moveType)
 {
-	currentType = moveType;
+	currentType = arg_moveType;
 
 	if (currentType == MOVETYPE::UPCURVE)
 	{
@@ -323,9 +323,9 @@ void Boss::SetMoveType(const MOVETYPE& moveType)
 	}
 }
 
-void Boss::SetScrollIncrement(const Vector3& incrementValue)
+void Boss::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void Boss::Damage()
@@ -423,7 +423,7 @@ bool Boss::IsCollision(GameObject* arg_otherObject)
 	return false;
 }
 
-void Boss::ShotBullet(const Vector3& incrementValue, const Vector3& playerPosition)
+void Boss::ShotBullet(const Vector3& arg_incrementValue, const Vector3& arg_playerPosition)
 {
 	//射撃処理
 	if (shotFlag && bigBullet->GetIsDeadFlag())
@@ -447,15 +447,15 @@ void Boss::ShotBullet(const Vector3& incrementValue, const Vector3& playerPositi
 	if (bigBullet->GetIsDeadFlag() == false)
 	{//追尾弾の追尾処理
 		Vector3 targetPosition;
-		targetPosition = playerPosition;
+		targetPosition = arg_playerPosition;
 
-		Vector3 dir = { playerPosition.x - position.x,playerPosition.y - position.y, playerPosition.z - position.z };
+		Vector3 dir = { arg_playerPosition.x - position.x,arg_playerPosition.y - position.y, arg_playerPosition.z - position.z };
 		dir.normalize();
 		bigBullet->SetVelocity({ dir.x,dir.y,dir.z });
 		Vector3 rotation = bigBullet->GetRotasion();
 		rotation.z += 2.0f;
 		bigBullet->SetRotation(rotation);
-		bigBullet->Update(incrementValue, targetPosition);
+		bigBullet->Update(arg_incrementValue, targetPosition);
 
 		if (bigBullet->GetPosition().z < position.z - SCREENBACK)
 		{

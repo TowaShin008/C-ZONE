@@ -46,11 +46,11 @@ FinalBoss::~FinalBoss()
 	//delete rightEye;
 }
 
-void FinalBoss::CreateConstBuffer(ID3D12Device* device)
+void FinalBoss::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -58,7 +58,7 @@ void FinalBoss::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -74,19 +74,19 @@ void FinalBoss::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-FinalBoss* FinalBoss::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList, Vector3 position)
+FinalBoss* FinalBoss::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	FinalBoss* finalBoss = new FinalBoss(arg_cmdList);
-	finalBoss->SetPosition(position);
-	finalBoss->CreateConstBuffer(device);
-	finalBoss->AttachBody(device);
-	finalBoss->AttachEye(device);
-	finalBoss->AttachLeftWing(device);
-	finalBoss->AttachRightWing(device);
-	finalBoss->AttachBullet(device);
+	finalBoss->SetPosition(arg_position);
+	finalBoss->CreateConstBuffer(arg_device);
+	finalBoss->AttachBody(arg_device);
+	finalBoss->AttachEye(arg_device);
+	finalBoss->AttachLeftWing(arg_device);
+	finalBoss->AttachRightWing(arg_device);
+	finalBoss->AttachBullet(arg_device);
 	finalBoss->Initialize();
 
-	ParticleManager* deathParticle = ParticleManager::Create(device);
+	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	const int red = 2;
 	deathParticle->SetSelectColor(red);
 	finalBoss->SetDeathParticleManager(deathParticle);
@@ -94,16 +94,16 @@ FinalBoss* FinalBoss::Create(ID3D12Device* device, ID3D12GraphicsCommandList* ar
 	return finalBoss;
 }
 
-void FinalBoss::SetEye(const Vector3& eye)
+void FinalBoss::SetEye(const Vector3& arg_eye)
 {
-	FinalBoss::camera->SetEye(eye);
+	FinalBoss::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void FinalBoss::SetTarget(const Vector3& target)
+void FinalBoss::SetTarget(const Vector3& arg_target)
 {
-	FinalBoss::camera->SetTarget(target);
+	FinalBoss::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -113,49 +113,49 @@ void FinalBoss::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void FinalBoss::SetOBJModel(OBJModel* eyeModel, OBJModel* bodyModel, OBJModel* wingModel, OBJHighModel* bulletModel)
+void FinalBoss::SetOBJModel(OBJModel* arg_eyeModel, OBJModel* arg_bodyModel, OBJModel* arg_wingModel, OBJHighModel* arg_bulletModel)
 {
-	SetEyeModel(eyeModel);
-	SetBodyModel(bodyModel);
-	SetWingModel(wingModel);
-	SetBulletModel(bulletModel);
+	SetEyeModel(arg_eyeModel);
+	SetBodyModel(arg_bodyModel);
+	SetWingModel(arg_wingModel);
+	SetBulletModel(arg_bulletModel);
 }
 
-void FinalBoss::SetBodyModel(OBJModel* bodyModel)
+void FinalBoss::SetBodyModel(OBJModel* arg_bodyModel)
 {
-	bodyBlock->SetOBJModel(bodyModel);
+	bodyBlock->SetOBJModel(arg_bodyModel);
 }
 
 
-void FinalBoss::SetEyeModel(OBJModel* eyeModel)
+void FinalBoss::SetEyeModel(OBJModel* arg_eyeModel)
 {
-	finalBossEye->SetOBJModel(eyeModel);
+	finalBossEye->SetOBJModel(arg_eyeModel);
 }
 
-void FinalBoss::SetWingModel(OBJModel* wingModel)
+void FinalBoss::SetWingModel(OBJModel* arg_wingModel)
 {
 	for (int i = 0; i < leftWing.size(); ++i)
 	{
-		leftWing[i]->SetOBJModel(wingModel);
+		leftWing[i]->SetOBJModel(arg_wingModel);
 	}
 
 	for (int i = 0; i < rightWing.size(); ++i)
 	{
-		rightWing[i]->SetOBJModel(wingModel);
+		rightWing[i]->SetOBJModel(arg_wingModel);
 	}
 }
 
-void FinalBoss::SetBulletModel(OBJHighModel* bulletModel)
+void FinalBoss::SetBulletModel(OBJHighModel* arg_bulletModel)
 {
 	for (int i = 0; i < bigBullets.size(); ++i)
 	{
-		bigBullets[i]->SetOBJModel(bulletModel);
+		bigBullets[i]->SetOBJModel(arg_bulletModel);
 	}
 }
 
-void FinalBoss::AttachBody(ID3D12Device* device)
+void FinalBoss::AttachBody(ID3D12Device* arg_device)
 {//体の初期化処理
-	bodyBlock = Block::Create(device, cmdList, { 0,0,position.z });
+	bodyBlock = Block::Create(arg_device, cmdList, { 0,0,position.z });
 	bodyBlock->SetStageBlockFlag(false);
 	bodyBlock->SetScale({ 1.0f,1.0f,1.0f });
 	bodyBlock->Update({ 0,0,0 });
@@ -163,19 +163,19 @@ void FinalBoss::AttachBody(ID3D12Device* device)
 	bodyBlock->SetColor(white);
 }
 
-void FinalBoss::AttachEye(ID3D12Device* device)
+void FinalBoss::AttachEye(ID3D12Device* arg_device)
 {//目の初期化処理
 	const Vector3 finalBossEyeFixPosition = { 0.0f,2.0f,-13.5f };
-	finalBossEye = FinalBossEye::Create(device, cmdList, { finalBossEyeFixPosition.x,finalBossEyeFixPosition.y + position.y , position.z + finalBossEyeFixPosition.z });
+	finalBossEye = FinalBossEye::Create(arg_device, cmdList, { finalBossEyeFixPosition.x,finalBossEyeFixPosition.y + position.y , position.z + finalBossEyeFixPosition.z });
 	finalBossEye->SetScale({ 3.0f,3.0f,1.0f });
 	finalBossEye->Update({ 0.0f,0.0f,0.0f });
 	const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
 	finalBossEye->SetColor(white);
 }
 
-void FinalBoss::AttachLeftWing(ID3D12Device* device)
+void FinalBoss::AttachLeftWing(ID3D12Device* arg_device)
 {//左の翼の初期化処理
-	parentLeftWing = Block::Create(device, cmdList, { -3.0f, position.y,position.z });
+	parentLeftWing = Block::Create(arg_device, cmdList, { -3.0f, position.y,position.z });
 	parentLeftWing->SetScale({ 2.0f,2.0f,2.0f });
 	parentLeftWing->Update({ 0,0,0 });
 	const int leftWingNum = 6;
@@ -184,12 +184,12 @@ void FinalBoss::AttachLeftWing(ID3D12Device* device)
 	{
 		if (i < leftWingNum / 2)
 		{
-			leftWing[i] = Block::Create(device, cmdList, { - 9.0f, i * 2.0f + position.y,position.z });
+			leftWing[i] = Block::Create(arg_device, cmdList, { - 9.0f, i * 2.0f + position.y,position.z });
 			leftWing[i]->SetSpeed({ 0.01f,0.01f,0.01f });
 		}
 		else
 		{
-			leftWing[i] = Block::Create(device, cmdList, { - 12.0f, (i - 3) * 4.0f + position.y - 2.0f,position.z });
+			leftWing[i] = Block::Create(arg_device, cmdList, { - 12.0f, (i - 3) * 4.0f + position.y - 2.0f,position.z });
 			leftWing[i]->SetSpeed({ 0.05f,0.05f,0.05f });
 		}
 		leftWing[i]->SetStageBlockFlag(false);
@@ -210,9 +210,9 @@ void FinalBoss::AttachLeftWing(ID3D12Device* device)
 	}
 }
 
-void FinalBoss::AttachRightWing(ID3D12Device* device)
+void FinalBoss::AttachRightWing(ID3D12Device* arg_device)
 {//右の翼の初期化処理
-	parentRightWing = Block::Create(device, cmdList, { 3.0f, position.y,position.z });
+	parentRightWing = Block::Create(arg_device, cmdList, { 3.0f, position.y,position.z });
 	parentRightWing->SetScale({ 2.0f,2.0f,2.0f });
 	parentRightWing->Update({ 0,0,0 });
 	const int RightWingNum = 6;
@@ -221,12 +221,12 @@ void FinalBoss::AttachRightWing(ID3D12Device* device)
 	{
 		if (i < RightWingNum / 2)
 		{
-			rightWing[i] = Block::Create(device, cmdList, { 9.0f, i * 2.0f + position.y,position.z });
+			rightWing[i] = Block::Create(arg_device, cmdList, { 9.0f, i * 2.0f + position.y,position.z });
 			rightWing[i]->SetSpeed({ 0.01f,0.01f,0.01f });
 		}
 		else
 		{
-			rightWing[i] = Block::Create(device, cmdList, { 12.0f, (i - 3) * 4.0f + position.y - 2.0f,position.z });
+			rightWing[i] = Block::Create(arg_device, cmdList, { 12.0f, (i - 3) * 4.0f + position.y - 2.0f,position.z });
 			rightWing[i]->SetSpeed({ 0.05f,0.05f,0.05f });
 		}
 		//rightWing[i] = Block::Create(device, cmdList, { i * 3.0f + 3.0f, 7.1f + position.y,position.z });
@@ -250,12 +250,12 @@ void FinalBoss::AttachRightWing(ID3D12Device* device)
 	}
 }
 
-void FinalBoss::AttachBullet(ID3D12Device* device)
+void FinalBoss::AttachBullet(ID3D12Device* arg_device)
 {
 	bigBullets.resize(BIGBULLETMAXNUM);
 	for (int i = 0; i < bigBullets.size(); ++i)
 	{
-		bigBullets[i] = HomingBullet::Create(device, cmdList);
+		bigBullets[i] = HomingBullet::Create(arg_device, cmdList);
 		bigBullets[i]->SetIsDeadFlag(true);
 		bigBullets[i]->SetCollisionRadius(2.0f);
 		bigBullets[i]->SetCharacterType(CHARACTERTYPE::ENEMY);
@@ -283,13 +283,13 @@ void FinalBoss::Initialize()
 	InitialPosture();
 }
 //プレイヤーの更新処理
-void FinalBoss::Update(const Vector3& incrementValue, const Vector3& playerPosition)
+void FinalBoss::Update(const Vector3& arg_incrementValue, const Vector3& arg_playerPosition)
 {
-	centerPosition += incrementValue.x;
+	centerPosition += arg_incrementValue.x;
 
 	if (isDeadFlag == false)
 	{
-		SetScrollIncrement(incrementValue);
+		SetScrollIncrement(arg_incrementValue);
 
 		if (moveEndFlag == false)
 		{//移動処理
@@ -330,7 +330,7 @@ void FinalBoss::Update(const Vector3& incrementValue, const Vector3& playerPosit
 
 
 		//射撃処理
-		ShotBullet(incrementValue, playerPosition);
+		ShotBullet(arg_incrementValue, arg_playerPosition);
 
 		if (blinkFlag)
 		{//瞬き処理
@@ -510,9 +510,9 @@ void FinalBoss::IsDead()
 	isDeadFlag = true;
 }
 
-void FinalBoss::SetScrollIncrement(const Vector3& incrementValue)
+void FinalBoss::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position += incrementValue;
+	position += arg_incrementValue;
 }
 
 void FinalBoss::Damage()
@@ -678,7 +678,7 @@ void FinalBoss::BreathMove()
 	}
 }
 
-void FinalBoss::ShotBullet(const Vector3& incrementValue, const Vector3& playerPosition)
+void FinalBoss::ShotBullet(const Vector3& arg_incrementValue, const Vector3& arg_playerPosition)
 {
 	if (shotFlag)
 	{
@@ -713,15 +713,15 @@ void FinalBoss::ShotBullet(const Vector3& incrementValue, const Vector3& playerP
 		if (bigBullets[i]->GetIsDeadFlag() == false)
 		{
 			Vector3 targetPosition;
-			targetPosition = playerPosition;
+			targetPosition = arg_playerPosition;
 
-			Vector3 dir = { playerPosition.x - position.x,playerPosition.y - position.y, playerPosition.z - position.z };
+			Vector3 dir = { arg_playerPosition.x - position.x,arg_playerPosition.y - position.y, arg_playerPosition.z - position.z };
 			dir.normalize();
 			bigBullets[i]->SetVelocity({ dir.x,dir.y,dir.z });
 			Vector3 rotation = bigBullets[i]->GetRotasion();
 			rotation.z += 2.0f;
 			bigBullets[i]->SetRotation(rotation);
-			bigBullets[i]->Update(incrementValue, targetPosition);
+			bigBullets[i]->Update(arg_incrementValue, targetPosition);
 
 			if (bigBullets[i]->GetPosition().z < position.z - SCREENBACK)
 			{

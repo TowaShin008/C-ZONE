@@ -20,11 +20,11 @@ Block::~Block()
 
 }
 
-void Block::CreateConstBuffer(ID3D12Device* device)
+void Block::CreateConstBuffer(ID3D12Device* arg_device)
 {
 	HRESULT result;
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -32,7 +32,7 @@ void Block::CreateConstBuffer(ID3D12Device* device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = device->CreateCommittedResource(
+	result = arg_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -48,27 +48,27 @@ void Block::CreateConstBuffer(ID3D12Device* device)
 	UpdateViewMatrix();
 }
 
-Block* Block::Create(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList,Vector3 position)
+Block* Block::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
 	Block* block = new Block(arg_cmdList);
 
-	block->SetPosition({ position.x,position.y,position.z });
+	block->SetPosition({ arg_position.x,arg_position.y,arg_position.z });
 
-	block->CreateConstBuffer(device);
+	block->CreateConstBuffer(arg_device);
 
 	return block;
 }
 
-void Block::SetEye(const Vector3& eye)
+void Block::SetEye(const Vector3& arg_eye)
 {
-	Block::camera->SetEye(eye);
+	Block::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void Block::SetTarget(const Vector3& target)
+void Block::SetTarget(const Vector3& arg_target)
 {
-	Block::camera->SetTarget(target);
+	Block::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
@@ -92,14 +92,14 @@ void Block::Initialize()
 	color = white;
 }
 //プレイヤーの更新処理
-void Block::Update(const Vector3& incrementValue)
+void Block::Update(const Vector3& arg_incrementValue)
 {
 	if (isDeadFlag)
 	{
 		return;
 	}
 
-	centerPos += incrementValue.x;
+	centerPos += arg_incrementValue.x;
 
 	position = position + velocity * speed;
 	//定数バッファの転送
@@ -180,9 +180,9 @@ void Block::IsDead()
 	isDeadFlag = true;
 }
 
-void Block::SetScrollIncrement(const Vector3& incrementValue)
+void Block::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
-	position = incrementValue;
+	position = arg_incrementValue;
 }
 
 bool Block::IsCollision(GameObject* arg_otherObject)
