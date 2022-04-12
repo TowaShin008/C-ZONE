@@ -19,37 +19,41 @@ public:
 	/// <summary>
 	/// 初期化処理
 	/// </summary>
+	/// <param name="arg_score">スコア</param>
 	void Initialize(unsigned int arg_score)override;
 
 	/// <summary>
 	/// 全てのオブジェクトの生成処理
 	/// </summary>
-	/// <param name="device">デバイス</param>
-	void CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)override;
+	/// <param name="arg_device">デバイス</param>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	void CreateAllObject(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList)override;
 
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	/// <param name="input">インプットクラス</param>
-	void Update(DebugText* debugText)override;
+	/// <param name="arg_debugText">デバッグテキスト</param>
+	void Update(DebugText* arg_debugText)override;
 
 	/// <summary>
 	/// 描画前処理
 	/// </summary>
-	/// <param name="cmdList">コマンド処理</param>
-	void DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* debugText);
-
-	/// <summary>
-	/// ポスト描画処理
-	/// </summary>
-	/// <param name="cmdList">コマンド処理</param>
-	void PostEffectDraw(ID3D12GraphicsCommandList* cmdList)override;
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	/// <param name="arg_debugText">デバッグテキスト</param>
+	void DrawRenderTexture(ID3D12GraphicsCommandList* arg_cmdList, DebugText* arg_debugText)override;
 
 	/// <summary>
 	/// 描画処理
 	/// </summary>
-	/// <param name="cmdList">コマンド処理</param>
-	void Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText);
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	void PostEffectDraw(ID3D12GraphicsCommandList* arg_cmdList)override;
+
+	/// <summary>
+	/// 描画処理
+	/// </summary>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	/// <param name="arg_debugText">デバッグテキスト</param>
+	void Draw(ID3D12GraphicsCommandList* arg_cmdList, DebugText* arg_debugText)override;
 
 	/// <summary>
 	/// 次のシーンへ

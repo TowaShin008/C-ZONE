@@ -1,15 +1,16 @@
 #include "Player.h"
 using namespace Microsoft::WRL;
 
-//ID3D12Device* Player::device;
 ID3D12GraphicsCommandList* Player::cmdList;
 XMMATRIX Player::matView;
 XMMATRIX Player::matProjection;
 Camera* Player::camera = nullptr;
+ID3D12Device* Player::device = nullptr;
 
-Player::Player(ID3D12GraphicsCommandList* arg_cmdList)
+Player::Player(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	speed = { 0.2f,0.2f,0.0f };
 	rotation = { 270.0f,0.0f,270.0f };
 	scale = { 0.4f,0.4f,0.4f };
@@ -36,11 +37,11 @@ Player::~Player()
 	}
 }
 
-void Player::CreateConstBuffer(ID3D12Device* arg_device)
+void Player::CreateConstBuffer()
 {
 	HRESULT result;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -48,7 +49,7 @@ void Player::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -66,15 +67,23 @@ void Player::CreateConstBuffer(ID3D12Device* arg_device)
 
 Player* Player::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	Player* player = new Player(arg_cmdList);
+	Player* player = new Player(arg_cmdList,arg_device);
 
 	UnionCharacter* unionCharacter = UnionCharacter::Create(arg_device, arg_cmdList);
+
+	//マネージャークラスに入っているオブジェクト全てをアップデート
+	ObjFileCharacter* laserGauge = ObjFileCharacter::Create(arg_device, arg_cmdList);
+	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
+
+
 	player->SetUnionCharacter(unionCharacter);
+	player->SetLaserGauge(laserGauge);
 
 	player->Initialize();
 	player->SetPosition(arg_position);
-	player->CreateConstBuffer(arg_device);
-	player->AttachBullet(arg_device);
+	player->CreateConstBuffer();
+	player->AttachBullet();
 
 	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 
@@ -100,6 +109,10 @@ Player* Player::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_
 	jetParticleMan = ParticleManager::Create(arg_device);
 	player->SetJetPerticleManager(jetParticleMan);
 
+	ParticleManager* laserGaugeParticletManager;
+	laserGaugeParticletManager = ParticleManager::Create(arg_device);
+	player->SetLaserGaugePerticleManager(laserGaugeParticletManager);
+
 	return player;
 }
 
@@ -122,16 +135,17 @@ void Player::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void Player::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel, OBJHighModel* arg_unionModel, OBJModel* arg_uBulletmodel,OBJHighModel* arg_laserModel, OBJHighModel* arg_missileModel)
+void Player::SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_bulletModel, ObjFileModel* arg_unionModel, ObjFileModel* arg_uBulletmodel, ObjFileModel* arg_laserModel, ObjFileModel* arg_laserGauseModel, ObjFileModel* arg_missileModel)
 {
 	objModel = arg_objModel;
 	SetBulletModel(arg_bulletModel);
 	SetLaserModel(arg_laserModel);
 	SetMissileModel(arg_missileModel);
 	unionCharacter->SetOBJModel(arg_unionModel, arg_uBulletmodel);
+	laserGauge->SetOBJModel(arg_laserGauseModel);
 }
 
-void Player::SetBulletModel(OBJModel* arg_bulletModel)
+void Player::SetBulletModel(ObjFileModel* arg_bulletModel)
 {
 	for (int i = 0; i < bullets.size();i++)
 	{
@@ -141,12 +155,18 @@ void Player::SetBulletModel(OBJModel* arg_bulletModel)
 	chargeBullet->SetOBJModel(arg_bulletModel);
 }
 
-void Player::SetLaserModel(OBJHighModel* arg_laserModel)
+void Player::SetLaserModel(ObjFileModel* arg_laserModel)
 {
 	laser->SetOBJModel(arg_laserModel);
 }
 
-void Player::SetMissileModel(OBJHighModel* arg_missileModel)
+void Player::SetLaserGaugeModel(ObjFileModel* arg_laserGaugeModel)
+{
+	laserGauge->SetOBJModel(arg_laserGaugeModel);
+}
+
+
+void Player::SetMissileModel(ObjFileModel* arg_missileModel)
 {
 	for (int i = 0; i < missiles.size(); i++)
 	{
@@ -154,19 +174,19 @@ void Player::SetMissileModel(OBJHighModel* arg_missileModel)
 	}
 }
 
-void Player::AttachBullet(ID3D12Device* arg_device)
+void Player::AttachBullet()
 {
 	bullets.resize(BULLETMAXNUM);
 
 	for (int i = 0; i < bullets.size(); i++)
 	{
-		bullets[i] = Bullet::Create(arg_device,cmdList);
+		bullets[i] = Bullet::Create(device,cmdList);
 		bullets[i]->SetIsDeadFlag(true);
 		bullets[i]->SetCharacterType(CHARACTERTYPE::FRIEND);
 		bullets[i]->SetVelocity({1.0f,0.0f,0.0f});
 	}
 
-	chargeBullet.reset(Bullet::Create(arg_device,cmdList));
+	chargeBullet.reset(Bullet::Create(device,cmdList));
 	chargeBullet->SetIsDeadFlag(true);
 	chargeBullet->SetSpeed({ 1.0f,1.0f,1.0f });
 	chargeBullet->SetCharacterType(CHARACTERTYPE::FRIEND);
@@ -177,7 +197,7 @@ void Player::AttachBullet(ID3D12Device* arg_device)
 
 	for (int i = 0; i < missiles.size()/2; i++)
 	{
-		missiles[i] = Missile::Create(arg_device,cmdList);
+		missiles[i] = Missile::Create(device,cmdList);
 		missiles[i]->SetIsDeadFlag(true);
 		missiles[i]->SetUpShotFlag(true);
 		missiles[i]->SetCharacterType(CHARACTERTYPE::FRIEND);
@@ -186,14 +206,14 @@ void Player::AttachBullet(ID3D12Device* arg_device)
 
 	for (int i = missiles.size() / 2; i < missiles.size(); i++)
 	{
-		missiles[i] = Missile::Create(arg_device,cmdList);
+		missiles[i] = Missile::Create(device,cmdList);
 		missiles[i]->SetIsDeadFlag(true);
 		missiles[i]->SetUpShotFlag(false);
 		missiles[i]->SetCharacterType(CHARACTERTYPE::FRIEND);
 		missiles[i]->SetVelocity({ 0.0f,0.0f,0.0f });
 	}
 
-	laser.reset(Laser::Create(arg_device,cmdList));
+	laser.reset(Laser::Create(device,cmdList));
 	laser->SetIsDeadFlag(true);
 	laser->SetCharacterType(CHARACTERTYPE::FRIEND);
 	laser->SetScale({ 0.0f,5.0f,0.0f });
@@ -264,6 +284,8 @@ void Player::Update(const Vector3& arg_incrementValue)
 
 	UpdateAttack(arg_incrementValue);
 
+	//レーザーゲージ処理
+	LaserGaugeProcessing(arg_incrementValue);
 	//各パーティクルのアップデート処理
 	chargeParticleManager->Update();
 	chargeMaxParticleManager->Update();
@@ -317,6 +339,14 @@ void Player::Draw()
 	{
 		ParticleManager::PreDraw(cmdList);
 		deathParticle->Draw();
+		ParticleManager::PostDraw();
+	}
+
+	if (disPlayLaserGaugeFlag)
+	{
+		laserGauge->Draw();
+		ParticleManager::PreDraw(cmdList);
+		laserGaugeParticleManager->Draw();
 		ParticleManager::PostDraw();
 	}
 }
@@ -694,7 +724,7 @@ void Player::TransferConstBuff()
 	matWorld *= matRot; // ワールド行列に回転を反映
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
-		// 親オブジェクトがあれば
+	// 親オブジェクトがあれば
 	if (parent != nullptr) {
 		// 親オブジェクトのワールド行列を掛ける
 		matWorld *= parent->matWorld;
@@ -725,15 +755,6 @@ void Player::TransferConstBuff()
 	constMap0->color = color;
 	constMap0->mat = matWorld * matView * matProjection;	// 行列の合成
 	constBuffB0->Unmap(0, nullptr);
-
-	////マテリアルの転送
-	//ConstBufferDataB1* constMap1 = nullptr;
-	//result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-	//constMap1->ambient = objModel->material.ambient;
-	//constMap1->diffuse = objModel->material.diffuse;
-	//constMap1->specular = objModel->material.specular;
-	//constMap1->alpha = objModel->material.alpha;
-	//constBuffB1->Unmap(0, nullptr);
 }
 
 void Player::Move(const Vector3& arg_incrementValue)
@@ -1047,5 +1068,62 @@ void Player::UpdateAttack(const Vector3& arg_incrementValue)
 				missiles[i]->SetIsDeadFlag(true);
 			}
 		}
+	}
+}
+
+void Player::LaserGaugeProcessing(const Vector3& arg_incrementValue)
+{
+	const float maxEnergy = 200.0f;
+	if (laserEnergy < maxEnergy)
+	{
+		laserGauge->SetColor({ 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f });
+	}
+	//レーザーのエネルギーゲージの更新処理
+	laserGauge->SetScale({ 4.0f ,(laserEnergy / maxEnergy),4.0f });
+	laserGauge->Update(arg_incrementValue);
+	laserGaugeParticleManager->Update();
+
+	if (laserParticleLugtime <= 0 && laser->GetIsDeadFlag() == false)
+	{
+		if (laserGaugeParticleManager->GetParticleLength() < 20)
+		{//レーザーゲージ消費時のパーティクル演出
+			const float rnd_pos = 1.5f;
+
+			Vector3 pos{};
+			const float rnd_vel = 0.2f;
+			Vector3 vel{};
+			pos = { laserGauge->GetPosition().x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f + 10.0f), laserGauge->GetPosition().y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),laserGauge->GetPosition().z };
+
+			Vector3 dis = { 0.0f,0.0f,0.0f };
+			dis = { laserGauge->GetPosition().x - pos.x,laserGauge->GetPosition().y - pos.y ,0.0f };
+
+			dis = dis.normalize();
+			//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
+			vel = -dis * 0.2f;
+			//重力に見立ててYのみ[-0.001f,0]でランダムに分布
+			const float rnd_acc = 0.0001f;
+			Vector3 acc{};
+			int life = 0;
+
+			acc.x = -rnd_acc;
+			life = (int)(20.0f * ((dis.x * 2.0f) * (-1.0f)));
+
+			pos = laserGauge->GetPosition();
+			pos.x = pos.x - centerPosition + (laserEnergy / maxEnergy) * 16.0f;
+
+			const float startScale = 1.0f;
+			const float endScale = 0.0f;
+			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
+			const Vector4 startColor = { 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f };
+			const Vector4 endColor = white;
+			laserGaugeParticleManager->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
+
+			laserParticleLugtime = 2;
+		}
+	}
+
+	if (laserParticleLugtime > 0)
+	{
+		laserParticleLugtime--;
 	}
 }

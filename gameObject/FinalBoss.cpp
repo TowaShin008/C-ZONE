@@ -5,10 +5,12 @@ ID3D12GraphicsCommandList* FinalBoss::cmdList;
 XMMATRIX FinalBoss::matView;
 XMMATRIX FinalBoss::matProjection;
 Camera* FinalBoss::camera = nullptr;
+ID3D12Device* FinalBoss::device = nullptr;
 
-FinalBoss::FinalBoss(ID3D12GraphicsCommandList* arg_cmdList)
+FinalBoss::FinalBoss(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	scale = { 1.0f,1.0f,1.0f };
 	collisionRadius = 2.0f;
 	rotation = { 0.0f,0.0f,0.0f };
@@ -40,17 +42,13 @@ FinalBoss::~FinalBoss()
 		delete rightWing[i];
 		rightWing[i] = nullptr;
 	}
-
-	//これらはゲームオブジェクトマネージャーで削除しているため記述する必要がない
-	//delete leftEye;
-	//delete rightEye;
 }
 
-void FinalBoss::CreateConstBuffer(ID3D12Device* arg_device)
+void FinalBoss::CreateConstBuffer()
 {
 	HRESULT result;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -58,7 +56,7 @@ void FinalBoss::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -76,9 +74,9 @@ void FinalBoss::CreateConstBuffer(ID3D12Device* arg_device)
 
 FinalBoss* FinalBoss::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	FinalBoss* finalBoss = new FinalBoss(arg_cmdList);
+	FinalBoss* finalBoss = new FinalBoss(arg_cmdList, arg_device);
 	finalBoss->SetPosition(arg_position);
-	finalBoss->CreateConstBuffer(arg_device);
+	finalBoss->CreateConstBuffer();
 	finalBoss->AttachBody(arg_device);
 	finalBoss->AttachEye(arg_device);
 	finalBoss->AttachLeftWing(arg_device);
@@ -113,7 +111,7 @@ void FinalBoss::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void FinalBoss::SetOBJModel(OBJModel* arg_eyeModel, OBJModel* arg_bodyModel, OBJModel* arg_wingModel, OBJHighModel* arg_bulletModel)
+void FinalBoss::SetOBJModel(ObjFileModel* arg_eyeModel, ObjFileModel* arg_bodyModel, ObjFileModel* arg_wingModel, ObjFileModel* arg_bulletModel)
 {
 	SetEyeModel(arg_eyeModel);
 	SetBodyModel(arg_bodyModel);
@@ -121,18 +119,18 @@ void FinalBoss::SetOBJModel(OBJModel* arg_eyeModel, OBJModel* arg_bodyModel, OBJ
 	SetBulletModel(arg_bulletModel);
 }
 
-void FinalBoss::SetBodyModel(OBJModel* arg_bodyModel)
+void FinalBoss::SetBodyModel(ObjFileModel* arg_bodyModel)
 {
 	bodyBlock->SetOBJModel(arg_bodyModel);
 }
 
 
-void FinalBoss::SetEyeModel(OBJModel* arg_eyeModel)
+void FinalBoss::SetEyeModel(ObjFileModel* arg_eyeModel)
 {
 	finalBossEye->SetOBJModel(arg_eyeModel);
 }
 
-void FinalBoss::SetWingModel(OBJModel* arg_wingModel)
+void FinalBoss::SetWingModel(ObjFileModel* arg_wingModel)
 {
 	for (int i = 0; i < leftWing.size(); ++i)
 	{
@@ -145,7 +143,7 @@ void FinalBoss::SetWingModel(OBJModel* arg_wingModel)
 	}
 }
 
-void FinalBoss::SetBulletModel(OBJHighModel* arg_bulletModel)
+void FinalBoss::SetBulletModel(ObjFileModel* arg_bulletModel)
 {
 	for (int i = 0; i < bigBullets.size(); ++i)
 	{
@@ -229,7 +227,7 @@ void FinalBoss::AttachRightWing(ID3D12Device* arg_device)
 			rightWing[i] = Block::Create(arg_device, cmdList, { 12.0f, (i - 3) * 4.0f + position.y - 2.0f,position.z });
 			rightWing[i]->SetSpeed({ 0.05f,0.05f,0.05f });
 		}
-		//rightWing[i] = Block::Create(device, cmdList, { i * 3.0f + 3.0f, 7.1f + position.y,position.z });
+
 		rightWing[i]->SetStageBlockFlag(false);
 		rightWing[i]->SetScale({ 1.0f,1.0f,1.0f });
 
@@ -336,15 +334,6 @@ void FinalBoss::Update(const Vector3& arg_incrementValue, const Vector3& arg_pla
 		{//瞬き処理
 			Blink();
 		}
-
-		//マテリアルの転送
-		//ConstBufferDataB1* constMap1 = nullptr;
-		//result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-		//constMap1->ambient = objModel->material.ambient;
-		//constMap1->diffuse = objModel->material.diffuse;
-		//constMap1->specular = objModel->material.specular;
-		//constMap1->alpha = objModel->material.alpha;
-		//constBuffB1->Unmap(0, nullptr);
 	}
 	//死亡パーティクル処理
 	DeathParticleProcessing();
@@ -416,7 +405,7 @@ void FinalBoss::TransferConstBuff()
 	matWorld *= matRot; // ワールド行列に回転を反映
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
-		// 親オブジェクトがあれば
+	// 親オブジェクトがあれば
 	if (parent != nullptr) {
 		// 親オブジェクトのワールド行列を掛ける
 		matWorld *= parent->matWorld;
@@ -648,7 +637,7 @@ void FinalBoss::BreathMove()
 	bodyBlock->SetPosition({  position.x,  position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f,position.z });
 	bodyBlock->Update({ 0,0,0 });
 
-	//parentFinalBossEye->SetRotation({0,0,0});
+
 	//目の呼吸処理
 	const Vector3 eyeFixPosition = { 0.0f,2.0f,-13.5f };
 	finalBossEye->SetPosition({ position.x,eyeFixPosition.y + position.y + cos((bodyAngle / 180.0f) * XM_PI) * 5.0f , position.z + eyeFixPosition.z });

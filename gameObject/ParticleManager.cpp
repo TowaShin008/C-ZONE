@@ -7,9 +7,6 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
-
-//const float ParticleManager::radius = 5.0f;				// 底面の半径
-//const float ParticleManager::prizmHeight = 8.0f;			// 柱の高さ
 ID3D12GraphicsCommandList* ParticleManager::cmdList = nullptr;
 
 bool ParticleManager::Initialize(ID3D12Device * arg_device)
@@ -411,8 +408,6 @@ void ParticleManager::Draw()
 
 	// 頂点バッファの設定
 	cmdList->IASetVertexBuffers(0, 1, &vbView);
-	// インデックスバッファの設定
-	//cmdList->IASetIndexBuffer(&ibView);
 
 	// デスクリプタヒープの配列
 	ID3D12DescriptorHeap* ppHeaps[] = { descHeap.Get() };
@@ -423,7 +418,6 @@ void ParticleManager::Draw()
 	// シェーダリソースビューをセット
 	cmdList->SetGraphicsRootDescriptorTable(1, gpuDescHandleSRV);
 	// 描画コマンド
-	/*cmdList->DrawInstanced(_countof(vertices), 1, 0, 0);*/
 	cmdList->DrawInstanced((UINT)std::distance(particles.begin(),particles.end()), 1, 0, 0);
 }
 

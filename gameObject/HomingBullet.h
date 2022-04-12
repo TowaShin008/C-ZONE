@@ -3,7 +3,7 @@
 #include<d3d12.h>
 #include<DirectXMath.h>
 #include<string>
-#include"OBJModel.h"
+#include"ObjFileModel.h"
 #include"ParticleManager.h"
 #include<d3dcompiler.h>
 #pragma comment(lib,"d3dcompiler.lib")
@@ -22,7 +22,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	HomingBullet(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	HomingBullet(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -41,8 +42,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -64,7 +64,7 @@ public:
 	/// モデルのセット
 	/// </summary>
 	/// <param name="arg_objModel">モデル</param>
-	void SetOBJModel(OBJHighModel* arg_objModel) { objModel = arg_objModel; }
+	void SetOBJModel(ObjFileModel* arg_objModel) { objModel = arg_objModel; }
 
 	/// <summary>
 	/// 視点座標のセット
@@ -111,8 +111,9 @@ private:
 	static XMMATRIX matView;
 	static XMMATRIX matProjection;
 	static Camera* camera;
+	static ID3D12Device* device;
 
-	OBJHighModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
 	HomingBullet* parent = nullptr;
 	int particleLugtime = 0;
 public:

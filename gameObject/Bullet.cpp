@@ -5,10 +5,12 @@ ID3D12GraphicsCommandList* Bullet::cmdList;
 XMMATRIX Bullet::matView;
 XMMATRIX Bullet::matProjection;
 Camera* Bullet::camera = nullptr;
+ID3D12Device* Bullet::device = nullptr;
 
-Bullet::Bullet(ID3D12GraphicsCommandList* arg_cmdList)
+Bullet::Bullet(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	scale = { 0.2f,0.2f,0.2f };
 	speed = { 1.0f,1.0f,1.0f };
 	matProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(60.0f), (float)WindowSize::window_width / (float)WindowSize::window_height, 0.1f, 1000.0f);
@@ -20,11 +22,11 @@ Bullet::~Bullet()
 
 }
 
-void Bullet::CreateConstBuffer(ID3D12Device* arg_device)
+void Bullet::CreateConstBuffer()
 {
 	HRESULT result;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -32,7 +34,7 @@ void Bullet::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -50,11 +52,11 @@ void Bullet::CreateConstBuffer(ID3D12Device* arg_device)
 
 Bullet* Bullet::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	Bullet* bullet = new Bullet(arg_cmdList);
+	Bullet* bullet = new Bullet(arg_cmdList, arg_device);
 
 	bullet->SetPosition(arg_position);
 
-	bullet->CreateConstBuffer(arg_device);
+	bullet->CreateConstBuffer();
 
 	return bullet;
 }
@@ -152,15 +154,6 @@ void Bullet::TransferConstBuff()
 	constMap0->color = color;
 	constMap0->mat = matWorld * matView * matProjection;	// 行列の合成
 	constBuffB0->Unmap(0, nullptr);
-
-	//マテリアルの転送
-	ConstBufferDataB1* constMap1 = nullptr;
-	result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-	constMap1->ambient = objModel->material.ambient;
-	constMap1->diffuse = objModel->material.diffuse;
-	constMap1->specular = objModel->material.specular;
-	constMap1->alpha = objModel->material.alpha;
-	constBuffB1->Unmap(0, nullptr);
 }
 
 void Bullet::Move()

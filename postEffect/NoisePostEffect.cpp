@@ -179,24 +179,6 @@ void NoisePostEffect::Initialize()
 
 void NoisePostEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 {
-	//if (input->KeyTriggerState(DIK_0))
-	//{
-	//	static int tex = 0;
-
-	//	tex = (tex + 1) % 2;
-
-	//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	//	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	//	srvDesc.Texture2D.MipLevels = 1;
-	//	device->CreateShaderResourceView(texBuff[tex].Get(),
-	//		&srvDesc,
-	//		descHeapSRV->GetCPUDescriptorHandleForHeapStart()
-	//	);
-	//}
-
-
 	// ワールド行列の更新
 	this->matWorld = XMMatrixIdentity();//FIX:ここでアクセス
 	this->matWorld *= XMMatrixRotationZ(XMConvertToRadians(rotation));
@@ -230,8 +212,6 @@ void NoisePostEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 	// 定数バッファビューをセット
 	cmdList->SetGraphicsRootConstantBufferView(0, this->constBuff->GetGPUVirtualAddress());
 	// シェーダリソースビューをセット
-	//cmdList->SetGraphicsRootDescriptorTable(1, CD3DX12_GPU_DESCRIPTOR_HANDLE(descHeap->GetGPUDescriptorHandleForHeapStart(), this->texNumber, descriptorSize));
-
 	cmdList->SetGraphicsRootDescriptorTable(1,
 		CD3DX12_GPU_DESCRIPTOR_HANDLE(
 			descHeapSRV->GetGPUDescriptorHandleForHeapStart(), 0,

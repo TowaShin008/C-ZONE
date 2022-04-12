@@ -28,7 +28,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	AircraftCarrier(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	AircraftCarrier(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -47,8 +48,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -72,14 +72,14 @@ public:
 	/// <param name="arg_objModel">モデル</param>
 	/// <param name="arg_alienModel">モデル</param>
 	/// <param name="arg_scoreModel">モデル</param>
-	void SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_alienModel, OBJModel* arg_scoreModel);
+	void SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_alienModel, ObjFileModel* arg_scoreModel);
 
 	/// <summary>
 	/// エイリアンとスコアのセット
 	/// </summary>
 	/// <param name="arg_alienModel">モデル</param>
 	/// <param name="arg_scoreModel">モデル</param>
-	void SetAlienModel(OBJModel* arg_alienModel, OBJModel* arg_scoreModel);
+	void SetAlienModel(ObjFileModel* arg_alienModel, ObjFileModel* arg_scoreModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -107,8 +107,7 @@ public:
 	/// <summary>
 	/// エイリアンをリサイズし生成する
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void AttachElien(ID3D12Device* arg_device);
+	void AttachElien();
 
 private:
 	static ID3D12Device* device;
@@ -127,7 +126,7 @@ private:
 	static Camera* camera;
 
 	//モデルデータ格納用変数
-	OBJHighModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
 	//親クラス
 	AircraftCarrier* parent = nullptr;
 

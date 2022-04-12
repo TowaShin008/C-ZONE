@@ -56,3 +56,13 @@ void GameObjectManager::AllObjectCollision()
 		}
 	}
 }
+
+void GameObjectManager::DisPlayScore(DebugText* debugText)
+{
+	std::ostringstream scoreText;
+
+	scoreText << "Score:" << std::setfill('0') << std::setw(8)
+		<< std::fixed << score << "00";
+
+	debugText->Print(scoreText.str(), WindowSize::window_width - 300.0f, WindowSize::window_height - 60.0f, 0.5f);
+}

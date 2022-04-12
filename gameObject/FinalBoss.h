@@ -30,7 +30,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	FinalBoss(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	FinalBoss(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -50,8 +51,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -77,31 +77,31 @@ public:
 	/// <param name="arg_bodyModel">体のモデル</param>
 	/// <param name="arg_wingModel">翼のモデル</param>
 	/// <param name="arg_bulletModel">弾のモデル</param>
-	void SetOBJModel(OBJModel* arg_eyeModel, OBJModel* arg_bodyModel, OBJModel* arg_wingModel, OBJHighModel* arg_bulletModel);
+	void SetOBJModel(ObjFileModel* arg_eyeModel, ObjFileModel* arg_bodyModel, ObjFileModel* arg_wingModel, ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// 体のモデルのモデルのセット
 	/// </summary>
 	/// <param name="arg_bulletModel">モデル</param>
-	void SetBodyModel(OBJModel* arg_bodyModel);
+	void SetBodyModel(ObjFileModel* arg_bodyModel);
 
 	/// <summary>
 	/// 目のモデルのモデルのセット
 	/// </summary>
 	/// <param name="arg_bulletModel">モデル</param>
-	void SetEyeModel(OBJModel* arg_eyeModel);
+	void SetEyeModel(ObjFileModel* arg_eyeModel);
 
 	/// <summary>
 	/// 翼のモデルのセット
 	/// </summary>
 	/// <param name="arg_wingModel"></param>
-	void SetWingModel(OBJModel* arg_wingModel);
+	void SetWingModel(ObjFileModel* arg_wingModel);
 
 	/// <summary>
 	/// 弾丸モデルのセット
 	/// </summary>
 	/// <param name="arg_bulletModel">モデル</param>
-	void SetBulletModel(OBJHighModel* arg_bulletModel);
+	void SetBulletModel(ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -169,6 +169,8 @@ private:
 	//カメラクラス
 	static Camera* camera;
 
+	static ID3D12Device* device;
+
 	//親クラス
 	FinalBoss* parent = nullptr;
 
@@ -182,7 +184,7 @@ private:
 	//現在の動きの種類を格納する変数
 	MOVETYPE  currentType = MOVETYPE::TRIANGLE;
 
-	OBJModel* bodyModel = nullptr;
+	ObjFileModel* bodyModel = nullptr;
 	Block* bodyBlock = nullptr;
 
 	FinalBossEye* finalBossEye = nullptr;

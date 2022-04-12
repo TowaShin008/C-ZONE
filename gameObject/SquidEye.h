@@ -24,7 +24,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	SquidEye(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	SquidEye(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -44,8 +45,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -67,7 +67,7 @@ public:
 	/// モデルのセット
 	/// </summary>
 	/// <param name="arg_objModel">モデル</param>
-	void SetOBJModel(OBJModel* arg_objModel);
+	void SetOBJModel(ObjFileModel* arg_objModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -107,8 +107,10 @@ private:
 	//カメラクラス
 	static Camera* camera;
 
+	static ID3D12Device* device;
+
 	//モデルデータ格納用変数
-	OBJModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
 	//親クラス
 	SquidEye* parent = nullptr;
 

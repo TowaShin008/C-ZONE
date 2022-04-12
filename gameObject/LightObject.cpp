@@ -88,10 +88,6 @@ void LightObject::LoadMaterial(const std::string& directoryPath, const std::stri
 			TexMetadata metadata{};
 			ScratchImage scratchImg{};
 
-			//result = LoadFromWICFile(
-			//	L"Resources/player.png", WIC_FLAGS_NONE,
-			//	&metadata, scratchImg);
-
 			//ファイルパスを結合
 			string filepath = directoryPath + material.textureFilename;
 
@@ -99,7 +95,6 @@ void LightObject::LoadMaterial(const std::string& directoryPath, const std::stri
 			wchar_t wfilepath[128];
 			int iBufferSize = MultiByteToWideChar(CP_ACP, 0,
 				filepath.c_str(), -1, wfilepath, _countof(wfilepath));
-			//directoryPath + filename;
 
 			result = LoadFromWICFile(
 				wfilepath, WIC_FLAGS_NONE,
@@ -420,7 +415,7 @@ void LightObject::Update()
 	// 定数バッファへデータ転送
 	ConstBufferDataB0* constMap = nullptr;
 	result = constBuffB0->Map(0, nullptr, (void**)&constMap);
-	//constMap->mat = matWorld * matViewProjection;	// 行列の合成
+
 	constMap->viewproj = matViewProjection;
 	constMap->world = matWorld;
 	constMap->cameraPos = cameraPos;
@@ -455,11 +450,6 @@ void LightObject::Draw(ID3D12GraphicsCommandList* cmdList)
 	// デスクリプタヒープの配列
 	ID3D12DescriptorHeap* ppHeaps[] = { descHeap.Get() };
 	this->cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
-	//// 定数バッファビューをセット
-	//cmdList->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());
-	//// シェーダリソースビューをセット
-	//cmdList->SetGraphicsRootDescriptorTable(1, gpuDescHandleSRV);
 
 	// 定数バッファビューをセット
 	this->cmdList->SetGraphicsRootConstantBufferView(0, constBuffB0->GetGPUVirtualAddress());

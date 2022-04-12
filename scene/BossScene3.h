@@ -20,12 +20,14 @@ public:
 	/// <summary>
 	/// 初期化処理
 	/// </summary>
+	/// <param name="score">スコア</param>
 	void Initialize(unsigned int score)override;
 
 	/// <summary>
 	/// 全てのオブジェクトの生成処理
 	/// </summary>
 	/// <param name="device">デバイス</param>
+	/// <param name="cmdList">コマンドリスト</param>
 	void CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)override;
 
 	/// <summary>
@@ -37,7 +39,8 @@ public:
 	/// <summary>
 	/// 描画前処理
 	/// </summary>
-	/// <param name="cmdList"></param>
+	/// <param name="cmdList">コマンドリスト</param>
+	/// <param name="debugText">デバッグテキスト</param>
 	void DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)override;
 
 	/// <summary>
@@ -50,6 +53,7 @@ public:
 	/// 描画処理
 	/// </summary>
 	/// <param name="cmdList">コマンドリスト</param>
+	/// <param name="debugText">デバッグテキスト</param>
 	void Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)override;
 
 	/// <summary>
@@ -76,20 +80,19 @@ public:
 private:
 	std::unique_ptr<GameObjectManager> gameObjectManager;
 
-	std::unique_ptr<OBJHighModel> planeModel;
-	std::unique_ptr<OBJHighModel> missileModel;
+	std::unique_ptr<ObjFileModel> planeModel;
+	std::unique_ptr<ObjFileModel> missileModel;
 
 	Player* playerObject = nullptr;
 	FinalBoss* boss = nullptr;
 
-	std::unique_ptr<OBJModel> yellowBulletModel;
-	std::unique_ptr<OBJHighModel> fragmentBulletModel;
-	std::unique_ptr<OBJModel> bossBodyModel;
-	std::unique_ptr<OBJModel> eyeModel;
-	std::unique_ptr<OBJModel> wingModel;
-	std::unique_ptr<OBJHighModel> unionModel;
-	std::unique_ptr<OBJHighModel> laserModel;
-	std::unique_ptr<ParticleManager> gaugeParticle;
+	std::unique_ptr<ObjFileModel> yellowBulletModel;
+	std::unique_ptr<ObjFileModel> fragmentBulletModel;
+	std::unique_ptr<ObjFileModel> bossBodyModel;
+	std::unique_ptr<ObjFileModel> eyeModel;
+	std::unique_ptr<ObjFileModel> wingModel;
+	std::unique_ptr<ObjFileModel> unionModel;
+	std::unique_ptr<ObjFileModel> laserModel;
 
 	std::unique_ptr<Sprite> warningTexture;
 	std::unique_ptr<Sprite> warningBarTexture_1;
@@ -101,9 +104,6 @@ private:
 	std::unique_ptr<MotionBlur> motionBlur;
 	std::unique_ptr<FadeOut> fadeOut;
 	std::unique_ptr<Bloom> bloom;
-
-	//OBJHighModel* laserGaugeModel = nullptr;
-	std::unique_ptr<OBJHighCharacter> laserGauge;
 
 	std::unique_ptr<Sprite> lifeTexture;
 	std::unique_ptr<Sprite> gaugeFrame;
@@ -119,20 +119,17 @@ private:
 	int particleLugtime = 0;
 	float easingTime = 0.0f;
 	Vector3 bossPosition;
-	bool key = false;
 public:
 	/// <summary>
 	/// ポストエフェクトの生成
 	/// </summary>
 	void CreatePostEffect();
-	/// <summary>
-	/// レーザーゲージ処理
-	/// </summary>
-	void LaserGaugeProcessing();
+
 	/// <summary>
 	/// モデルのロード
 	/// </summary>
 	void LoadAllModel();
+
 	/// <summary>
 	/// ゲームオブジェクトの生成
 	/// </summary>

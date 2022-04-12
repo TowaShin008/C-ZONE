@@ -26,7 +26,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	Boss(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	Boss(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -45,8 +46,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -69,13 +69,13 @@ public:
 	/// モデルのセット
 	/// </summary>
 	/// <param name="arg_objModel">モデル</param>
-	void SetOBJModel(OBJHighModel* arg_objModel, OBJHighModel* arg_bulletModel);
+	void SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// 弾丸モデルのセット
 	/// </summary>
 	/// <param name="arg_bulletModel">モデル</param>
-	void SetBulletModel(OBJHighModel* arg_bulletModel);
+	void SetBulletModel(ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -103,8 +103,7 @@ public:
 	/// <summary>
 	/// 弾をリサイズし生成する
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void AttachBullet(ID3D12Device* arg_device);
+	void AttachBullet();
 
 private:
 	UINT descpriptorSize;
@@ -120,8 +119,10 @@ private:
 	//カメラクラス
 	static Camera* camera;
 
+	static ID3D12Device* device;
+
 	//モデルデータ格納用変数
-	OBJHighModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
 	//親クラス
 	Boss* parent = nullptr;
 

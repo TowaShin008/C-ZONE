@@ -25,8 +25,7 @@
 #include"Collision.h"
 #include"PipelineState.h"
 #include"WindowSize.h"
-#include"OBJModel.h"
-#include"OBJHighModel.h"
+#include"ObjFileModel.h"
 #include<memory>
 using namespace DirectX;
 #define SCREENTOP 10.0f

@@ -5,10 +5,12 @@ ID3D12GraphicsCommandList* Boss::cmdList;
 XMMATRIX Boss::matView;
 XMMATRIX Boss::matProjection;
 Camera* Boss::camera = nullptr;
+ID3D12Device* Boss::device = nullptr;
 
-Boss::Boss(ID3D12GraphicsCommandList* arg_cmdList)
+Boss::Boss(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	scale = { 4.0f,4.0f,4.0f };
 	collisionRadius = 2.0f;
 	rotation = { 270.0f,0.0f,0.0f };
@@ -22,11 +24,11 @@ Boss::~Boss()
 	delete bigBullet;
 }
 
-void Boss::CreateConstBuffer(ID3D12Device* arg_device)
+void Boss::CreateConstBuffer()
 {
 	HRESULT result;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -34,7 +36,7 @@ void Boss::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -52,11 +54,11 @@ void Boss::CreateConstBuffer(ID3D12Device* arg_device)
 
 Boss* Boss::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	Boss* boss = new Boss(arg_cmdList);
+	Boss* boss = new Boss(arg_cmdList, arg_device);
 	boss->Initialize();
 	boss->SetPosition(arg_position);
-	boss->CreateConstBuffer(arg_device);
-	boss->AttachBullet(arg_device);
+	boss->CreateConstBuffer();
+	boss->AttachBullet();
 
 	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	deathParticle->SetSelectColor(2);
@@ -84,26 +86,24 @@ void Boss::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void Boss::SetOBJModel(OBJHighModel* arg_objModel, OBJHighModel* arg_bulletModel)
+void Boss::SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_bulletModel)
 {
 	objModel = arg_objModel;
 	SetBulletModel(arg_bulletModel);
 }
 
-void Boss::SetBulletModel(OBJHighModel* arg_bulletModel)
+void Boss::SetBulletModel(ObjFileModel* arg_bulletModel)
 {
 	bigBullet->SetOBJModel(arg_bulletModel);
 }
 
-void Boss::AttachBullet(ID3D12Device* arg_device)
+void Boss::AttachBullet()
 {
-	bigBullet = HomingBullet::Create(arg_device,cmdList);
+	bigBullet = HomingBullet::Create(device,cmdList);
 	bigBullet->SetIsDeadFlag(true);
 	bigBullet->SetCollisionRadius(2.0f);
 	bigBullet->SetCharacterType(CHARACTERTYPE::ENEMY);
-	//bigBullet->SetSpeed({0.4f,0.4f,0.4f});
 	bigBullet->SetScale({ 2.5f,2.5f,2.5f });
-	//bigBullet->SetVelocity({ 0.0f,0.0f,-0.5f });
 }
 
 void Boss::Initialize()
@@ -147,16 +147,6 @@ void Boss::Update(const Vector3& arg_incrementValue, const Vector3& arg_playerPo
 		ShotBullet(arg_incrementValue,arg_playerPosition);
 		//ダメージ演出
 		DamageEffect();
-
-
-		//マテリアルの転送
-		//ConstBufferDataB1* constMap1 = nullptr;
-		//result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-		//constMap1->ambient = objModel->material.ambient;
-		//constMap1->diffuse = objModel->material.diffuse;
-		//constMap1->specular = objModel->material.specular;
-		//constMap1->alpha = objModel->material.alpha;
-		//constBuffB1->Unmap(0, nullptr);
 	}
 	//死亡パーティクル処理
 	DeathParticleProcessing();
@@ -211,7 +201,7 @@ void Boss::TransferConstBuff()
 	matWorld *= matRot; // ワールド行列に回転を反映
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
-		// 親オブジェクトがあれば
+	// 親オブジェクトがあれば
 	if (parent != nullptr) {
 		// 親オブジェクトのワールド行列を掛ける
 		matWorld *= parent->matWorld;

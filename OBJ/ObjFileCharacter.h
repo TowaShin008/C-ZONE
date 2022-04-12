@@ -9,27 +9,51 @@
 #include"GameObject.h"
 #include"Camera.h"
 #include"Input.h"
-
-//弾丸クラス
-class Bullet :public GameObject
+#include"PipelineState.h"
+class ObjFileCharacter :public GameObject
 {
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public:
+	// 定数バッファ用データ構造体
+	struct ConstBufferData
+	{
+		Vector4 color;	// 色 (RGBA)
+		XMMATRIX mat;	// ３Ｄ変換行列
+	};
+
+
+	//定数バッファ用データ00
+	struct  ConstBufferDataB0
+	{
+		Vector4 color;
+		XMMATRIX mat;
+	};
+
+	//定数バッファ用データ01
+	struct ConstBufferDataB1
+	{
+		Vector3 ambient;
+		float pad1;
+		Vector3 diffuse;
+		float pad2;
+		Vector3 specular;
+		float alpha;
+	};
 
 	/// <summary>
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
 	/// <param name="arg_device">デバイス</param>
-	Bullet(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
+	ObjFileCharacter(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~Bullet();
+	~ObjFileCharacter();
 
 	/// <summary>
 	/// オブジェクトの生成処理
@@ -38,7 +62,8 @@ public:
 	/// <param name="arg_cmdList">コマンドリスト</param>
 	/// <param name="arg_position">ポジション</param>
 	/// <returns>キャラクターオブジェクト</returns>
-	static Bullet* Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position = { 0.0f,0.0f,0.0f });
+	static ObjFileCharacter* Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position = { 0.0f,0.0f,0.0f });
+
 
 	/// <summary>
 	/// 定数バッファの生成
@@ -88,7 +113,7 @@ public:
 	/// カメラのセット
 	/// </summary>
 	/// <param name="arg_camera">カメラ</param>
-	static void SetCamera(Camera* arg_camera) { Bullet::camera = arg_camera; }
+	static void SetCamera(Camera* arg_camera) { camera = arg_camera; }
 
 	/// <summary>
 	/// ポジションの移動
@@ -115,16 +140,6 @@ private:
 	static ID3D12Device* device;
 
 	ObjFileModel* objModel = nullptr;
-	Bullet* parent = nullptr;
-public:
-	/// <summary>
-	/// 定数バッファの転送
-	/// </summary>
-	void TransferConstBuff();
-
-	/// <summary>
-	/// 移動処理
-	/// </summary>
-	void Move();
+	ObjFileCharacter* parent = nullptr;
 };
 

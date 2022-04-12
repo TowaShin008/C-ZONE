@@ -18,7 +18,7 @@ void Title::Initialize(unsigned int arg_score)
 	pushButtonFlag = false;
 }
 
-void Title::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
+void Title::CreateAllObject(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList)
 {
 	gameObjectManager.reset(new GameObjectManager());
 	gameObjectManager->Initialize(score);
@@ -101,7 +101,7 @@ void Title::LoadAllModel()
 
 }
 
-void Title::Update(DebugText* debugText)
+void Title::Update(DebugText* arg_debugText)
 {
 	gameObjectManager->UpdateAllObject({ 0.0f,0.0f,0.0f });
 
@@ -125,13 +125,13 @@ void Title::Update(DebugText* debugText)
 	}
 }
 
-void Title::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
+void Title::DrawRenderTexture(ID3D12GraphicsCommandList* arg_cmdList, DebugText* arg_debugText)
 {
-	bloom->PreDrawScene(cmdList);
+	bloom->PreDrawScene(arg_cmdList);
 
 	gameObjectManager->DrawAllObject();
 
-	Sprite::BeginDraw(cmdList, false);
+	Sprite::BeginDraw(arg_cmdList, false);
 	//”wŒi•`‰æ
 	for (int i = 0; i < gradationMap.size(); i++)
 	{
@@ -164,22 +164,22 @@ void Title::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* deb
 
 
 
-	Sprite::BeginDraw(cmdList,true);
+	Sprite::BeginDraw(arg_cmdList,true);
 
 	titleTexture->Draw();
 
 	Sprite::EndDraw();
 
-	bloom->PostDrawScene(cmdList);
+	bloom->PostDrawScene(arg_cmdList);
 }
 
-void Title::PostEffectDraw(ID3D12GraphicsCommandList* cmdList)
+void Title::PostEffectDraw(ID3D12GraphicsCommandList* arg_cmdList)
 {
 	//ƒ|ƒXƒgƒGƒtƒFƒNƒg•`‰æˆ—
-	bloom->Draw(cmdList);
+	bloom->Draw(arg_cmdList);
 }
 
-void Title::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
+void Title::Draw(ID3D12GraphicsCommandList* arg_cmdList, DebugText* arg_debugText)
 {
 
 }

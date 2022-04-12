@@ -5,10 +5,12 @@ ID3D12GraphicsCommandList* TankEnemy::cmdList;
 XMMATRIX TankEnemy::matView;
 XMMATRIX TankEnemy::matProjection;
 Camera* TankEnemy::camera = nullptr;
+ID3D12Device* TankEnemy::device = nullptr;
 
-TankEnemy::TankEnemy(ID3D12GraphicsCommandList* arg_cmdList)
+TankEnemy::TankEnemy(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	scale = { 0.5f,0.5f,0.5f };
 	speed = { 0.1f,0.1f,0.1f };
 	brakeCount = 0;
@@ -27,11 +29,11 @@ TankEnemy::~TankEnemy()
 	}
 }
 
-void TankEnemy::CreateConstBuffer(ID3D12Device* arg_device)
+void TankEnemy::CreateConstBuffer()
 {
 	HRESULT result;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -39,7 +41,7 @@ void TankEnemy::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -52,7 +54,7 @@ void TankEnemy::CreateConstBuffer(ID3D12Device* arg_device)
 		assert(0);
 	}
 
-	scoreCharacter.reset(OBJCharacter::Create(arg_device));
+	scoreCharacter.reset(ObjFileCharacter::Create(device,cmdList));
 	scoreCharacter->SetScale({ 2.0f,2.0f,2.0f });
 	scoreCharacter->SetRotation({ 0,0,180.0f });
 
@@ -61,13 +63,13 @@ void TankEnemy::CreateConstBuffer(ID3D12Device* arg_device)
 
 TankEnemy* TankEnemy::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	TankEnemy* tankEnemy = new TankEnemy(arg_cmdList);
+	TankEnemy* tankEnemy = new TankEnemy(arg_cmdList, arg_device);
 
 	tankEnemy->Initialize();
 
 	tankEnemy->SetPosition({ arg_position.x - 19.25f,arg_position.y + 9.8f,0.0f });
 
-	tankEnemy->CreateConstBuffer(arg_device);
+	tankEnemy->CreateConstBuffer();
 
 	tankEnemy->AttachBullet(arg_device);
 
@@ -99,14 +101,14 @@ void TankEnemy::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void TankEnemy::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel, OBJModel* arg_scoreModel)
+void TankEnemy::SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_bulletModel, ObjFileModel* arg_scoreModel)
 {
 	objModel = arg_objModel;
 	SetBulletModel(arg_bulletModel);
 	scoreCharacter->SetOBJModel(arg_scoreModel);
 }
 
-void TankEnemy::SetBulletModel(OBJModel* arg_bulletModel)
+void TankEnemy::SetBulletModel(ObjFileModel* arg_bulletModel)
 {
 	for (int i = 0; i < bullets.size(); i++)
 	{
@@ -275,15 +277,6 @@ void TankEnemy::TransferConstBuff()
 	constMap0->color = color;
 	constMap0->mat = matWorld * matView * matProjection;	// 行列の合成
 	constBuffB0->Unmap(0, nullptr);
-
-	//マテリアルの転送
-	//ConstBufferDataB1* constMap1 = nullptr;
-	//result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-	//constMap1->ambient = objModel->material.ambient;
-	//constMap1->diffuse = objModel->material.diffuse;
-	//constMap1->specular = objModel->material.specular;
-	//constMap1->alpha = objModel->material.alpha;
-	//constBuffB1->Unmap(0, nullptr);
 }
 
 void TankEnemy::Move()
@@ -340,7 +333,7 @@ void TankEnemy::Draw()
 
 		if (scoreCharacter->GetColor().w >= 0.1f)
 		{
-			scoreCharacter->Draw(cmdList);
+			scoreCharacter->Draw();
 		}
 	}
 

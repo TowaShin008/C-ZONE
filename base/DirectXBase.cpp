@@ -187,7 +187,7 @@ bool DirectXBase::CreateSwapChain()
 	swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // フリップ後は速やかに破棄
 	swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // フルスクリーン切り替えを許可	
 	ComPtr<IDXGISwapChain1> swapchain1;
-	//HWND hwnd = this->hwnd;
+
 	result = dxgiFactory->CreateSwapChainForHwnd(
 		cmdQueue.Get(),
 		hwnd,

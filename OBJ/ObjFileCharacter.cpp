@@ -1,30 +1,27 @@
-#include "Laser.h"
+#include "ObjFileCharacter.h"
 using namespace Microsoft::WRL;
 
-ID3D12GraphicsCommandList* Laser::cmdList;
-XMMATRIX Laser::matView;
-XMMATRIX Laser::matProjection;
-Camera* Laser::camera = nullptr;
-ID3D12Device* Laser::device = nullptr;
+ID3D12GraphicsCommandList* ObjFileCharacter::cmdList;
+XMMATRIX ObjFileCharacter::matView;
+XMMATRIX ObjFileCharacter::matProjection;
+Camera* ObjFileCharacter::camera = nullptr;
+ID3D12Device* ObjFileCharacter::device = nullptr;
 
-Laser::Laser(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
+ObjFileCharacter::ObjFileCharacter(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
 	device = arg_device;
 	scale = { 5.0f,5.0f,1.0f };
-	const Vector4 lightBlue = { 0.0f,1.0f,1.0f,1.0f };
-	color = lightBlue;
-	rotation = {0,0,-90.0f};
-	bossSceneFlag = false;
+	rotation = { 0,0,-90.0f };
 	matProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(60.0f), (float)WindowSize::window_width / (float)WindowSize::window_height, 0.1f, 1000.0f);
 }
 
-Laser::~Laser()
+ObjFileCharacter::~ObjFileCharacter()
 {
 
 }
 
-void Laser::CreateConstBuffer()
+void ObjFileCharacter::CreateConstBuffer()
 {
 	HRESULT result;
 
@@ -52,83 +49,49 @@ void Laser::CreateConstBuffer()
 	UpdateViewMatrix();
 }
 
-Laser* Laser::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
+ObjFileCharacter* ObjFileCharacter::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	Laser* laser = new Laser(arg_cmdList, arg_device);
+	ObjFileCharacter* objFileCharacter = new ObjFileCharacter(arg_cmdList, arg_device);
 
-	laser->SetPosition(arg_position);
+	objFileCharacter->SetPosition(arg_position);
 
-	laser->CreateConstBuffer();
+	objFileCharacter->CreateConstBuffer();
 
-	return laser;
+	return objFileCharacter;
 }
 
-void Laser::SetEye(const Vector3& arg_eye)
+void ObjFileCharacter::SetEye(const Vector3& arg_eye)
 {
-	Laser::camera->SetEye(arg_eye);
+	ObjFileCharacter::camera->SetEye(arg_eye);
 
 	UpdateViewMatrix();
 }
 
-void Laser::SetTarget(const Vector3& arg_target)
+void ObjFileCharacter::SetTarget(const Vector3& arg_target)
 {
-	Laser::camera->SetTarget(arg_target);
+	ObjFileCharacter::camera->SetTarget(arg_target);
 
 	UpdateViewMatrix();
 }
 
-void Laser::UpdateViewMatrix()
+void ObjFileCharacter::UpdateViewMatrix()
 {
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void Laser::Initialize()
+void ObjFileCharacter::Initialize()
 {
 	isDeadFlag = false;
-
-	if (bossSceneFlag)
-	{
-		rotation = { 0,-90,-90.0f };
-	}
-	else
-	{
-		rotation = { 0,0,-90.0f };
-	}
 }
 
 //プレイヤーの更新処理
-void Laser::Update(const Vector3& arg_incrementValue)
-{
-	SetScrollIncrement(arg_incrementValue);
-	//定数バッファの転送
-	TransferConstBuff();
-}
-
-void Laser::Draw()
-{
-	if (isDeadFlag)
-	{
-		return;
-	}
-	
-	Laser::cmdList->SetPipelineState(PipelineState::bulletPipelineState.Get());
-
-	Laser::cmdList->SetGraphicsRootSignature(RootSignature::bulletRootsignature.Get());
-
-	Laser::cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	Laser::cmdList->SetGraphicsRootConstantBufferView(0, constBuffB0->GetGPUVirtualAddress());
-	Laser::cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
-
-	objModel->Draw(Laser::cmdList);
-}
-
-void Laser::TransferConstBuff()
+void ObjFileCharacter::Update(const Vector3& arg_incrementValue)
 {
 	HRESULT result;
 
 	XMMATRIX matScale, matRot, matTrans;
 	UpdateViewMatrix();
+	SetScrollIncrement(arg_incrementValue);
 	// スケール、回転、平行移動行列の計算
 	matScale = XMMatrixScaling(scale.x, scale.y, scale.z);
 	matRot = XMMatrixIdentity();
@@ -158,32 +121,37 @@ void Laser::TransferConstBuff()
 	constBuffB0->Unmap(0, nullptr);
 }
 
-void Laser::SetScrollIncrement(const Vector3& arg_incrementValue)
+void ObjFileCharacter::Draw()
+{
+	if (isDeadFlag == false)
+	{
+		ObjFileCharacter::cmdList->SetPipelineState(PipelineState::bulletPipelineState.Get());
+
+		ObjFileCharacter::cmdList->SetGraphicsRootSignature(RootSignature::bulletRootsignature.Get());
+
+		ObjFileCharacter::cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		ObjFileCharacter::cmdList->SetGraphicsRootConstantBufferView(0, constBuffB0->GetGPUVirtualAddress());
+		ObjFileCharacter::cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
+
+		objModel->Draw(ObjFileCharacter::cmdList);
+	}
+}
+
+void ObjFileCharacter::SetScrollIncrement(const Vector3& arg_incrementValue)
 {
 	position += arg_incrementValue;
 }
 
-bool Laser::IsCollision(GameObject* arg_otherObject)
+bool ObjFileCharacter::IsCollision(GameObject* arg_otherObject)
 {
 	GameObject* otherObject = arg_otherObject;
-
 	if (isDeadFlag || otherObject->GetIsDeadFlag() || otherObject->GetCharacterType() == characterType
 		|| otherObject->GetCharacterType() == CHARACTERTYPE::BLOCK || (otherObject->GetCharacterType() == CHARACTERTYPE::PLAYER && characterType == CHARACTERTYPE::FRIEND)) {
 		return false;
 	}
 
-	//ボスシーン化によってレイの向きを決める
-	Vector3 laserDir = { 0,0,0 };
-	if (bossSceneFlag)
-	{
-		laserDir = { 0,0,1 };
-	}
-	else
-	{
-		laserDir = { 1,0,0 };
-	}
-
-	if (Collision::CheckLayToSphere({ position,laserDir },
+	if (Collision::CheckLayToSphere({ position,{1,0,0} },
 		{ otherObject->GetPosition(),otherObject->GetCollisionRadius() }))
 	{
 		otherObject->Damage();

@@ -9,7 +9,7 @@
 #include"Camera.h"
 #include"Input.h"
 #include"ParticleManager.h"
-#include"OBJCharacter.h"
+#include"ObjFileCharacter.h"
 #define BULLETMAXNUM 10
 #define MAXENEMYLUGTIME 60
 
@@ -25,7 +25,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	Alien(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	Alien(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -43,16 +44,15 @@ public:
 	/// <summary>
 	/// オブジェクトの生成処理
 	/// </summary>
-	/// <param name="device">デバイス</param>
-	/// <param name="position">ポジション</param>
+	/// <param name="arg_device">デバイス</param>
+	/// <param name="arg_position">ポジション</param>
 	/// <returns>キャラクターオブジェクト</returns>
 	static Alien* Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position = { 0.0f,0.0f,0.0f });
 
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -75,7 +75,7 @@ public:
 	/// モデルのセット
 	/// </summary>
 	/// <param name="objModel">モデル</param>
-	void SetOBJModel(OBJModel* arg_objModel,OBJModel* arg_scoreModel);
+	void SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_scoreModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -97,7 +97,7 @@ public:
 	/// <summary>
 	/// カメラのセット
 	/// </summary>
-	/// <param name="camera">カメラ</param>
+	/// <param name="arg_camera">カメラ</param>
 	static void SetCamera(Camera* arg_camera) { Alien::camera = arg_camera; }
 
 private:
@@ -119,7 +119,7 @@ private:
 	static Camera* camera;
 
 	//モデルデータ格納用変数
-	OBJModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
 	//親クラス
 	Alien* parent = nullptr;
 
@@ -139,7 +139,7 @@ private:
 	int life = 0;
 	float dissolveCount = 1.0f;
 
-	std::unique_ptr<OBJCharacter> scoreCharacter;
+	std::unique_ptr<ObjFileCharacter> scoreCharacter;
 public:
 
 	/// <summary>
@@ -155,7 +155,7 @@ public:
 	/// <summary>
 	/// ムーブフェイズのセット
 	/// </summary>
-	/// <param name="movePhase">ムーブフェイズ</param>
+	/// <param name="arg_currentPhase">ムーブフェイズ</param>
 	void SetMovePhase(const MOVEPHASE& arg_currentPhase) { currentPhase = arg_currentPhase; }
 
 	/// <summary>
@@ -167,7 +167,7 @@ public:
 	/// <summary>
 	/// ムーブタイプのセット
 	/// </summary>
-	/// <param name="moveType">ムーブタイプ</param>
+	/// <param name="arg_moveType">ムーブタイプ</param>
 	void SetMoveType(const MOVETYPE& arg_moveType);
 
 	/// <summary>
@@ -204,7 +204,7 @@ public:
 	/// <summary>
 	/// ムーブラグタイムのセット
 	/// </summary>
-	/// <param name="moveLugTime">ムーブラグタイム</param>
+	/// <param name="arg_moveLugTime">ムーブラグタイム</param>
 	void SetMoveLugTime(int arg_moveLugTime) { moveLugTime = arg_moveLugTime; }
 
 	/// <summary>
@@ -216,13 +216,13 @@ public:
 	/// <summary>
 	/// ムーブエンドフラグのセット
 	/// </summary>
-	/// <param name="moveEndFlag"></param>
+	/// <param name="arg_moveEndFlag"></param>
 	void SetMoveEndFlag(bool arg_moveEndFlag) { moveEndFlag = arg_moveEndFlag; }
 
 	/// <summary>
 	/// ムーブエンドフラグの所得
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>移動が終わっているかどうか</returns>
 	bool GetMoveEndFlag() { return moveEndFlag; }
 
 	/// <summary>
@@ -233,13 +233,13 @@ public:
 	/// <summary>
 	/// ポジションの移動
 	/// </summary>
-	/// <param name="incrementValue">ポジションの増加量</param>
+	/// <param name="arg_incrementValue">ポジションの増加量</param>
 	void SetScrollIncrement(const Vector3& arg_incrementValue);
 
 	/// <summary>
 	/// センターポジションのセット
 	/// </summary>
-	/// <param name="centerPosition">センターポジション</param>
+	/// <param name="arg_centerPosition">センターポジション</param>
 	void SetCenterPos(float arg_centerPosition) { centerPosition = arg_centerPosition; }
 
 	/// <summary>
@@ -255,14 +255,14 @@ public:
 	/// <summary>
 	/// 当たり判定
 	/// </summary>
-	/// <param name="otherObject">相手のオブジェクト</param>
+	/// <param name="arg_otherObject">相手のオブジェクト</param>
 	/// <returns>当たったかどうか</returns>
 	bool IsCollision(GameObject* arg_otherObject)override;
 
 	/// <summary>
 	/// スコア演出処理
 	/// </summary>
-	/// <param name="incrementValue">スクロール量</param>
+	/// <param name="arg_incrementValue">スクロール量</param>
 	void ScoreProcessing(const Vector3& arg_incrementValue);
 };
 

@@ -298,14 +298,6 @@ void DropNormalMap::Initialize()
 			device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV))
 	);
 
-	////レンダーターゲットビューの生成
-	//device->CreateRenderTargetView(effectTexBuff.Get(),
-	//	nullptr,
-	//	CD3DX12_CPU_DESCRIPTOR_HANDLE(
-	//		descHeapRTV->GetCPUDescriptorHandleForHeapStart(), 1,//ここで出力エラー　レンダーターゲットを生成できない
-	//		device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV))
-	//);
-
 	D3D12_RESOURCE_DESC depthResDesc =
 		CD3DX12_RESOURCE_DESC::Tex2D(
 			DXGI_FORMAT_D32_FLOAT,
@@ -446,8 +438,6 @@ void DropNormalMap::Draw(ID3D12GraphicsCommandList* cmdList)
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	// 定数バッファビューをセット
 	cmdList->SetGraphicsRootConstantBufferView(0, this->constBuff->GetGPUVirtualAddress());
-	// シェーダリソースビューをセット
-	//cmdList->SetGraphicsRootDescriptorTable(1, CD3DX12_GPU_DESCRIPTOR_HANDLE(descHeap->GetGPUDescriptorHandleForHeapStart(), this->texNumber, descriptorSize));
 
 	//通常描画
 	cmdList->SetGraphicsRootDescriptorTable(1,

@@ -61,33 +61,28 @@ void BossScene2::CreatePostEffect()
 void BossScene2::LoadAllModel()
 {
 	//モデルデータ1のロード(自機)
-	planeModel.reset(OBJHighModel::CreateFromOBJ("Plane_2"));
-	missileModel.reset(OBJHighModel::CreateFromOBJ("Missile"));
-	unionModel.reset(OBJHighModel::CreateFromOBJ("UnionCharacter"));
+	planeModel.reset(ObjFileModel::CreateFromOBJ("Plane_2"));
+	missileModel.reset(ObjFileModel::CreateFromOBJ("Missile"));
+	unionModel.reset(ObjFileModel::CreateFromOBJ("UnionCharacter"));
 
 	//モデルデータ1のロード(黄色銃弾)
-	yellowBulletModel.reset(OBJLoader::GetInstance()->LoadModel("bullet"));
+	yellowBulletModel.reset(ObjFileModel::CreateFromOBJ("bullet"));
 
 	//モデルデータ1のロード(ブロック)
-	eyeModel.reset(OBJLoader::GetInstance()->LoadModel("Eye"));
-	blockBodyModel.reset(OBJLoader::GetInstance()->LoadModel("Squid"));
-	seaModel.reset(OBJLoader::GetInstance()->LoadModel("Sea"));
+	eyeModel.reset(ObjFileModel::CreateFromOBJ("Eye"));
+	blockBodyModel.reset(ObjFileModel::CreateFromOBJ("Squid"));
+	seaModel.reset(ObjFileModel::CreateFromOBJ("Sea"));
 
 	//モデルデータ1のロード(ブロック)
-	laserModel.reset(OBJHighModel::CreateFromOBJ("red_lay"));
+	laserModel.reset(ObjFileModel::CreateFromOBJ("red_lay"));
 }
 
 void BossScene2::Update(DebugText* debugText)
 {
 	//モーションブラーのアップデート
 	motionBlur->Update();
-	//Vector3 rotasion = sea->GetRotasion();
-	//rotasion.x += 1.0f;
-	//sea->SetRotation(rotasion);
-	sea->Update({ 0,0,0 });
 
-	//レーザーゲージ処理
-	LaserGaugeProcessing();
+	sea->Update({ 0,0,0 });
 
 	squid->Update({ incrementValue,0.0f,0.0f }, playerObject->GetPosition());
 
@@ -105,12 +100,8 @@ void BossScene2::Update(DebugText* debugText)
 	//ウェーブ切り替え処理
 	SceneProcessing();
 
-	std::ostringstream scoreText;
-
-	scoreText << "Score:" << std::setfill('0') << std::setw(8)
-		<< std::fixed << gameObjectManager->GetScore() << "00";
-
-	debugText->Print(scoreText.str(), WindowSize::window_width - 300.0f, WindowSize::window_height - 60.0f, 0.5f);
+	//スコアの表示
+	gameObjectManager->DisPlayScore(debugText);
 
 	std::ostringstream hpText;
 
@@ -125,20 +116,13 @@ void BossScene2::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText
 {
 	const int buttleScene = 3;
 	if (sceneWave >= buttleScene)
-	{//バトルシーンであればモーションブラーを適用
-		//motionBlur->DrawRenderTexture(cmdList, playerObject);
-
+	{
 		bloom->PreDrawScene(cmdList);
-		sea->Draw(cmdList);
-		ParticleManager::PreDraw(cmdList);
-		gaugeParticle->Draw();
-		ParticleManager::PostDraw();
+		sea->Draw();
 
 		squid->Draw();
 
 		gameObjectManager->DrawAllObject();
-
-		laserGauge->Draw();
 
 		Sprite::BeginDraw(cmdList, false);
 
@@ -153,10 +137,8 @@ void BossScene2::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText
 	else if (sceneWave == 1)
 	{
 		dropNormalMap->PreDrawScene(cmdList);
-		sea->Draw(cmdList);
-		ParticleManager::PreDraw(cmdList);
-		gaugeParticle->Draw();
-		ParticleManager::PostDraw();
+		sea->Draw();
+
 		gameObjectManager->DrawAllObject();
 		squid->Draw();
 
@@ -167,10 +149,8 @@ void BossScene2::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText
 	{
 		fadeOut->PreDrawScene(cmdList);
 
-		sea->Draw(cmdList);
-		ParticleManager::PreDraw(cmdList);
-		gaugeParticle->Draw();
-		ParticleManager::PostDraw();
+		sea->Draw();
+
 		gameObjectManager->DrawAllObject();
 		squid->Draw();
 
@@ -183,8 +163,7 @@ void BossScene2::PostEffectDraw(ID3D12GraphicsCommandList* cmdList)
 {
 	const int buttleScene = 3;
 	if (sceneWave >= buttleScene)
-	{//バトルシーンであればモーションブラーを適用
-		//motionBlur->Draw(cmdList);
+	{
 	}
 }
 
@@ -365,6 +344,7 @@ void BossScene2::SceneProcessing()
 
 void BossScene2::Scene1()
 {
+	playerObject->SetDisPlayLaserGaugeFlag(false);
 	squid->SetAttackFlag(false);
 
 	const float easingMaxTime = 1.0f;
@@ -416,7 +396,6 @@ void BossScene2::Scene2()
 	playerObject->SetPosition(playerPosition);
 	//カメラターゲットセット
 	camera->SetTarget({ 0,0,playerPosition.z });
-	//camera->SetEye({ 5,5,-20.2f });
 
 	const float easingMaxTime = 1.0f;
 	if (playerPosition.z < playerEndPosition || easingTime < easingMaxTime)
@@ -438,6 +417,7 @@ void BossScene2::Scene2()
 		camera->SetEye({ 0,0,-20.2f });
 		playerObject->SetMoveFlag(true);
 		playerObject->SetShotFlag(true);
+		playerObject->SetDisPlayLaserGaugeFlag(true);
 	}
 }
 
@@ -465,82 +445,22 @@ Scene BossScene2::Next()
 	return Scene::RESULT;
 }
 
-void BossScene2::LaserGaugeProcessing()
+void BossScene2::CreateGameObject(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList)
 {
-	int laserEnergy = playerObject->GetLaserEnergy();
-	const float maxEnergy = 200.0f;
-	if (laserEnergy < maxEnergy)
-	{
-		laserGauge->SetColor({ 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f });
-	}
-	//レーザーのエネルギーゲージの更新処理
-	laserGauge->SetScale({ 4.0f ,(laserEnergy / maxEnergy),4.0f });
-	laserGauge->Update({ incrementValue,0.0f,0.0f });
-	gaugeParticle->Update();
-
-	if (particleLugtime <= 0 && playerObject->GetLaserIsDead() == false)
-	{
-		if (gaugeParticle->GetParticleLength() < 20)
-		{//レーザーゲージ消費時のパーティクル演出
-			const float rnd_pos = 1.5f;
-			//変更ここまで
-			Vector3 pos{};
-			const float rnd_vel = 0.2f;
-			Vector3 vel{};
-			pos = { laserGauge->GetPosition().x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f + 10.0f), laserGauge->GetPosition().y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),laserGauge->GetPosition().z };
-
-			Vector3 dis = { 0.0f,0.0f,0.0f };
-			dis = { laserGauge->GetPosition().x - pos.x,laserGauge->GetPosition().y - pos.y ,0.0f };
-
-			dis = dis.normalize();
-			//X,Y,Z全て[-0.05f,+0.05f]でランダムに分布
-			vel = -dis * 0.2f;
-			//重力に見立ててYのみ[-0.001f,0]でランダムに分布
-			const float rnd_acc = 0.0001f;
-			Vector3 acc{};
-			int life = 0;
-
-			acc.x = -rnd_acc;
-			life = (int)(20.0f * ((dis.x * 2.0f) * (-1.0f)));
-
-			pos = laserGauge->GetPosition();
-			pos.x = pos.x - scrollPos + (laserEnergy / maxEnergy) * 16.0f;
-
-			const float startScale = 1.0f;
-			const float endScale = 0.0f;
-			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
-			const Vector4 startColor = { 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f };
-			const Vector4 endColor = white;
-			gaugeParticle->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
-
-			particleLugtime = 2;
-		}
-	}
-
-	if (particleLugtime > 0)
-	{
-		particleLugtime--;
-	}
-}
-
-void BossScene2::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
-{
-	sea.reset(OBJCharacter::Create(device, { 0.0f,-100.0f,50.0f }));
+	sea.reset(ObjFileCharacter::Create(arg_device, arg_cmdList, { 0.0f,-100.0f,50.0f }));
 	sea->SetOBJModel(seaModel.get());
 	sea->SetScale({ 1000.0f,50.0f,1000.0f });
 
 	//キャラクター1の生成
-	playerObject = Player::Create(device, arg_cmdList, { 0.0f,0.0f,-40.0f });
+	playerObject = Player::Create(arg_device, arg_cmdList, { 0.0f,0.0f,-40.0f });
 
 	warningTexture.reset(Sprite::Create(L"Resources/warning.png", { (float)WindowSize::window_width / 8,(float)WindowSize::window_height / 2 - 50.0f }));
 	warningBarTexture_1.reset(Sprite::Create(L"Resources/warningBar.png", { WindowSize::window_width,(float)WindowSize::window_height / 3 * 1.0f }));
-	//warningBarTexture_1->SetSlideTextureFlag(true, true);
 	warningBarTexture_2.reset(Sprite::Create(L"Resources/warningBar.png", { -WindowSize::window_width,(float)WindowSize::window_height / 3 * 2.0f }));
-	//warningBarTexture_2->SetSlideTextureFlag(true, false);
 
 
-		//キャラクター1の生成
-	squid.reset(Squid::Create(device, arg_cmdList, { scrollPos + 5.0f + 25.0f,0.0f,0.0f }));
+	//キャラクター1の生成
+	squid.reset(Squid::Create(arg_device, arg_cmdList, { scrollPos + 5.0f + 25.0f,0.0f,0.0f }));
 	//モデル1のセット
 	squid->SetOBJModel(eyeModel.get(), blockBodyModel.get());
 	squid->SetIsDeadFlag(true);
@@ -567,19 +487,13 @@ void BossScene2::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandLis
 	playerObject->SetShotFlag(false);
 
 	//モデル1のセット
-	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), missileModel.get());
+	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), laserModel.get(), missileModel.get());
 
 	//カメラターゲットセット
 	camera->SetTarget({ 0,0,0 });
 	camera->SetEye({ -40,-60,-20.2f });
 	//マネージャークラスにオブジェクトのアドレスを全て追加
 	gameObjectManager->AddGameObject(playerObject);
-
-	//マネージャークラスに入っているオブジェクト全てをアップデート
-	laserGauge.reset(OBJHighCharacter::Create(device, arg_cmdList));
-	laserGauge->SetOBJModel(laserModel.get());
-	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
-	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
 
 	lifeTexture.reset(Sprite::Create(L"Resources/player_texture.png", { 100.0f, 190.0f }));
 	lifeTexture->SetAnchorPoint({ 0.5f,0.5f });
@@ -588,8 +502,6 @@ void BossScene2::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandLis
 	gaugeFrame.reset(Sprite::Create(L"Resources/gauge_frame.png", { (float)WindowSize::window_width / 2 + 8.0f,(float)WindowSize::window_height - 50.0f }));
 	gaugeFrame->SetScale({ 675.0f,70.0f });
 	gaugeFrame->SetAnchorPoint({ 0.5f,0.5f });
-
-	gaugeParticle.reset(ParticleManager::Create(device));
 
 	camera->SetTarget({ -5.0f, -11.0f, 50.0f });
 }

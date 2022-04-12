@@ -5,10 +5,12 @@ ID3D12GraphicsCommandList* HomingBullet::cmdList;
 XMMATRIX HomingBullet::matView;
 XMMATRIX HomingBullet::matProjection;
 Camera* HomingBullet::camera = nullptr;
+ID3D12Device* HomingBullet::device = nullptr;
 
-HomingBullet::HomingBullet(ID3D12GraphicsCommandList* arg_cmdList)
+HomingBullet::HomingBullet(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	scale = { 0.2f,0.2f,0.2f };
 	rotation = { 0.0f,0.0f,0.0f };
 	speed = { 1.0f,1.0f,1.0f };
@@ -21,11 +23,11 @@ HomingBullet::~HomingBullet()
 {
 }
 
-void HomingBullet::CreateConstBuffer(ID3D12Device* arg_device)
+void HomingBullet::CreateConstBuffer()
 {
 	HRESULT result;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -33,7 +35,7 @@ void HomingBullet::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -51,11 +53,11 @@ void HomingBullet::CreateConstBuffer(ID3D12Device* arg_device)
 
 HomingBullet* HomingBullet::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	HomingBullet* homingBullet = new HomingBullet(arg_cmdList);
+	HomingBullet* homingBullet = new HomingBullet(arg_cmdList, arg_device);
 
 	homingBullet->SetPosition(arg_position);
 
-	homingBullet->CreateConstBuffer(arg_device);
+	homingBullet->CreateConstBuffer();
 
 	return homingBullet;
 }
@@ -108,15 +110,6 @@ void HomingBullet::Update(const Vector3& arg_incrementValue,const Vector3& arg_t
 	SetScrollIncrement(arg_incrementValue);
 	//定数バッファの転送
 	TransferConstBuff();
-
-	////マテリアルの転送
-	//ConstBufferDataB1* constMap1 = nullptr;
-	//result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-	//constMap1->ambient = objModel->material.ambient;
-	//constMap1->diffuse = objModel->material.diffuse;
-	//constMap1->specular = objModel->material.specular;
-	//constMap1->alpha = objModel->material.alpha;
-	//constBuffB1->Unmap(0, nullptr);
 }
 
 void HomingBullet::Draw()
@@ -155,7 +148,7 @@ void HomingBullet::TransferConstBuff()
 	matWorld *= matRot; // ワールド行列に回転を反映
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
-		// 親オブジェクトがあれば
+	// 親オブジェクトがあれば
 	if (parent != nullptr) {
 		// 親オブジェクトのワールド行列を掛ける
 		matWorld *= parent->matWorld;

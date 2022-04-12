@@ -5,10 +5,12 @@ ID3D12GraphicsCommandList* SquidEye::cmdList;
 XMMATRIX SquidEye::matView;
 XMMATRIX SquidEye::matProjection;
 Camera* SquidEye::camera = nullptr;
+ID3D12Device* SquidEye::device = nullptr;
 
-SquidEye::SquidEye(ID3D12GraphicsCommandList* arg_cmdList)
+SquidEye::SquidEye(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	scale = { 1.0f,1.0f,1.0f };
 	collisionRadius = 2.0f;
 	rotation = { 0.0f,0.0f,0.0f };
@@ -21,11 +23,11 @@ SquidEye::~SquidEye()
 {
 }
 
-void SquidEye::CreateConstBuffer(ID3D12Device* arg_device)
+void SquidEye::CreateConstBuffer()
 {
 	HRESULT result;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -33,7 +35,7 @@ void SquidEye::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -51,10 +53,10 @@ void SquidEye::CreateConstBuffer(ID3D12Device* arg_device)
 
 SquidEye* SquidEye::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	SquidEye* squidEye = new SquidEye(arg_cmdList);
+	SquidEye* squidEye = new SquidEye(arg_cmdList, arg_device);
 	squidEye->Initialize();
 	squidEye->SetPosition(arg_position);
-	squidEye->CreateConstBuffer(arg_device);
+	squidEye->CreateConstBuffer();
 
 	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	deathParticle->SetSelectColor(2);
@@ -82,7 +84,7 @@ void SquidEye::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void SquidEye::SetOBJModel(OBJModel* arg_objModel)
+void SquidEye::SetOBJModel(ObjFileModel* arg_objModel)
 {
 	objModel = arg_objModel;
 }
@@ -112,16 +114,6 @@ void SquidEye::Update(const Vector3& arg_incrementValue)
 		}
 		//ダメージエフェクト
 		DamageEffect();
-
-
-		//マテリアルの転送
-		//ConstBufferDataB1* constMap1 = nullptr;
-		//result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-		//constMap1->ambient = objModel->material.ambient;
-		//constMap1->diffuse = objModel->material.diffuse;
-		//constMap1->specular = objModel->material.specular;
-		//constMap1->alpha = objModel->material.alpha;
-		//constBuffB1->Unmap(0, nullptr);
 	}
 	//死亡パーティクル処理
 	DeathParticleProcessing();
@@ -175,7 +167,7 @@ void SquidEye::TransferConstBuff()
 	matWorld *= matRot; // ワールド行列に回転を反映
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
-		// 親オブジェクトがあれば
+	// 親オブジェクトがあれば
 	if (parent != nullptr) {
 		// 親オブジェクトのワールド行列を掛ける
 		matWorld *= parent->matWorld;

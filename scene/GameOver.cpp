@@ -33,7 +33,6 @@ void GameOver::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* 
 	camera->SetTarget({ 0,0,0 });
 	camera->SetEye({ 0,0,-20.2f });
 
-	OBJCharacter::SetCamera(camera);
 	//マネージャークラスにオブジェクトのアドレスを全て追加
 
 	//マネージャークラスに入っているオブジェクト全てをアップデート

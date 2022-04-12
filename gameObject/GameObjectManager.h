@@ -1,6 +1,8 @@
 #pragma once
 #include"GameObject.h"
+#include <iomanip>
 #include<vector>
+#include"Debugtext.h"
 class GameObjectManager
 {
 public:
@@ -50,6 +52,12 @@ public:
 	/// </summary>
 	/// <returns>ゲームオブジェクト配列</returns>
 	std::vector<GameObject*> GetGameObject() { return gameObjects; }
+
+	/// <summary>
+	/// スコアの表示
+	/// </summary>
+	/// <param name="debugText">デバッグテキスト</param>
+	void DisPlayScore(DebugText* debugText);
 private:
 	//ゲームオブジェクト配列
 	std::vector<GameObject*>gameObjects;

@@ -7,9 +7,10 @@ XMMATRIX Alien::matView;
 XMMATRIX Alien::matProjection;
 Camera* Alien::camera = nullptr;
 
-Alien::Alien(ID3D12GraphicsCommandList* arg_cmdList)
+Alien::Alien(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	scale = { 0.5f,0.5f,0.5f };
 	speed = { 0.1f,0.1f,0.1f };
 	collisionRadius = 1.0f;
@@ -23,12 +24,11 @@ Alien::~Alien()
 {
 }
 
-void Alien::CreateConstBuffer(ID3D12Device* arg_device)
+void Alien::CreateConstBuffer()
 {
 	HRESULT result;
-	Alien::device = arg_device;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(DissolveConstBufferData) + 0xff) & ~0xff),
@@ -36,7 +36,7 @@ void Alien::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -69,7 +69,7 @@ void Alien::CreateConstBuffer(ID3D12Device* arg_device)
 		);
 
 		// テクスチャ用バッファの生成
-		result = arg_device->CreateCommittedResource(
+		result = device->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0),
 			D3D12_HEAP_FLAG_NONE,
 			&texresDesc,
@@ -91,7 +91,7 @@ void Alien::CreateConstBuffer(ID3D12Device* arg_device)
 		srvDescHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		srvDescHeapDesc.NumDescriptors = 1;
 
-		result = arg_device->CreateDescriptorHeap(&srvDescHeapDesc, IID_PPV_ARGS(&descHeapSRV));
+		result = device->CreateDescriptorHeap(&srvDescHeapDesc, IID_PPV_ARGS(&descHeapSRV));
 		// シェーダリソースビュー作成
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{}; // 設定構造体
 		D3D12_RESOURCE_DESC resDesc = dissolveTexBuff->GetDesc();
@@ -102,16 +102,16 @@ void Alien::CreateConstBuffer(ID3D12Device* arg_device)
 		srvDesc.Texture2D.MipLevels = 1;
 
 		//シェーダーリソースビューの生成
-		arg_device->CreateShaderResourceView(dissolveTexBuff.Get(),
+		device->CreateShaderResourceView(dissolveTexBuff.Get(),
 			&srvDesc,
 			CD3DX12_CPU_DESCRIPTOR_HANDLE(
 				descHeapSRV->GetCPUDescriptorHandleForHeapStart(), 0,
-				arg_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+				device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 			)
 		);
 	}
 
-	scoreCharacter.reset(OBJCharacter::Create(arg_device));
+	scoreCharacter.reset(ObjFileCharacter::Create(device,cmdList));
 	scoreCharacter->SetScale({ 2.0f,2.0f,2.0f });
 	scoreCharacter->SetRotation({ 0,0,180.0f });
 
@@ -125,13 +125,13 @@ void Alien::CreateConstBuffer(ID3D12Device* arg_device)
 
 Alien* Alien::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	Alien* alian = new Alien(arg_cmdList);
+	Alien* alian = new Alien(arg_cmdList, arg_device);
 
 	alian->Initialize();
 
 	alian->SetPosition(arg_position);
 
-	alian->CreateConstBuffer(arg_device);
+	alian->CreateConstBuffer();
 
 	return alian;
 }
@@ -155,7 +155,7 @@ void Alien::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void Alien::SetOBJModel(OBJModel* arg_objModel, OBJModel* arg_scoreModel)
+void Alien::SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_scoreModel)
 {
 	objModel = arg_objModel;
 	scoreCharacter->SetOBJModel(arg_scoreModel);
@@ -222,7 +222,6 @@ void Alien::Draw()
 
 		Alien::cmdList->SetGraphicsRootSignature(RootSignature::dissolvePostEffectSignature.Get());
 
-		//ID3D12DescriptorHeap* ppHeaps[] = { descHeap.Get() };
 		ID3D12DescriptorHeap* ppHeaps[] = { descHeapSRV.Get() };
 		// デスクリプタヒープをセット
 		cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
@@ -246,7 +245,7 @@ void Alien::Draw()
 	{
 		if (scoreCharacter->GetColor().w >= 0.1f)
 		{
-			scoreCharacter->Draw(cmdList);
+			scoreCharacter->Draw();
 		}
 	}
 }
@@ -271,7 +270,7 @@ void Alien::TransferConstBuff()
 	matWorld *= matRot; // ワールド行列に回転を反映
 	matWorld *= matTrans; // ワールド行列に平行移動を反映
 
-		// 親オブジェクトがあれば
+	// 親オブジェクトがあれば
 	if (parent != nullptr) {
 		// 親オブジェクトのワールド行列を掛ける
 		matWorld *= parent->matWorld;

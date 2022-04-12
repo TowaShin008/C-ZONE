@@ -3,7 +3,7 @@
 #include<d3d12.h>
 #include<DirectXMath.h>
 #include<string>
-#include"OBJModel.h"
+#include"ObjFileModel.h"
 #include<d3dcompiler.h>
 #pragma comment(lib,"d3dcompiler.lib")
 #include"GameObject.h"
@@ -30,7 +30,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	UnionCharacter(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	UnionCharacter(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -50,8 +51,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -75,13 +75,13 @@ public:
 	/// </summary>
 	/// <param name="arg_objModel">モデル</param>
 	/// <param name="arg_bulletModel">弾丸モデル</param>
-	void SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel);
+	void SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// 弾丸モデルのセット
 	/// </summary>
 	/// <param name="arg_bulletModel">モデル</param>
-	void SetBulletModel(OBJModel* arg_bulletModel);
+	void SetBulletModel(ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -127,8 +127,9 @@ private:
 	static XMMATRIX matView;
 	static XMMATRIX matProjection;
 	static Camera* camera;
+	static ID3D12Device* device;
 
-	OBJHighModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
 	UnionCharacter* parent = nullptr;
 	std::vector<Bullet*>bullets;
 	int shotLugTime = MAXPLAYERLUGTIME;

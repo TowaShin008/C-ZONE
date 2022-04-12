@@ -5,8 +5,6 @@
 #include"Input.h"
 #include"ParticleManager.h"
 #include"DirectXBase.h"
-#include"OBJCharacter.h"
-#include"OBJLoader.h"
 #include"Camera.h"
 #include"Player.h"
 #include"NormalEnemy.h"
@@ -27,8 +25,8 @@
 #include"Model.h"
 #include"object3d.h"
 #include"FbxLoader.h"
-#include"OBJHighModel.h"
-#include"OBJHighCharacter.h"
+#include"ObjFileModel.h"
+#include"ObjFileCharacter.h"
 #include"TankEnemy.h"
 #include<memory>
 using namespace Microsoft::WRL;
@@ -63,12 +61,14 @@ public:
 	/// <summary>
 	/// 初期化処理
 	/// </summary>
+	/// <param name="arg_score">スコア</param>
 	virtual void Initialize(unsigned int arg_score);
 
 	/// <summary>
 	/// 全てのオブジェクトの生成処理
 	/// </summary>
-	/// <param name="device"></param>
+	/// <param name="device">デバイス</param>
+	/// <param name="arg_cmdList">コマンドリスト</param>
 	virtual void CreateAllObject(ID3D12Device* device,ID3D12GraphicsCommandList* arg_cmdList);
 
 	/// <summary>
@@ -81,6 +81,7 @@ public:
 	/// ポスト描画前処理
 	/// </summary>
 	/// <param name="cmdList">コマンドリスト</param>
+	/// <param name="debugText">デバッグテキスト</param>
 	virtual void DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* debugText);
 
 	/// <summary>
@@ -93,19 +94,20 @@ public:
 	/// 描画処理
 	/// </summary>
 	/// <param name="cmdList">コマンドリスト</param>
+	/// <param name="debugText">デバッグテキスト</param>
 	virtual void Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText);
 
 	/// <summary>
 	/// カメラのセット
 	/// </summary>
-	/// <param name="camera">カメラオブジェクト</param>
-	void SetCamera(Camera* camera) { this->camera = camera; }
+	/// <param name="arg_camera">カメラオブジェクト</param>
+	void SetCamera(Camera* arg_camera) { camera = arg_camera; }
 
 	/// <summary>
 	/// シーン終了フラグのセット
 	/// </summary>
-	/// <param name="endFlag">シーン終了フラグ</param>
-	void SetEndFlag(bool endFlag) { this->endFlag = endFlag; }
+	/// <param name="arg_endFlag">シーン終了フラグ</param>
+	void SetEndFlag(bool arg_endFlag) { endFlag = arg_endFlag; }
 
 	/// <summary>
 	/// シーン終了フラグの取得

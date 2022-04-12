@@ -7,9 +7,10 @@ XMMATRIX AircraftCarrier::matView;
 XMMATRIX AircraftCarrier::matProjection;
 Camera* AircraftCarrier::camera = nullptr;
 
-AircraftCarrier::AircraftCarrier(ID3D12GraphicsCommandList* arg_cmdList)
+AircraftCarrier::AircraftCarrier(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	const Vector3 bossScale = { 4.0f,4.0f,4.0f };
 	scale = bossScale;
 	collisionRadius = 2.0f;
@@ -24,18 +25,13 @@ AircraftCarrier::AircraftCarrier(ID3D12GraphicsCommandList* arg_cmdList)
 
 AircraftCarrier::~AircraftCarrier()
 {
-	//ゲームオブジェクトマネージャークラスに入れているためエイリアンの削除処理は、記述しなくてよい
-	//for (int i = 0; i < aliens.size(); i++)
-	//{
-	//	delete aliens[i];
-	//}
 }
 
-void AircraftCarrier::CreateConstBuffer(ID3D12Device* arg_device)
+void AircraftCarrier::CreateConstBuffer()
 {
 	HRESULT result;
 	//定数バッファの生成(位置)
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -43,7 +39,7 @@ void AircraftCarrier::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 	//定数バッファの生成(マテリアル)
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -61,15 +57,15 @@ void AircraftCarrier::CreateConstBuffer(ID3D12Device* arg_device)
 
 AircraftCarrier* AircraftCarrier::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	AircraftCarrier* aircraftCarrier = new AircraftCarrier(arg_cmdList);
+	AircraftCarrier* aircraftCarrier = new AircraftCarrier(arg_cmdList,arg_device);
 
 	aircraftCarrier->Initialize();
 
 	aircraftCarrier->SetPosition(arg_position);
 
-	aircraftCarrier->CreateConstBuffer(arg_device);
+	aircraftCarrier->CreateConstBuffer();
 	//弾丸の装備
-	aircraftCarrier->AttachElien(arg_device);
+	aircraftCarrier->AttachElien();
 
 	ParticleManager* deathParticle = ParticleManager::Create(arg_device);
 	//パーティクル色のセット
@@ -99,13 +95,13 @@ void AircraftCarrier::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void AircraftCarrier::SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_alienModel, OBJModel* arg_scoreModel)
+void AircraftCarrier::SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_alienModel, ObjFileModel* arg_scoreModel)
 {
 	objModel = arg_objModel;
 	SetAlienModel(arg_alienModel,arg_scoreModel);
 }
 
-void AircraftCarrier::SetAlienModel(OBJModel* arg_alienModel, OBJModel* arg_scoreModel)
+void AircraftCarrier::SetAlienModel(ObjFileModel* arg_alienModel, ObjFileModel* arg_scoreModel)
 {
 	//先に敵機の生成とモデルセットとオブジェクトマネージャーへの追加をしておく
 	for (int i = 0; i < aliens.size(); i++)
@@ -115,7 +111,7 @@ void AircraftCarrier::SetAlienModel(OBJModel* arg_alienModel, OBJModel* arg_scor
 	}
 }
 
-void AircraftCarrier::AttachElien(ID3D12Device* arg_device)
+void AircraftCarrier::AttachElien()
 {
 	aliens.resize(10);
 
@@ -123,7 +119,7 @@ void AircraftCarrier::AttachElien(ID3D12Device* arg_device)
 	for (int i = 0; i < aliens.size(); i++)
 	{
 		//キャラクター1の生成
-		aliens[i] = Alien::Create(arg_device, cmdList, { 5.0f + 25.0f,12.0f,0.0f });
+		aliens[i] = Alien::Create(device, cmdList, { 5.0f + 25.0f,12.0f,0.0f });
 		aliens[i]->SetIsDeadFlag(true);
 	}
 }
@@ -167,25 +163,11 @@ void AircraftCarrier::Update(const Vector3& arg_incrementValue)
 			moveLugTime--;
 		}
 
+		//ダメージ演出
 		DamageEffect();
-
-
-		//マテリアルの転送
-		//ConstBufferDataB1* constMap1 = nullptr;
-		//result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-		//constMap1->ambient = objModel->material.ambient;
-		//constMap1->diffuse = objModel->material.diffuse;
-		//constMap1->specular = objModel->material.specular;
-		//constMap1->alpha = objModel->material.alpha;
-		//constBuffB1->Unmap(0, nullptr);
 	}
 
 	DeathParticleProcessing();
-
-	//for (int i = 0; i < aliens.size(); i++)
-	//{
-	//	aliens[i]->Update(incrementValue);
-	//}
 }
 
 void AircraftCarrier::Draw()
@@ -204,12 +186,6 @@ void AircraftCarrier::Draw()
 		AircraftCarrier::cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
 
 		objModel->Draw(AircraftCarrier::cmdList);
-
-		//for (int i = 0; i < aliens.size(); i++)
-		//{
-		//	aliens[i]->Draw(AircraftCarrier::cmdList);
-		//}
-
 
 		if (deathParticleFlag)
 		{

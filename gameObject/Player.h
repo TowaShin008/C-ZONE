@@ -13,6 +13,7 @@
 #include"Laser.h"
 #include"UnionCharacter.h"
 #include"ParticleManager.h"
+#include"ObjFileCharacter.h"
 
 #define BULLETMAXNUM 10
 #define MISSILEMAXNUM 4
@@ -33,7 +34,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	Player(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	Player(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -53,8 +55,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -81,25 +82,32 @@ public:
 	/// <param name="arg_unionModel">子機のモデル</param>
 	/// <param name="arg_uBulletmodel">子機から出る弾のモデル</param>
 	/// <param name="arg_laserModel">レーザーのモデル</param>
-	void SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel,OBJHighModel* arg_unionModel,OBJModel* arg_uBulletmodel,OBJHighModel* arg_laserModel,OBJHighModel* arg_missileModel);
+	/// <param name="arg_missileModel">ミサイルのモデル</param>
+	void SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_bulletModel, ObjFileModel* arg_unionModel, ObjFileModel* arg_uBulletmodel, ObjFileModel* arg_laserModel, ObjFileModel* arg_laserGaugeModel, ObjFileModel* arg_missileModel);
 
 	/// <summary>
 	/// 弾丸モデルのセット
 	/// </summary>
 	/// <param name="arg_bulletModel">モデル</param>
-	void SetBulletModel(OBJModel* arg_bulletModel);
+	void SetBulletModel(ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// レーザーモデルのセット
 	/// </summary>
-	/// <param name="arg_bulletModel">モデル</param>
-	void SetLaserModel(OBJHighModel* arg_laserModel);
+	/// <param name="arg_laserModel">モデル</param>
+	void SetLaserModel(ObjFileModel* arg_laserModel);
+
+	/// <summary>
+	/// レーザーゲージモデルのセット
+	/// </summary>
+	/// <param name="arg_laserGaugeModel">モデル</param>
+	void SetLaserGaugeModel(ObjFileModel* arg_laserGaugeModel);
 
 	/// <summary>
 	/// ミサイルモデルのセット
 	/// </summary>
-	/// <param name="arg_bulletModel">モデル</param>
-	void SetMissileModel(OBJHighModel* arg_missileModel);
+	/// <param name="arg_missileModel">モデル</param>
+	void SetMissileModel(ObjFileModel* arg_missileModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -127,8 +135,7 @@ public:
 	/// <summary>
 	/// 弾をリサイズし生成する
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void AttachBullet(ID3D12Device* arg_device);
+	void AttachBullet();
 
 private:
 	UINT descpriptorSize;
@@ -140,8 +147,11 @@ private:
 	static XMMATRIX matView;
 	static XMMATRIX matProjection;
 	static Camera* camera;
+	static ID3D12Device* device;
 
-	OBJHighModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
+	std::unique_ptr<ObjFileCharacter>laserGauge;
+	ObjFileModel* laserGaugeModel = nullptr;
 	Player* parent = nullptr;
 	std::vector<Bullet*>bullets;
 	std::unique_ptr<Bullet> chargeBullet;
@@ -156,11 +166,13 @@ private:
 	std::unique_ptr<ParticleManager> chargeMaxParticleManager;
 	std::unique_ptr<ParticleManager> chargeBulletParticleManager;
 	std::unique_ptr<ParticleManager> jetParticleManager;
+	std::unique_ptr<ParticleManager> laserGaugeParticleManager;
 	Vector3 deathPosition = { 0,0,0 };
 	bool deathParticleFlag = false;
 	int life = 0;
 	int chargeCount = 1;
 	int particleLugtime = 0;
+	int laserParticleLugtime = 0;
 	float centerPosition = 0.0f;
 	bool bossSceneFlag = false;
 	int laserEnergy = 0;
@@ -169,6 +181,7 @@ private:
 	bool shotFlag = true;
 	bool moveFlag = true;
 	bool spawnFlag = false;
+	bool disPlayLaserGaugeFlag = true;
 public:
 	/// <summary>
 	/// 銃弾の配列の取得
@@ -207,29 +220,41 @@ public:
 	UnionCharacter* GetUnionCharacter() { return unionCharacter.get(); }
 
 	/// <summary>
+	/// ユニオンのセット
+	/// </summary>
+	/// <param name="arg_laserGauge">ユニオンのポインタ</param>
+	void SetLaserGauge(ObjFileCharacter* arg_laserGauge) { laserGauge.reset(arg_laserGauge); }
+
+	/// <summary>
 	/// パーティクルのセット
 	/// </summary>
-	/// <param name="arg_particleMan">パーティクルマネージャー</param>
+	/// <param name="arg_particleManager">パーティクルマネージャー</param>
 	void SetChargePerticleManager(ParticleManager* arg_particleManager) { chargeParticleManager.reset(arg_particleManager); }
 
 	/// <summary>
 	/// パーティクルのセット
 	/// </summary>
-	/// <param name="arg_particleMan">パーティクルマネージャー</param>
+	/// <param name="arg_particleMaxManager">パーティクルマネージャー</param>
 	void SetChargeMaxPerticleManager(ParticleManager* arg_particleMaxManager) { chargeMaxParticleManager.reset(arg_particleMaxManager); }
 
 	/// <summary>
 	/// パーティクルのセット
 	/// </summary>
-	/// <param name="arg_particleMan">パーティクルマネージャー</param>
-	void SetChargeBulletPerticleManager(ParticleManager* arg_particleBulletManager) { chargeBulletParticleManager.reset(arg_particleBulletManager); }
+	/// <param name="arg_chargeBulletParticleManager">パーティクルマネージャー</param>
+	void SetChargeBulletPerticleManager(ParticleManager* arg_chargeBulletParticleManager) { chargeBulletParticleManager.reset(arg_chargeBulletParticleManager); }
 
 
 	/// <summary>
 	/// パーティクルのセット
 	/// </summary>
-	/// <param name="arg_particleMan">パーティクルマネージャー</param>
+	/// <param name="arg_jetParticletManager">パーティクルマネージャー</param>
 	void SetJetPerticleManager(ParticleManager* arg_jetParticletManager) { jetParticleManager.reset(arg_jetParticletManager); }
+
+	/// <summary>
+	/// パーティクルのセット
+	/// </summary>
+	/// <param name="arg_laserGaugeParticletManager">パーティクルマネージャー</param>
+	void SetLaserGaugePerticleManager(ParticleManager* arg_laserGaugeParticletManager) { laserGaugeParticleManager.reset(arg_laserGaugeParticletManager); }
 
 	/// <summary>
 	/// ポジションの移動
@@ -371,5 +396,17 @@ public:
 	/// </summary>
 	/// <param name="arg_incrementValue">スクロール量</param>
 	void UpdateAttack(const Vector3& arg_incrementValue);
+
+	/// <summary>
+	/// レーザーゲージ処理
+	/// </summary>
+	/// <param name="arg_incrementValue">スクロール量</param>
+	void LaserGaugeProcessing(const Vector3& arg_incrementValue);
+
+	/// <summary>
+	/// レーザーゲージ表示フラグのセット
+	/// </summary>
+	/// <param name="arg_disPlayLaserGaugeFlag">レーザーゲージ表示フラグ</param>
+	void SetDisPlayLaserGaugeFlag(bool arg_disPlayLaserGaugeFlag) { disPlayLaserGaugeFlag = arg_disPlayLaserGaugeFlag; }
 };
 

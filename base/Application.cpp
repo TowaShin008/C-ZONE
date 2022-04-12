@@ -22,7 +22,6 @@ Application::~Application()
 
 	delete sceneManager;
 
-	OBJLoader::Destroy();
 	FbxLoader::GetInstance()->Finalize();
 
 	delete camera;
@@ -56,7 +55,7 @@ void Application::Initialize()
 	camera = new Camera(WindowSize::window_width, WindowSize::window_height);
 	//スプライトクラスのデスクリプターヒープを生成
 	Sprite::CreateDescriptorHeap(device);
-	OBJHighModel::SetDevice(device);
+	ObjFileModel::SetDevice(device);
 
 	if (!Sprite::LoadTexture(L"Resources/debugfont_digital_L.png")) {
 		assert(0);
@@ -150,11 +149,6 @@ void Application::Initialize()
 	camera->SetTarget({ 0,0,0 });
 	camera->SetEye({ 0,0,-20.2f });
 
-	//OBJLoaderの生成
-	OBJLoader::Create();
-	//OBJLoaderにデバイスをセット
-	OBJLoader::GetInstance()->SetDevice(device);
-
 	//ゲームオブジェクトの静的初期化処理
 	CameraSetAllObject();
 
@@ -178,8 +172,7 @@ void Application::Initialize()
 //全てのオブジェクトに共通のカメラをセット(新しくオブジェクトクラスを実装した場合はここでカメラをセットするのを忘れずに)
 void Application::CameraSetAllObject()
 {
-	OBJCharacter::SetCamera(camera);
-	OBJHighCharacter::SetCamera(camera);
+	ObjFileCharacter::SetCamera(camera);
 
 	Player::SetCamera(camera);
 	UnionCharacter::SetCamera(camera);

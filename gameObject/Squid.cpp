@@ -5,10 +5,12 @@ ID3D12GraphicsCommandList* Squid::cmdList;
 XMMATRIX Squid::matView;
 XMMATRIX Squid::matProjection;
 Camera* Squid::camera = nullptr;
+ID3D12Device* Squid::device = nullptr;
 
-Squid::Squid(ID3D12GraphicsCommandList* arg_cmdList)
+Squid::Squid(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device)
 {
 	cmdList = arg_cmdList;
+	device = arg_device;
 	scale = { 1.0f,1.0f,1.0f };
 	collisionRadius = 2.0f;
 	rotation = { 0.0f,0.0f,0.0f };
@@ -31,17 +33,13 @@ Squid::~Squid()
 			}
 		}
 	}
-
-	//オブジェクトマネージャークラスに追加しているためこれらの削除は不要
-	//delete leftEye;
-	//delete rightEye;
 }
 
-void Squid::CreateConstBuffer(ID3D12Device* arg_device)
+void Squid::CreateConstBuffer()
 {
 	HRESULT result;
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB0) + 0xff) & ~0xff),
@@ -49,7 +47,7 @@ void Squid::CreateConstBuffer(ID3D12Device* arg_device)
 		nullptr,
 		IID_PPV_ARGS(&constBuffB0));
 
-	result = arg_device->CreateCommittedResource(
+	result = device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
@@ -67,10 +65,10 @@ void Squid::CreateConstBuffer(ID3D12Device* arg_device)
 
 Squid* Squid::Create(ID3D12Device* arg_device, ID3D12GraphicsCommandList* arg_cmdList,const Vector3& arg_position)
 {
-	Squid* squid = new Squid(arg_cmdList);
+	Squid* squid = new Squid(arg_cmdList, arg_device);
 	squid->Initialize();
 	squid->SetPosition(arg_position);
-	squid->CreateConstBuffer(arg_device);
+	squid->CreateConstBuffer();
 	squid->AttachTentacles(arg_device);
 	squid->AttachBody(arg_device);
 	squid->AttachEye(arg_device);
@@ -101,14 +99,14 @@ void Squid::UpdateViewMatrix()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&camera->GetEye()), XMLoadFloat3(&camera->GetTarget()), XMLoadFloat3(&camera->GetUp()));
 }
 
-void Squid::SetOBJModel(OBJModel* arg_eyeModel, OBJModel* arg_bodyModel)
+void Squid::SetOBJModel(ObjFileModel* arg_eyeModel, ObjFileModel* arg_bodyModel)
 {
 	SetEyeModel(arg_eyeModel);
 	SetBodyModel(arg_bodyModel);
 	SetTentaclesModel(arg_bodyModel);
 }
 
-void Squid::SetBodyModel(OBJModel* arg_bodyModel)
+void Squid::SetBodyModel(ObjFileModel* arg_bodyModel)
 {
 	for (int i = 0; i < map.size(); ++i)
 	{
@@ -123,7 +121,7 @@ void Squid::SetBodyModel(OBJModel* arg_bodyModel)
 	}
 }
 
-void Squid::SetTentaclesModel(OBJModel* arg_bodyModel)
+void Squid::SetTentaclesModel(ObjFileModel* arg_bodyModel)
 {
 	for (int i = 0; i < tentaclesBlocks.size(); ++i)
 	{
@@ -132,7 +130,7 @@ void Squid::SetTentaclesModel(OBJModel* arg_bodyModel)
 }
 
 
-void Squid::SetEyeModel(OBJModel* arg_eyeModel)
+void Squid::SetEyeModel(ObjFileModel* arg_eyeModel)
 {
 	leftEye->SetOBJModel(arg_eyeModel);
 	rightEye->SetOBJModel(arg_eyeModel);
@@ -263,15 +261,6 @@ void Squid::Update(const Vector3& arg_incrementValue, const Vector3& arg_playerP
 
 		//水面から上がってくる処理
 		FloatMove();
-
-		//マテリアルの転送
-		//ConstBufferDataB1* constMap1 = nullptr;
-		//result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
-		//constMap1->ambient = objModel->material.ambient;
-		//constMap1->diffuse = objModel->material.diffuse;
-		//constMap1->specular = objModel->material.specular;
-		//constMap1->alpha = objModel->material.alpha;
-		//constBuffB1->Unmap(0, nullptr);
 	}
 	//死亡パーティクル処理
 	DeathParticleProcessing();

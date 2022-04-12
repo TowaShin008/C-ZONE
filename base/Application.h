@@ -20,14 +20,11 @@
 #include"ResultScene.h"
 #include"Object3d.h"
 #include"MineMath.h"
-#include"OBJCharacter.h"
-#include"OBJLoader.h"
-#include"OBJModel.h"
 #include"PostEffect.h"
 #include"SceneManager.h"
 #include "Bullet.h"
-#include"OBJHighModel.h"
-#include"OBJHighCharacter.h"
+#include"ObjFileModel.h"
+#include"ObjFileCharacter.h"
 #include"PipelineState.h"
 #define ENDTIME 2880
 #define UP 2

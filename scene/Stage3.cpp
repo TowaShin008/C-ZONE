@@ -27,9 +27,6 @@ void Stage3::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandList* ar
 	gameObjectManager.reset(new GameObjectManager());
 	gameObjectManager->Initialize(score);
 
-	//motionBlur = new MotionBlur();
-	//motionBlur->Initialize();
-	
 	//ポストエフェクトの生成
 	CreatePostEffect();
 	
@@ -56,39 +53,33 @@ void Stage3::CreatePostEffect()
 void Stage3::LoadAllModel()
 {
 	//モデルデータ1のロード(自機)
-	planeModel.reset(OBJHighModel::CreateFromOBJ("Plane_2"));
-	aircraftCarrierPlaneModel.reset(OBJHighModel::CreateFromOBJ("Enemy_Plane"));
-	enemyPlaneModel.reset(OBJHighModel::CreateFromOBJ("SpaceShip"));
-	sphereModel.reset(OBJHighModel::CreateFromOBJ("NeedleBall"));
-	missileModel.reset(OBJHighModel::CreateFromOBJ("Missile"));
-	unionModel.reset(OBJHighModel::CreateFromOBJ("UnionCharacter"));
-	alienModel.reset(OBJLoader::GetInstance()->LoadModel("Alien"));
+	planeModel.reset(ObjFileModel::CreateFromOBJ("Plane_2"));
+	aircraftCarrierPlaneModel.reset(ObjFileModel::CreateFromOBJ("Enemy_Plane"));
+	enemyPlaneModel.reset(ObjFileModel::CreateFromOBJ("SpaceShip"));
+	sphereModel.reset(ObjFileModel::CreateFromOBJ("NeedleBall"));
+	missileModel.reset(ObjFileModel::CreateFromOBJ("Missile"));
+	unionModel.reset(ObjFileModel::CreateFromOBJ("UnionCharacter"));
+	alienModel.reset(ObjFileModel::CreateFromOBJ("Alien"));
 
-	scoreModel.reset(OBJLoader::GetInstance()->LoadModel("Score"));
+	scoreModel.reset(ObjFileModel::CreateFromOBJ("Score"));
 
 	//モデルデータ1のロード(黄色銃弾)
-	yellowBulletModel.reset(OBJLoader::GetInstance()->LoadModel("bullet"));
+	yellowBulletModel.reset(ObjFileModel::CreateFromOBJ("bullet"));
 
 	//モデルデータ1のロード(赤銃弾)
-	redBulletModel.reset(OBJLoader::GetInstance()->LoadModel("eBullet"));
-	tankBulletModel.reset(OBJLoader::GetInstance()->LoadModel("eBullet_2"));
+	redBulletModel.reset(ObjFileModel::CreateFromOBJ("eBullet"));
+	tankBulletModel.reset(ObjFileModel::CreateFromOBJ("eBullet_2"));
 
 	//モデルデータ1のロード(ブロック)
-	blockModel.reset(OBJLoader::GetInstance()->LoadModel("Block"));
+	blockModel.reset(ObjFileModel::CreateFromOBJ("Block"));
 
 	//モデルデータ1のロード(ブロック)
-	laserModel.reset(OBJHighModel::CreateFromOBJ("red_lay"));
+	laserModel.reset(ObjFileModel::CreateFromOBJ("red_lay"));
 }
 
 void Stage3::Update(DebugText* debugText)
 {
-	//モーションブラーのアップデート
-	//motionBlur -> Update();
-
 	incrementValue = 0.02f;
-
-	//レーザーゲージ処理
-	LaserGaugeProcessing();
 
 	camera->MoveEyeTarget({ incrementValue,0.0f,0.0f });
 
@@ -108,12 +99,8 @@ void Stage3::Update(DebugText* debugText)
 	//ウェーブ切り替え処理
 	WaveProcessing();
 
-	std::ostringstream scoreText;
-
-	scoreText << "Score:" << std::setfill('0') << std::setw(8)
-		<< std::fixed << gameObjectManager->GetScore() << "00";
-
-	debugText->Print(scoreText.str(), WindowSize::window_width - 300.0f, WindowSize::window_height - 60.0f, 0.5f);
+	//スコアの表示
+	gameObjectManager->DisPlayScore(debugText);
 
 	std::ostringstream hpText;
 
@@ -130,10 +117,6 @@ void Stage3::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* de
 
 	gameObjectManager->DrawAllObject();
 
-	laserGauge->Draw();
-	ParticleManager::PreDraw(cmdList);
-	gaugeParticle->Draw();
-	ParticleManager::PostDraw();
 	debugText->DrawAll(cmdList);
 
 	const int nextWaveMaxCount = 350;
@@ -168,18 +151,15 @@ void Stage3::DrawRenderTexture(ID3D12GraphicsCommandList* cmdList, DebugText* de
 	Sprite::EndDraw();
 
 	bloom->PostDrawScene(cmdList);
-	//motionBlur->DrawRenderTexture(cmdList, playerObject);
 }
 
 void Stage3::PostEffectDraw(ID3D12GraphicsCommandList* cmdList)
 {
-	//motionBlur->Draw(cmdList);
 	bloom->Draw(cmdList);
 }
 
 void Stage3::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
 {
-	//debugText->DrawAll(cmdList);
 }
 
 void Stage3::WaveProcessing()
@@ -331,63 +311,6 @@ Scene Stage3::Next()
 	return Scene::BOSS3;
 }
 
-void Stage3::LaserGaugeProcessing()
-{
-	int laserEnergy = playerObject->GetLaserEnergy();
-	const float maxEnergy = 200.0f;
-	if (laserEnergy < 200)
-	{
-		laserGauge->SetColor({ 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f });
-	}
-
-	//レーザーのエネルギーゲージの更新処理
-	laserGauge->SetScale({ 4.0f ,(laserEnergy / maxEnergy),4.0f });
-	laserGauge->Update({ incrementValue,0.0f,0.0f });
-	gaugeParticle->Update();
-
-	if (particleLugtime <= 0 && playerObject->GetLaserIsDead() == false)
-	{
-		if (gaugeParticle->GetParticleLength() < 20)
-		{//レーザーゲージ消費時のパーティクル演出
-			const float rnd_pos = 1.5f;
-			//変更ここまで
-			Vector3 pos{};
-			const float rnd_vel = 0.2f;
-			Vector3 vel{};
-			pos = { laserGauge->GetPosition().x + ((float)rand() / RAND_MAX * rnd_pos * 4.0f + 10.0f), laserGauge->GetPosition().y + ((float)rand() / RAND_MAX * rnd_pos * 8.0f - 5.0f),laserGauge->GetPosition().z };
-
-			Vector3 dis = { 0.0f,0.0f,0.0f };
-			dis = { laserGauge->GetPosition().x - pos.x,laserGauge->GetPosition().y - pos.y ,0.0f };
-			dis = dis.normalize();
-
-			vel = -dis * 0.2f;
-			//重力に見立ててYのみ[-0.001f,0]でランダムに分布
-			const float rnd_acc = 0.0001f;
-			Vector3 acc{};
-			int life = 0;
-			acc.x = -rnd_acc;
-			life = (int)(20.0f * ((dis.x * 2.0f) * (-1.0f)));
-
-			pos = laserGauge->GetPosition();
-			pos.x = pos.x - scrollPos + (laserEnergy / maxEnergy) * 16.0f;
-
-			const float startScale = 1.0f;
-			const float endScale = 0.0f;
-			const Vector4 white = { 1.0f,1.0f,1.0f,1.0f };
-			const Vector4 startColor = { 1 - (laserEnergy / maxEnergy),0.0f,laserEnergy / maxEnergy,1.0f };
-			const Vector4 endColor = white;
-			gaugeParticle->Add(life, pos, vel, acc, startScale, endScale, startColor, endColor);
-
-			particleLugtime = 2;
-		}
-	}
-
-	if (particleLugtime > 0)
-	{
-		particleLugtime--;
-	}
-}
-
 void Stage3::SetMapData(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmdList)
 {
 	map = {
@@ -471,7 +394,6 @@ void Stage3::SetMapData(ID3D12Device* device, ID3D12GraphicsCommandList* arg_cmd
 				tankEnemys[0] = TankEnemy::Create(device, arg_cmdList, { (j + 25) * 1.31f, -i * 1.4f ,0.0f });
 				//モデル1のセット
 				tankEnemys[0]->SetOBJModel(sphereModel.get(), tankBulletModel.get(), scoreModel.get());
-				//tankEnemys[0]->SetPosition({ 10 + 10.0f, -6.0f,0.0f });
 				gameObjectManager->AddGameObject(tankEnemys[0]);
 			}
 		}
@@ -494,7 +416,7 @@ void Stage3::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandList* a
 	playerObject = Player::Create(device, arg_cmdList, { -10.0f,0.0f,-15.0f });
 
 	//モデル1のセット
-	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), missileModel.get());
+	playerObject->SetOBJModel(planeModel.get(), yellowBulletModel.get(), unionModel.get(), yellowBulletModel.get(), laserModel.get(), laserModel.get(), missileModel.get());
 
 	normalEnemyObjects.resize(ENEMYNUM);
 
@@ -543,12 +465,4 @@ void Stage3::CreateGameObject(ID3D12Device* device, ID3D12GraphicsCommandList* a
 	{
 		gameObjectManager->AddGameObject(aircraftCarrier->GetAliens()[i]);
 	}
-
-	//マネージャークラスに入っているオブジェクト全てをアップデート
-	laserGauge.reset(OBJHighCharacter::Create(device, arg_cmdList));
-	laserGauge->SetOBJModel(laserModel.get());
-	laserGauge->SetColor({ 0.0f,0.0f,1.0f,1.0f });
-	laserGauge->SetPosition({ -8.0f,-8.0f,-4.0f });
-
-	gaugeParticle.reset(ParticleManager::Create(device));
 }

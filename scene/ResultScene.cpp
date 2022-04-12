@@ -33,7 +33,7 @@ void ResultScene::CreateAllObject(ID3D12Device* device, ID3D12GraphicsCommandLis
 	LoadAllModel();
 
 	//キャラクター1の生成
-	playerObject = OBJHighCharacter::Create(device, arg_cmdList, { 0.0f,0.0f,-40.0f });
+	playerObject = ObjFileCharacter::Create(device, arg_cmdList, { 0.0f,0.0f,-40.0f });
 
 	playerObject->SetOBJModel(playerModel.get());
 	playerObject->SetRotation({ 270.0f,0.0f,180.0f });
@@ -67,7 +67,7 @@ void ResultScene::CreatePostEffect()
 
 void ResultScene::LoadAllModel()
 {
-	playerModel.reset(OBJHighModel::CreateFromOBJ("Plane_2"));
+	playerModel.reset(ObjFileModel::CreateFromOBJ("Plane_2"));
 }
 
 void ResultScene::Update(DebugText* debugText)
@@ -167,7 +167,6 @@ void ResultScene::Scene1()
 	playerObject->SetPosition(playerPosition);
 	//カメラターゲットセット
 	camera->SetTarget({ 0,0,playerPosition.z });
-	//camera->SetEye({ 5,5,-20.2f });
 
 	const float easingMaxTime = 1.0f;
 	if (easingTime < easingMaxTime)

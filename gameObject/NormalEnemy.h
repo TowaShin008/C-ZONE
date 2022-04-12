@@ -10,7 +10,7 @@
 #include"Input.h"
 #include"Bullet.h"
 #include"ParticleManager.h"
-#include"OBJCharacter.h"
+#include"ObjFileCharacter.h"
 #define BULLETMAXNUM 10
 
 //通常敵クラス
@@ -21,8 +21,12 @@ class NormalEnemy :public GameObject
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public:
-	//コンストラクタ
-	NormalEnemy(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
+	/// <param name="arg_cmdList">コマンドリスト</param>
+	/// <param name="arg_device">デバイス</param>
+	NormalEnemy(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	//デストラクタ
 	~NormalEnemy();
@@ -40,8 +44,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -65,13 +68,13 @@ public:
 	/// <param name="arg_objModel">モデル</param>
 	/// <param name="bulletModel">弾丸モデル</param>
 	/// <param name="arg_scoreModel">スコアモデル</param>
-	void SetOBJModel(OBJHighModel* arg_objModel, OBJModel* bulletModel,OBJModel* arg_scoreModel);
+	void SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* bulletModel, ObjFileModel* arg_scoreModel);
 
 	/// <summary>
 	/// 弾丸モデルのセット
 	/// </summary>
 	/// <param name="arg_bulletModel">モデル</param>
-	void SetBulletModel(OBJModel* arg_bulletModel);
+	void SetBulletModel(ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -117,8 +120,10 @@ private:
 	//カメラクラス
 	static Camera* camera;
 
+	static ID3D12Device* device;
+
 	//モデルデータ格納用変数
-	OBJHighModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
 	//親クラス
 	NormalEnemy* parent = nullptr;
 	//弾
@@ -144,7 +149,7 @@ private:
 	bool deathParticleFlag = false;
 
 	std::unique_ptr<ParticleManager> deathParticle;
-	std::unique_ptr<OBJCharacter> scoreCharacter;
+	std::unique_ptr<ObjFileCharacter> scoreCharacter;
 public:
 	/// <summary>
 	/// 定数バッファの転送

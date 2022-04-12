@@ -10,7 +10,7 @@
 #include"Input.h"
 #include"Bullet.h"
 #include"ParticleManager.h"
-#include"OBJCharacter.h"
+#include"ObjFileCharacter.h"
 #define BULLETMAXNUM 10
 #define BRAKEINTERVAL 30
 //地上を走る敵クラス
@@ -25,7 +25,8 @@ public:
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="arg_cmdList">コマンドリスト</param>
-	TankEnemy(ID3D12GraphicsCommandList* arg_cmdList);
+	/// <param name="arg_device">デバイス</param>
+	TankEnemy(ID3D12GraphicsCommandList* arg_cmdList, ID3D12Device* arg_device);
 
 	/// <summary>
 	/// デストラクタ
@@ -45,8 +46,7 @@ public:
 	/// <summary>
 	/// 定数バッファの生成
 	/// </summary>
-	/// <param name="arg_device">デバイス</param>
-	void CreateConstBuffer(ID3D12Device* arg_device);
+	void CreateConstBuffer();
 
 	/// <summary>
 	/// 初期化処理
@@ -70,13 +70,13 @@ public:
 	/// <param name="arg_objModel">モデル</param>
 	/// <param name="arg_bulletModel">弾丸モデル</param>
 	/// <param name="arg_scoreModel">スコアモデル</param>
-	void SetOBJModel(OBJHighModel* arg_objModel, OBJModel* arg_bulletModel,OBJModel* arg_scoreModel);
+	void SetOBJModel(ObjFileModel* arg_objModel, ObjFileModel* arg_bulletModel, ObjFileModel* arg_scoreModel);
 
 	/// <summary>
 	/// 弾丸モデルのセット
 	/// </summary>
 	/// <param name="arg_bulletModel">モデル</param>
-	void SetBulletModel(OBJModel* arg_bulletModel);
+	void SetBulletModel(ObjFileModel* arg_bulletModel);
 
 	/// <summary>
 	/// 視点座標のセット
@@ -122,8 +122,10 @@ private:
 	//カメラクラス
 	static Camera* camera;
 
+	static ID3D12Device* device;
+
 	//モデルデータ格納用変数
-	OBJHighModel* objModel = nullptr;
+	ObjFileModel* objModel = nullptr;
 	//親クラス
 	TankEnemy* parent = nullptr;
 	//弾
@@ -149,7 +151,7 @@ private:
 	float brakeCount = 0.0f;
 
 	std::unique_ptr<ParticleManager> deathParticle;
-	std::unique_ptr<OBJCharacter> scoreCharacter;
+	std::unique_ptr<ObjFileCharacter> scoreCharacter;
 	Vector3 playerPosition = { 0.0f,0.0f,0.0f };
 
 public:
