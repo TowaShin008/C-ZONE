@@ -29,8 +29,7 @@ bool GameObject::IsCollision(GameObject* arg_otherObject)
 {
 	GameObject* otherObject = arg_otherObject;
 
-	if (isDeadFlag || otherObject->GetIsDeadFlag() || otherObject->GetCharacterType() == characterType
-		|| otherObject->GetCharacterType() == CHARACTERTYPE::BLOCK || otherObject->GetCharacterType() == CHARACTERTYPE::PLAYER) {
+	if (isDeadFlag || otherObject->GetIsDeadFlag() || otherObject->GetCharacterType() == characterType) {
 		return false;
 	}
 
