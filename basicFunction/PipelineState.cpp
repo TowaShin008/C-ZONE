@@ -35,19 +35,8 @@ void PipelineState::InitializeSimplePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// ピクセルシェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -58,19 +47,8 @@ void PipelineState::InitializeSimplePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -159,19 +137,8 @@ void PipelineState::InitializeBasicPipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// ピクセルシェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -182,19 +149,8 @@ void PipelineState::InitializeBasicPipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -279,19 +235,8 @@ void PipelineState::InitializeSpritePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-
-		OutputDebugStringA(errstr.c_str());
-
-		return;
-	}
+	CheckResult(result, errorBlob.Get());
 
 
 	result = D3DCompileFromFile(
@@ -302,18 +247,8 @@ void PipelineState::InitializeSpritePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-
-		return;
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -398,19 +333,8 @@ void PipelineState::InitializeSlideSpritePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-
-		OutputDebugStringA(errstr.c_str());
-
-		return;
-	}
+	CheckResult(result, errorBlob.Get());
 
 
 	result = D3DCompileFromFile(
@@ -421,18 +345,8 @@ void PipelineState::InitializeSlideSpritePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-
-		return;
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -517,19 +431,8 @@ void PipelineState::InitializeBloomSpritePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-
-		OutputDebugStringA(errstr.c_str());
-
-		return;
-	}
+	CheckResult(result, errorBlob.Get());
 
 
 	result = D3DCompileFromFile(
@@ -540,18 +443,8 @@ void PipelineState::InitializeBloomSpritePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-
-		return;
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -641,19 +534,8 @@ void PipelineState::InitializeFBXPipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// ピクセルシェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -664,19 +546,8 @@ void PipelineState::InitializeFBXPipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -773,19 +644,8 @@ void PipelineState::InitializeLightObjectPipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// ピクセルシェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -796,19 +656,8 @@ void PipelineState::InitializeLightObjectPipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -892,19 +741,8 @@ void PipelineState::InitializeBulletPipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// ピクセルシェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -915,19 +753,8 @@ void PipelineState::InitializeBulletPipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -1015,19 +842,8 @@ void PipelineState::InitializeParticlePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&vsBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	//ジオメトリシェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -1038,19 +854,8 @@ void PipelineState::InitializeParticlePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,//デバッグ用設定
 		0,
 		&gsBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// ピクセルシェーダの読み込みとコンパイル
 	result = D3DCompileFromFile(
@@ -1061,19 +866,8 @@ void PipelineState::InitializeParticlePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		// errorBlobからエラー内容をstring型にコピー
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		// エラー内容を出力ウィンドウに表示
-		OutputDebugStringA(errstr.c_str());
-		exit(1);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -1170,19 +964,7 @@ void PipelineState::InitializeShrinkTexturePipelineState(ID3D12Device* device)
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
-
+	CheckResult(result, errorBlob.Get());
 
 	result = D3DCompileFromFile(
 		L"shader/BloomPixelShader.hlsl",
@@ -1192,18 +974,8 @@ void PipelineState::InitializeShrinkTexturePipelineState(ID3D12Device* device)
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
 		&psBlob, &errorBlob);
-	if (FAILED(result)) {
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
 
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-
-		return;
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)
@@ -1285,18 +1057,7 @@ void PipelineState::InitializeFadeOutPostEffectPipelineState(ID3D12Device* devic
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 
 	result = D3DCompileFromFile(
@@ -1308,18 +1069,7 @@ void PipelineState::InitializeFadeOutPostEffectPipelineState(ID3D12Device* devic
 		0,
 		&psBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)
@@ -1395,19 +1145,7 @@ void PipelineState::InitializeGaussianPostEffectPipelineState(ID3D12Device* devi
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
-
+	CheckResult(result, errorBlob.Get());
 
 	result = D3DCompileFromFile(
 		L"shader/BloomPixelShader.hlsl",
@@ -1418,18 +1156,7 @@ void PipelineState::InitializeGaussianPostEffectPipelineState(ID3D12Device* devi
 		0,
 		&psBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)
@@ -1510,18 +1237,7 @@ void PipelineState::InitializeBloomPostEffectPipelineState(ID3D12Device* device)
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 
 	result = D3DCompileFromFile(
@@ -1533,18 +1249,7 @@ void PipelineState::InitializeBloomPostEffectPipelineState(ID3D12Device* device)
 		0,
 		&psBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)
@@ -1620,19 +1325,7 @@ void PipelineState::InitializeDropNormalMapPostEffectPipelineState(ID3D12Device*
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
-
+	CheckResult(result, errorBlob.Get());
 
 	result = D3DCompileFromFile(
 		L"shader/DropNormalPixelShader.hlsl",
@@ -1643,18 +1336,7 @@ void PipelineState::InitializeDropNormalMapPostEffectPipelineState(ID3D12Device*
 		0,
 		&psBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)
@@ -1731,19 +1413,7 @@ void PipelineState::InitializeGlassNormalMapPostEffectPipelineState(ID3D12Device
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
-
+	CheckResult(result, errorBlob.Get());
 
 	result = D3DCompileFromFile(
 		L"shader/GlassNormalPixelShader.hlsl",
@@ -1754,18 +1424,7 @@ void PipelineState::InitializeGlassNormalMapPostEffectPipelineState(ID3D12Device
 		0,
 		&psBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)
@@ -1840,18 +1499,7 @@ void PipelineState::InitializeNoisePostEffectPipelineState(ID3D12Device* device)
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 
 	result = D3DCompileFromFile(
@@ -1863,18 +1511,7 @@ void PipelineState::InitializeNoisePostEffectPipelineState(ID3D12Device* device)
 		0,
 		&psBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)
@@ -1952,19 +1589,7 @@ void PipelineState::InitializePostEffectPipelineState(ID3D12Device* device)
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
-
+	CheckResult(result, errorBlob.Get());
 
 	result = D3DCompileFromFile(
 		L"shader/PostEffectTestPS.hlsl",
@@ -1975,18 +1600,7 @@ void PipelineState::InitializePostEffectPipelineState(ID3D12Device* device)
 		0,
 		&psBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)
@@ -2071,19 +1685,7 @@ void PipelineState::InitializeDissolvePostEffectPipelineState(ID3D12Device* devi
 		0,
 		&vsBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
-
+	CheckResult(result, errorBlob.Get());
 
 	result = D3DCompileFromFile(
 		L"shader/DissolvePixelShader.hlsl",
@@ -2094,18 +1696,7 @@ void PipelineState::InitializeDissolvePostEffectPipelineState(ID3D12Device* devi
 		0,
 		&psBlob, &errorBlob);
 
-	if (FAILED(result))
-	{
-		std::string errstr;
-		errstr.resize(errorBlob->GetBufferSize());
-
-		std::copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
-			errstr.begin());
-		errstr += "\n";
-		OutputDebugStringA(errstr.c_str());
-		assert(0);
-	}
+	CheckResult(result, errorBlob.Get());
 
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 	{ // xy座標(1行で書いたほうが見やすい)

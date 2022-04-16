@@ -9,6 +9,7 @@
 #include<DirectXMath.h>
 #include<math.h>
 #include"RootSignature.h"
+#include"Helper.h"
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
