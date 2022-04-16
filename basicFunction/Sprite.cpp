@@ -19,7 +19,7 @@ std::map<const wchar_t*,int> Sprite::texKey;
 ComPtr<ID3D12Resource> Sprite::texBuff[srvCount];
 int Sprite::texNum = 0;
 
-Sprite::Sprite(UINT arg_texNumber, Vector2 arg_position, Vector2 arg_scale, Vector4 arg_color, Vector2 arg_anchorpoint)
+Sprite::Sprite(const UINT& arg_texNumber, const Vector2& arg_position, const Vector2& arg_scale, const Vector4& arg_color, const Vector2& arg_anchorpoint)
 {
 	texNumber = arg_texNumber;
 	position = arg_position;
@@ -154,21 +154,21 @@ void Sprite::EndDraw()
 	Sprite::cmdList = nullptr;
 }
 
-Sprite * Sprite::Create(const wchar_t* filename, Vector2 position, Vector4 color, Vector2 anchorpoint, bool isFlipX, bool isFlipY)
+Sprite * Sprite::Create(const wchar_t* arg_filename, const Vector2& arg_position, const Vector4& arg_color, const Vector2& arg_anchorpoint, bool arg_isFlipX, bool arg_isFlipY)
 {
 	// 仮サイズ
 	Vector2 size = { 50.0f, 50.0f };
 
-	if (texBuff[texKey[filename]])
+	if (texBuff[texKey[arg_filename]])
 	{
 		// テクスチャ情報取得
-		D3D12_RESOURCE_DESC resDesc = texBuff[texKey[filename]]->GetDesc();
+		D3D12_RESOURCE_DESC resDesc = texBuff[texKey[arg_filename]]->GetDesc();
 		// スプライトのサイズをテクスチャのサイズに設定
 		size = { (float)resDesc.Width, (float)resDesc.Height };
 	}
 
 	// Spriteのインスタンスを生成
-	Sprite* sprite = new Sprite(texKey[filename], position, size, color);
+	Sprite* sprite = new Sprite(texKey[arg_filename], arg_position, size, arg_color);
 	if (sprite == nullptr) {
 		return nullptr;
 	}
@@ -244,7 +244,7 @@ void Sprite::SetRotation(float arg_rotation)
 	UpdateVertices();
 }
 
-void Sprite::SetPosition(Vector2 arg_position)
+void Sprite::SetPosition(const Vector2& arg_position)
 {
 	position = arg_position;
 
@@ -252,14 +252,14 @@ void Sprite::SetPosition(Vector2 arg_position)
 	UpdateVertices();
 }
 
-void Sprite::SetAnchorPoint(Vector2 arg_anchorpoint)
+void Sprite::SetAnchorPoint(const Vector2& arg_anchorpoint)
 {
 	anchorpoint = arg_anchorpoint;
 
 	UpdateVertices();
 }
 
-void Sprite::SetScale(Vector2 arg_scale)
+void Sprite::SetScale(const Vector2& arg_scale)
 {
 	scale = arg_scale;
 
@@ -483,12 +483,12 @@ void Sprite::SetSlideTextureFlag(bool arg_slideFlag,bool arg_rightSlideFlag)
 	rightSlideFlag = arg_rightSlideFlag;
 }
 
-void Sprite::SetVelocity(Vector2 arg_velocity)
+void Sprite::SetVelocity(const Vector2& arg_velocity)
 {
 	velocity = arg_velocity;
 }
 
-void Sprite::SetTextureRect(Vector2 arg_texBase, Vector2 arg_texScale)
+void Sprite::SetTextureRect(const Vector2& arg_texBase, const Vector2& arg_texScale)
 {
 	texBase = arg_texBase;
 	texScale = arg_texScale;
@@ -497,8 +497,9 @@ void Sprite::SetTextureRect(Vector2 arg_texBase, Vector2 arg_texScale)
 	UpdateVertices();
 }
 
-bool Sprite::EndingCollision(Sprite* otherBall, float radius)
+bool Sprite::EndingCollision(Sprite* arg_otherBall, float radius)
 {
+	Sprite* otherBall = arg_otherBall;
 	//現在の数値を変数に格納
 	float V = speed.x;
 	float v = otherBall->GetSpeedX();

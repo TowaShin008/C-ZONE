@@ -63,14 +63,14 @@ public:
 	/// <summary>
 	/// 生成処理
 	/// </summary>
-	/// <param name="texNumber">テクスチャ番号</param>
-	/// <param name="position">ポジション</param>
-	/// <param name="color">カラー</param>
-	/// <param name="anchorpoint">アンカーポイント</param>
-	/// <param name="isFlipX">上下反転するか</param>
-	/// <param name="isFlipY">左右反転するか</param>
+	/// <param name="arg_texNumber">テクスチャ番号</param>
+	/// <param name="arg_position">ポジション</param>
+	/// <param name="arg_color">カラー</param>
+	/// <param name="arg_anchorpoint">アンカーポイント</param>
+	/// <param name="arg_isFlipX">上下反転するか</param>
+	/// <param name="arg_isFlipY">左右反転するか</param>
 	/// <returns>スプライト</returns>
-	static Sprite* Create(const wchar_t* filename, Vector2 position, Vector4 color = { 1, 1, 1, 1 }, Vector2 anchorpoint = { 0.0f, 0.0f }, bool isFlipX = false, bool isFlipY = false);
+	static Sprite* Create(const wchar_t* arg_filename, const Vector2& arg_position, const Vector4& arg_color = { 1, 1, 1, 1 }, const Vector2& arg_anchorpoint = { 0.0f, 0.0f }, bool arg_isFlipX = false, bool arg_isFlipY = false);
 
 protected:
 	static const int srvCount = 512;
@@ -85,13 +85,13 @@ protected:
 	static int texNum;
 
 public:
-	Sprite(UINT arg_texNumber, Vector2 arg_position, Vector2 arg_size, Vector4 arg_color, Vector2 arg_anchorpoint = { 0, 0 });
+	Sprite(const UINT& arg_texNumber, const Vector2& arg_position, const Vector2& arg_size, const Vector4& arg_color, const Vector2& arg_anchorpoint = { 0, 0 });
 	bool Initialize();
 	void Draw();
 	void SetRotation(float arg_rotation);
-	void SetPosition(Vector2 arg_position);
-	void SetAnchorPoint(Vector2 arg_anchorpoint);
-	void SetScale(Vector2 arg_scale);
+	void SetPosition(const Vector2& arg_position);
+	void SetAnchorPoint(const Vector2& arg_anchorpoint);
+	void SetScale(const Vector2& arg_scale);
 	const Vector2& GetPosition() { return position; }
 
 protected: // メンバ変数
@@ -139,10 +139,10 @@ public:
 	void GradatioUpdate();
 	void WireUpdate();
 	void EndingMoveUpdate();
-	void SetColor(Vector4 arg_color) { color = arg_color; }
+	void SetColor(const Vector4& arg_color) { color = arg_color; }
 	void SetLugTime(int arg_lugTime) { lugTime = arg_lugTime; changeLugTime = arg_lugTime; }
-	void SetVelocity(Vector2 arg_velocity);
-	void SetSpeedX(Vector2 arg_speed) { speed = arg_speed; }
+	void SetVelocity(const Vector2& arg_velocity);
+	void SetSpeedX(const Vector2& arg_speed) { speed = arg_speed; }
 	Vector4 GetColor() { return color; }
 	Vector2 GetSpeed() { return speed; }
 	Vector2 GetAccel() { return accel; }
@@ -153,8 +153,8 @@ public:
 	float GetFX() { return fX; }
 	float GetFY() { return fY; }
 	float GetG() { return g; }
-	void SetTextureRect(Vector2 arg_texBase, Vector2 arg_texScale);
-	bool EndingCollision(Sprite* otherBall, float radius);
+	void SetTextureRect(const Vector2& arg_texBase,const Vector2& arg_texScale);
+	bool EndingCollision(Sprite* arg_otherBall, float radius);
 	void SetSlideTextureFlag(bool arg_slideFlag, bool arg_rightSlideFlag);
 	void SetAlphaFlag(bool arg_alphaFlag) { alphaFlag = arg_alphaFlag; }
 };
