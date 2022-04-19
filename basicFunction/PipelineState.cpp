@@ -86,24 +86,7 @@ void PipelineState::InitializeSimplePipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 1;	// 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-
-	//SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
+	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::simpleRootsignature.Get();
 
@@ -180,24 +163,7 @@ void PipelineState::InitializeBasicPipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::basicRootsignature.Get();
 
@@ -268,22 +234,7 @@ void PipelineState::InitializeSpritePipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 1; // 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::spriteRootsignature.Get();
 
@@ -359,22 +310,7 @@ void PipelineState::InitializeSlideSpritePipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 1;	// 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::slideSpriteRootsignature.Get();
 
@@ -450,24 +386,7 @@ void PipelineState::InitializeBloomSpritePipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::bloomSpriteRootsignature.Get();
 
@@ -559,24 +478,7 @@ void PipelineState::InitializeFBXPipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;    // 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::fbxRootsignature.Get();
 
@@ -652,22 +554,7 @@ void PipelineState::InitializeLightObjectPipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 1;	// 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::lightObjectRootsignature.Get();
 
@@ -742,25 +629,7 @@ void PipelineState::InitializeBulletPipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::simpleRootsignature.Get();
 
@@ -851,25 +720,9 @@ void PipelineState::InitializeParticlePipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ADD);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
+	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	//gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-
-	gpipeline.NumRenderTargets = 1;	// 描画対象は1つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-
-
 
 	gpipeline.pRootSignature = RootSignature::particleRootsignature.Get();
 
@@ -943,23 +796,8 @@ void PipelineState::InitializeShrinkTexturePipelineState(ID3D12Device* device)
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
 	SetBlendMode(&blenddesc, BlendMode::NON);
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::shrinkTextureRootsignature.Get();
 
@@ -1034,24 +872,8 @@ void PipelineState::InitializeFadeOutPostEffectPipelineState(ID3D12Device* devic
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 	SetBlendMode(&blenddesc, BlendMode::NON);
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
 
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 1;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-
-
+	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::fadeOutPostEffectSignature.Get();
 
@@ -1121,24 +943,7 @@ void PipelineState::InitializeGaussianPostEffectPipelineState(ID3D12Device* devi
 
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::bloomPostEffectSignature.Get();
 
@@ -1212,24 +1017,7 @@ void PipelineState::InitializeBloomPostEffectPipelineState(ID3D12Device* device)
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::bloomPostEffectSignature.Get();
 
@@ -1299,25 +1087,7 @@ void PipelineState::InitializeDropNormalMapPostEffectPipelineState(ID3D12Device*
 
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 1;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-
-
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::dropNormalMapPostEffectSignature.Get();
 
@@ -1386,23 +1156,7 @@ void PipelineState::InitializeGlassNormalMapPostEffectPipelineState(ID3D12Device
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 1;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::glassNormalMapPostEffectSignature.Get();
 
@@ -1472,26 +1226,7 @@ void PipelineState::InitializeNoisePostEffectPipelineState(ID3D12Device* device)
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-
-
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::noisePostEffectSignature.Get();
 
@@ -1561,26 +1296,7 @@ void PipelineState::InitializePostEffectPipelineState(ID3D12Device* device)
 
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-
-
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::postEffectSignature.Get();
 
@@ -1654,23 +1370,7 @@ void PipelineState::InitializeDissolvePostEffectPipelineState(ID3D12Device* devi
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
-	// ブレンドステートの設定
-	gpipeline.BlendState.RenderTarget[0] = blenddesc;
-	gpipeline.BlendState.RenderTarget[1] = blenddesc;
-	// 深度バッファのフォーマット
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-	// 頂点レイアウトの設定
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定（三角形）
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	gpipeline.NumRenderTargets = 2;	// 描画対象は2つ
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
-	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
+	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::dissolvePostEffectSignature.Get();
 
