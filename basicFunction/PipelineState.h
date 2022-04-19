@@ -17,6 +17,14 @@ class PipelineState
 {
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 	using XMMATRIX = DirectX::XMMATRIX;
+
+	enum class BlendMode
+	{
+		ADD,
+		INV,
+		ALPHA,
+		NON
+	};
 public:
 	/// <summary>
 	/// 影なし描画用のパイプライン生成
@@ -144,7 +152,21 @@ public:
 	static ComPtr<ID3D12PipelineState> postEffectPipelineState;
 	static ComPtr<ID3D12PipelineState> dissolvePostEffectPipelineState;
 
-	//ブルーム用グラフィックスパイプライン
-	//ComPtr<ID3D12PipelineState>bloomPipelineState;
+	/// <summary>
+	/// ブレンド設定のセット
+	/// </summary>
+	/// <param name="arg_blenddesc">ブレンド設定の本体</param>
+	/// <param name="arg_blendMode">ブレンドモード</param>
+	static void SetBlendMode(D3D12_RENDER_TARGET_BLEND_DESC* arg_blenddesc,const BlendMode& arg_blendMode);
+
+	/// <summary>
+	/// レンダーターゲットのセット
+	/// </summary>
+	/// <param name="arg_gpipeline">パイプラインの本体</param>
+	/// <param name="arg_blenddesc">ブレンド設定の本体</param>
+	/// <param name="arg_rendetTargetNum">レンダーターゲットの数</param>
+	/// <param name="arg_inputLayout">インプットレイアウトの本体</param>
+	/// <param name="arg_inputLayoutNum">インプットレイアウトの要素数</param>
+	static void SetRenderTargetState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg_gpipeline, D3D12_RENDER_TARGET_BLEND_DESC* arg_blenddesc, const int arg_rendetTargetNum, D3D12_INPUT_ELEMENT_DESC* arg_inputLayout, const int arg_inputLayoutNum);
 };
 

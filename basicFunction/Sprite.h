@@ -134,6 +134,11 @@ private:
 	bool slideFlag = false;
 	int stayInvisibleTime = 60;
 	bool alphaFlag = false;
+
+	/// <summary>
+	/// テクスチャのスライド処理
+	/// </summary>
+	void SlideProcessing();
 public:
 	void MoveUpdate();
 	void GradatioUpdate();

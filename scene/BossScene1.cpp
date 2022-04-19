@@ -165,58 +165,7 @@ void BossScene1::Draw(ID3D12GraphicsCommandList* cmdList, DebugText* debugText)
 	{//バトルシーン前の演出
 		fadeOut->Draw(cmdList);
 
-		//WARNINGの点滅処理
-		if (incrementFlag)
-		{
-			const float alphaIncrementSize = 1.0f;
-			angleCounter += alphaIncrementSize;
-		}
-		else
-		{
-			const float alphaDecrementSize = 1.0f;
-			angleCounter -= alphaDecrementSize;
-		}
-		const float minAngle = 0.0f;
-		const float maxAngle = 180.0f;
-		if (angleCounter < minAngle)
-		{
-			incrementFlag = true;
-		}
-		else if (angleCounter > maxAngle)
-		{
-			incrementFlag = false;
-		}
-		//カウンターから角度を求める
-		const float angle = (angleCounter / 180.0f) * XM_PI;
-		//sinを使ってアルファ値を計算
-		warningTextureAlpha = sinf(angle);
-		warningTexture->SetColor({ 1.0f,1.0f,1.0f, warningTextureAlpha });
-
-		const float stopPosition = 0.0f;
-		//WARNINGの上下にあるバーの移動処理
-		Vector2 barPosition = warningBarTexture_1->GetPosition();
-		if (barPosition.x > stopPosition)
-		{
-			const float barTextureDecrementPosition = 3.0f;
-			barPosition.x -= barTextureDecrementPosition;
-			warningBarTexture_1->SetPosition(barPosition);
-		}
-		else
-		{
-			warningBarTexture_1->SetSlideTextureFlag(true, true);
-		}
-
-		Vector2 barPosition_2 = warningBarTexture_2->GetPosition();
-		if (barPosition_2.x < stopPosition)
-		{
-			const float barTextureIncrementPosition = 3.0f;
-			barPosition_2.x += barTextureIncrementPosition;
-			warningBarTexture_2->SetPosition(barPosition_2);
-		}
-		else
-		{
-			warningBarTexture_2->SetSlideTextureFlag(true, false);
-		}
+		WarningProcessing();
 
 		Sprite::BeginDraw(cmdList, false);
 		warningTexture->Draw();
@@ -352,6 +301,62 @@ void BossScene1::Scene4()
 void BossScene1::Scene5()
 {
 
+}
+
+void BossScene1::WarningProcessing()
+{
+	//WARNINGの点滅処理
+	if (incrementFlag)
+	{
+		const float alphaIncrementSize = 1.0f;
+		angleCounter += alphaIncrementSize;
+	}
+	else
+	{
+		const float alphaDecrementSize = 1.0f;
+		angleCounter -= alphaDecrementSize;
+	}
+	const float minAngle = 0.0f;
+	const float maxAngle = 180.0f;
+	if (angleCounter < minAngle)
+	{
+		incrementFlag = true;
+	}
+	else if (angleCounter > maxAngle)
+	{
+		incrementFlag = false;
+	}
+	//カウンターから角度を求める
+	const float angle = (angleCounter / 180.0f) * XM_PI;
+	//sinを使ってアルファ値を計算
+	warningTextureAlpha = sinf(angle);
+	warningTexture->SetColor({ 1.0f,1.0f,1.0f, warningTextureAlpha });
+
+	const float stopPosition = 0.0f;
+	//WARNINGの上下にあるバーの移動処理
+	Vector2 barPosition = warningBarTexture_1->GetPosition();
+	if (barPosition.x > stopPosition)
+	{
+		const float barTextureDecrementPosition = 3.0f;
+		barPosition.x -= barTextureDecrementPosition;
+		warningBarTexture_1->SetPosition(barPosition);
+	}
+	else
+	{
+		warningBarTexture_1->SetSlideTextureFlag(true, true);
+	}
+
+	Vector2 barPosition_2 = warningBarTexture_2->GetPosition();
+	if (barPosition_2.x < stopPosition)
+	{
+		const float barTextureIncrementPosition = 3.0f;
+		barPosition_2.x += barTextureIncrementPosition;
+		warningBarTexture_2->SetPosition(barPosition_2);
+	}
+	else
+	{
+		warningBarTexture_2->SetSlideTextureFlag(true, false);
+	}
 }
 
 Scene BossScene1::Next()

@@ -282,7 +282,8 @@ void Alien::TransferConstBuff()
 	constMap0->color = color;
 	if (isDeadFlag)
 	{//€–S‰‰oˆ—
-		dissolveCount -= 0.01f;
+		const float dessolveCountIncrementSize = 0.01f;
+		dissolveCount -= dessolveCountIncrementSize;
 	}
 	constMap0->dissolveCount = dissolveCount;
 	constMap0->mat = matWorld * matView * matProjection;	// s—ñ‚Ì‡¬

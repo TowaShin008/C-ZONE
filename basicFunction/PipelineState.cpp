@@ -78,22 +78,13 @@ void PipelineState::InitializeSimplePipelineState(ID3D12Device* device)
 	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
 	// ラスタライザステート
 	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	//gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	//gpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	// デプスステンシルステート
 	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 
 	// レンダーターゲットのブレンド設定
-	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	D3D12_RENDER_TARGET_BLEND_DESC blenddesc = {};
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -112,6 +103,7 @@ void PipelineState::InitializeSimplePipelineState(ID3D12Device* device)
 	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
 	gpipeline.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
 
+	//SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::simpleRootsignature.Get();
 
@@ -184,16 +176,9 @@ void PipelineState::InitializeBasicPipelineState(ID3D12Device* device)
 	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 
 	// レンダーターゲットのブレンド設定
-	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	D3D12_RENDER_TARGET_BLEND_DESC blenddesc = {};
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -279,16 +264,9 @@ void PipelineState::InitializeSpritePipelineState(ID3D12Device* device)
 	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
-	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	D3D12_RENDER_TARGET_BLEND_DESC blenddesc = {};
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -378,15 +356,8 @@ void PipelineState::InitializeSlideSpritePipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -476,15 +447,8 @@ void PipelineState::InitializeBloomSpritePipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -592,15 +556,8 @@ void PipelineState::InitializeFBXPipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;    // RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -692,15 +649,8 @@ void PipelineState::InitializeLightObjectPipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -789,15 +739,8 @@ void PipelineState::InitializeBulletPipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -905,16 +848,8 @@ void PipelineState::InitializeParticlePipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	//加算合成
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_ONE;
-	blenddesc.DestBlend = D3D12_BLEND_ONE;
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ADD);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -1007,9 +942,7 @@ void PipelineState::InitializeShrinkTexturePipelineState(ID3D12Device* device)
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = false;
-
+	SetBlendMode(&blenddesc, BlendMode::NON);
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
 	gpipeline.BlendState.RenderTarget[1] = blenddesc;
@@ -1100,9 +1033,7 @@ void PipelineState::InitializeFadeOutPostEffectPipelineState(ID3D12Device* devic
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = false;
-
+	SetBlendMode(&blenddesc, BlendMode::NON);
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
 
@@ -1187,9 +1118,8 @@ void PipelineState::InitializeGaussianPostEffectPipelineState(ID3D12Device* devi
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = false;
 
+	SetBlendMode(&blenddesc, BlendMode::NON);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -1280,8 +1210,7 @@ void PipelineState::InitializeBloomPostEffectPipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = false;
+	SetBlendMode(&blenddesc, BlendMode::NON);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -1367,8 +1296,8 @@ void PipelineState::InitializeDropNormalMapPostEffectPipelineState(ID3D12Device*
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = false;
+
+	SetBlendMode(&blenddesc, BlendMode::NON);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -1455,8 +1384,7 @@ void PipelineState::InitializeGlassNormalMapPostEffectPipelineState(ID3D12Device
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = false;
+	SetBlendMode(&blenddesc, BlendMode::NON);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -1542,8 +1470,7 @@ void PipelineState::InitializeNoisePostEffectPipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = false;
+	SetBlendMode(&blenddesc, BlendMode::NON);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -1631,15 +1558,8 @@ void PipelineState::InitializePostEffectPipelineState(ID3D12Device* device)
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -1732,8 +1652,7 @@ void PipelineState::InitializeDissolvePostEffectPipelineState(ID3D12Device* devi
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
-	blenddesc.BlendEnable = false;
+	SetBlendMode(&blenddesc, BlendMode::NON);
 
 	// ブレンドステートの設定
 	gpipeline.BlendState.RenderTarget[0] = blenddesc;
@@ -1758,4 +1677,86 @@ void PipelineState::InitializeDissolvePostEffectPipelineState(ID3D12Device* devi
 	//グラフィックスパイプラインの生成
 	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&dissolvePostEffectPipelineState));
 	assert(SUCCEEDED(result));
+}
+
+void PipelineState::SetBlendMode(D3D12_RENDER_TARGET_BLEND_DESC* arg_blenddesc, const BlendMode& arg_blendMode)
+{
+	(*arg_blenddesc).RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;	// RBGA全てのチャンネルを描画
+	(*arg_blenddesc).BlendEnable = true;
+
+	switch (arg_blendMode)
+	{
+	case BlendMode::ADD:
+
+		//加算合成
+		(*arg_blenddesc).BlendOp = D3D12_BLEND_OP_ADD;
+		(*arg_blenddesc).SrcBlend = D3D12_BLEND_ONE;
+		(*arg_blenddesc).DestBlend = D3D12_BLEND_ONE;
+
+		(*arg_blenddesc).BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		(*arg_blenddesc).SrcBlendAlpha = D3D12_BLEND_ONE;
+		(*arg_blenddesc).DestBlendAlpha = D3D12_BLEND_ZERO;
+
+		break;
+
+	case BlendMode::INV:
+
+		//加算合成
+		(*arg_blenddesc).BlendOp = D3D12_BLEND_OP_SUBTRACT;
+		(*arg_blenddesc).SrcBlend = D3D12_BLEND_ONE;
+		(*arg_blenddesc).DestBlend = D3D12_BLEND_ONE;
+
+		(*arg_blenddesc).BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		(*arg_blenddesc).SrcBlendAlpha = D3D12_BLEND_ONE;
+		(*arg_blenddesc).DestBlendAlpha = D3D12_BLEND_ZERO;
+
+		break;
+
+	case BlendMode::ALPHA:
+
+		(*arg_blenddesc).BlendOp = D3D12_BLEND_OP_ADD;
+		(*arg_blenddesc).SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		(*arg_blenddesc).DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+
+		(*arg_blenddesc).BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		(*arg_blenddesc).SrcBlendAlpha = D3D12_BLEND_ONE;
+		(*arg_blenddesc).DestBlendAlpha = D3D12_BLEND_ZERO;
+
+		break;
+
+	case BlendMode::NON:
+
+		(*arg_blenddesc).BlendEnable = false;
+
+		break;
+
+	default:
+		break;
+	}
+}
+
+void PipelineState::SetRenderTargetState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg_gpipeline, D3D12_RENDER_TARGET_BLEND_DESC* arg_blenddesc, const int arg_rendetTargetNum, D3D12_INPUT_ELEMENT_DESC* arg_inputLayout, const int arg_inputLayoutNum)
+{
+	for (int i = 0; i < arg_rendetTargetNum; i++)
+	{
+		(*arg_gpipeline).BlendState.RenderTarget[i] = (*arg_blenddesc);
+	}
+
+	// 深度バッファのフォーマット
+	(*arg_gpipeline).DSVFormat = DXGI_FORMAT_D32_FLOAT;
+
+	// 頂点レイアウトの設定
+	(*arg_gpipeline).InputLayout.pInputElementDescs = arg_inputLayout;
+	(*arg_gpipeline).InputLayout.NumElements = arg_inputLayoutNum;
+
+	// 図形の形状設定（三角形）
+	(*arg_gpipeline).PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	(*arg_gpipeline).NumRenderTargets = arg_rendetTargetNum;	// 描画対象数
+
+	for (int i = 0; i < arg_rendetTargetNum; i++)
+	{
+		(*arg_gpipeline).RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
+	}
+	(*arg_gpipeline).SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
 }

@@ -2,12 +2,10 @@
 #include<d3d12.h>
 #pragma comment(lib,"d3d12.lib")
 #include<d3dx12.h>
-#include<wrl.h>
 #include<d3dcompiler.h>
 #pragma comment(lib,"d3dcompiler.lib")
 #include<string>
 #include<DirectXMath.h>
-#include<math.h>
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
@@ -16,11 +14,13 @@ class RootSignature
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 	using XMMATRIX = DirectX::XMMATRIX;
 public:
+
 	/// <summary>
 	/// 影なし描画用のルートシグネチャ生成
 	/// </summary>
 	/// <param name="device">デバイス</param>
 	static void InitializeSimpleRootSignature(ID3D12Device* device);
+
 	/// <summary>
 	/// 通常描画用のルートシグネチャ生成
 	/// </summary>

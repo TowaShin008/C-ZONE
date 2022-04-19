@@ -72,6 +72,11 @@ public:
 	void Scene5();
 
 	/// <summary>
+	/// WARNING演出処理
+	/// </summary>
+	void WarningProcessing();
+
+	/// <summary>
 	/// 次のシーンへ
 	/// </summary>
 	/// <returns>シーン列挙型</returns>

@@ -274,31 +274,8 @@ void Sprite::Draw()
 	matWorld *= XMMatrixRotationZ(XMConvertToRadians(rotation));
 	matWorld *= XMMatrixTranslation(position.x, position.y, 0.0f);
 
-	if (slideFlag)
-	{
-		if (rightSlideFlag)
-		{
-			if (slideUVCount < 1.0f)
-			{
-				slideUVCount += 0.002f;
-			}
-			else
-			{
-				slideUVCount = 0.0f;
-			}
-		}
-		else
-		{
-			if (slideUVCount > 0.0f)
-			{
-				slideUVCount -= 0.002f;
-			}
-			else
-			{
-				slideUVCount = 1.0f;
-			}
-		}
-	}
+	SlideProcessing();
+
 	// 定数バッファにデータ転送
 	ConstBufferData* constMap = nullptr;
 	HRESULT result = constBuff->Map(0, nullptr, (void**)&constMap);
@@ -540,5 +517,34 @@ bool Sprite::EndingCollision(Sprite* arg_otherBall, float radius)
 	}
 
 	return false;
+}
+
+void Sprite::SlideProcessing()
+{
+	if (slideFlag)
+	{
+		if (rightSlideFlag)
+		{
+			if (slideUVCount < 1.0f)
+			{
+				slideUVCount += 0.002f;
+			}
+			else
+			{
+				slideUVCount = 0.0f;
+			}
+		}
+		else
+		{
+			if (slideUVCount > 0.0f)
+			{
+				slideUVCount -= 0.002f;
+			}
+			else
+			{
+				slideUVCount = 1.0f;
+			}
+		}
+	}
 }
 
