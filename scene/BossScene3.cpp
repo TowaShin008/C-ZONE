@@ -272,8 +272,11 @@ void BossScene3::Scene2()
 			easingTime += incrementEasingTime;
 		}
 
-		float rotationEasing = easeOut({ 5.0f,0.0f }, { 0.0f,0.0f }, easingTime).x;
-		camera->SetEye({ rotationEasing,rotationEasing,-20.2f });
+		const Vector2 startEyePosition = { 5.0f,5.0f };
+		const Vector2 endEyePosition = { 0.0f,0.0f };
+
+		const Vector2 positionEasing = easeOut(startEyePosition, endEyePosition, easingTime);
+		camera->SetEye({ positionEasing.x,positionEasing.y,-20.2f });
 	}
 	else
 	{

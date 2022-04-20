@@ -1460,3 +1460,22 @@ void PipelineState::SetRenderTargetState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg
 	}
 	(*arg_gpipeline).SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
 }
+
+void PipelineState::InitializeRenderState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg_gpipeline, ID3DBlob* arg_vsBlob, ID3DBlob* arg_psBlob, bool arg_cullFlag)
+{
+	(*arg_gpipeline).VS = CD3DX12_SHADER_BYTECODE(arg_vsBlob);
+	(*arg_gpipeline).PS = CD3DX12_SHADER_BYTECODE(arg_psBlob);
+
+	// サンプルマスク
+	(*arg_gpipeline).SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	// ラスタライザステート
+	(*arg_gpipeline).RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+
+	if (arg_cullFlag == false)
+	{
+		(*arg_gpipeline).RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	}
+	// デプスステンシルステート
+	(*arg_gpipeline).DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	(*arg_gpipeline).DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
+}

@@ -153,6 +153,15 @@ public:
 	static ComPtr<ID3D12PipelineState> dissolvePostEffectPipelineState;
 
 	/// <summary>
+	/// パイプラインの初期設定
+	/// </summary>
+	/// <param name="arg_gpipeline">パイプライン</param>
+	/// <param name="arg_vsBlob">頂点シェーダーオブジェクト</param>
+	/// <param name="arg_psBlob">ピクセルシェーダオブジェクト</param>
+	/// <param name="arg_cullFlag">カリングをするかどうか</param>
+	static void InitializeRenderState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg_gpipeline, ID3DBlob* arg_vsBlob, ID3DBlob* arg_psBlob, bool arg_cullFlag);
+
+	/// <summary>
 	/// ブレンド設定のセット
 	/// </summary>
 	/// <param name="arg_blenddesc">ブレンド設定の本体</param>
