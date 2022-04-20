@@ -158,8 +158,7 @@ public:
 	/// <param name="arg_gpipeline">パイプライン</param>
 	/// <param name="arg_vsBlob">頂点シェーダーオブジェクト</param>
 	/// <param name="arg_psBlob">ピクセルシェーダオブジェクト</param>
-	/// <param name="arg_cullFlag">カリングをするかどうか</param>
-	static void InitializeRenderState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg_gpipeline, ID3DBlob* arg_vsBlob, ID3DBlob* arg_psBlob, bool arg_cullFlag);
+	static void InitializeDefaultRenderState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg_gpipeline, ID3DBlob* arg_vsBlob, ID3DBlob* arg_psBlob);
 
 	/// <summary>
 	/// ブレンド設定のセット

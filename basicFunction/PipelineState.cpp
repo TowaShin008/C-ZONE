@@ -71,21 +71,17 @@ void PipelineState::InitializeSimplePipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
-	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc = {};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::simpleRootsignature.Get();
@@ -148,21 +144,17 @@ void PipelineState::InitializeBasicPipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
-	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc = {};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::basicRootsignature.Get();
@@ -217,23 +209,22 @@ void PipelineState::InitializeSpritePipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc = {};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::spriteRootsignature.Get();
@@ -293,23 +284,22 @@ void PipelineState::InitializeSlideSpritePipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::slideSpriteRootsignature.Get();
@@ -369,23 +359,22 @@ void PipelineState::InitializeBloomSpritePipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::bloomSpriteRootsignature.Get();
@@ -463,21 +452,17 @@ void PipelineState::InitializeFBXPipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
-	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::fbxRootsignature.Get();
@@ -539,21 +524,17 @@ void PipelineState::InitializeLightObjectPipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
-	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::lightObjectRootsignature.Get();
@@ -614,21 +595,20 @@ void PipelineState::InitializeBulletPipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
-	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::simpleRootsignature.Get();
@@ -702,24 +682,22 @@ void PipelineState::InitializeParticlePipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.GS = CD3DX12_SHADER_BYTECODE(gsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
-	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
+	gpipeline.GS = CD3DX12_SHADER_BYTECODE(gsBlob.Get());
+
 	//デプスの書き込みを禁止
 	gpipeline.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ADD);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
@@ -780,23 +758,22 @@ void PipelineState::InitializeShrinkTexturePipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::shrinkTextureRootsignature.Get();
@@ -857,22 +834,22 @@ void PipelineState::InitializeFadeOutPostEffectPipelineState(ID3D12Device* devic
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
+
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::fadeOutPostEffectSignature.Get();
@@ -926,23 +903,22 @@ void PipelineState::InitializeGaussianPostEffectPipelineState(ID3D12Device* devi
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::bloomPostEffectSignature.Get();
@@ -1001,22 +977,22 @@ void PipelineState::InitializeBloomPostEffectPipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
+
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::bloomPostEffectSignature.Get();
@@ -1070,23 +1046,22 @@ void PipelineState::InitializeDropNormalMapPostEffectPipelineState(ID3D12Device*
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::dropNormalMapPostEffectSignature.Get();
@@ -1140,22 +1115,22 @@ void PipelineState::InitializeGlassNormalMapPostEffectPipelineState(ID3D12Device
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
+
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 1, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::glassNormalMapPostEffectSignature.Get();
@@ -1210,22 +1185,22 @@ void PipelineState::InitializeNoisePostEffectPipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
+
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::noisePostEffectSignature.Get();
@@ -1279,23 +1254,22 @@ void PipelineState::InitializePostEffectPipelineState(ID3D12Device* device)
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
 
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::ALPHA);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::postEffectSignature.Get();
@@ -1354,22 +1328,22 @@ void PipelineState::InitializeDissolvePostEffectPipelineState(ID3D12Device* devi
 
 	// グラフィックスパイプラインの流れを設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline{};
-	gpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	gpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 
-	// サンプルマスク
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	//標準の描画設定
+	InitializeDefaultRenderState(&gpipeline, vsBlob.Get(), psBlob.Get());
+
 	// ラスタライザステート
-	gpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	// デプスステンシルステート
-	gpipeline.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 
 	// レンダーターゲットのブレンド設定
 	D3D12_RENDER_TARGET_BLEND_DESC blenddesc{};
+
+	//ブレンドモードのセット
 	SetBlendMode(&blenddesc, BlendMode::NON);
 
+	//レンダーターゲットの設定
 	SetRenderTargetState(&gpipeline, &blenddesc, 2, inputLayout, _countof(inputLayout));
 
 	gpipeline.pRootSignature = RootSignature::dissolvePostEffectSignature.Get();
@@ -1377,6 +1351,19 @@ void PipelineState::InitializeDissolvePostEffectPipelineState(ID3D12Device* devi
 	//グラフィックスパイプラインの生成
 	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&dissolvePostEffectPipelineState));
 	assert(SUCCEEDED(result));
+}
+
+void PipelineState::InitializeDefaultRenderState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg_gpipeline, ID3DBlob* arg_vsBlob, ID3DBlob* arg_psBlob)
+{
+	(*arg_gpipeline).VS = CD3DX12_SHADER_BYTECODE(arg_vsBlob);
+	(*arg_gpipeline).PS = CD3DX12_SHADER_BYTECODE(arg_psBlob);
+
+	// サンプルマスク
+	(*arg_gpipeline).SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
+	// ラスタライザステート
+	(*arg_gpipeline).RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	// デプスステンシルステート
+	(*arg_gpipeline).DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 }
 
 void PipelineState::SetBlendMode(D3D12_RENDER_TARGET_BLEND_DESC* arg_blenddesc, const BlendMode& arg_blendMode)
@@ -1459,23 +1446,4 @@ void PipelineState::SetRenderTargetState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg
 		(*arg_gpipeline).RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM; // 0～255指定のRGBA
 	}
 	(*arg_gpipeline).SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
-}
-
-void PipelineState::InitializeRenderState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* arg_gpipeline, ID3DBlob* arg_vsBlob, ID3DBlob* arg_psBlob, bool arg_cullFlag)
-{
-	(*arg_gpipeline).VS = CD3DX12_SHADER_BYTECODE(arg_vsBlob);
-	(*arg_gpipeline).PS = CD3DX12_SHADER_BYTECODE(arg_psBlob);
-
-	// サンプルマスク
-	(*arg_gpipeline).SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
-	// ラスタライザステート
-	(*arg_gpipeline).RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-
-	if (arg_cullFlag == false)
-	{
-		(*arg_gpipeline).RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	}
-	// デプスステンシルステート
-	(*arg_gpipeline).DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	(*arg_gpipeline).DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; // 常に上書きルール
 }
